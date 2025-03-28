@@ -1,42 +1,72 @@
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
-html,
-body {
-  max-width: 100vw;
-  overflow-x: hidden;
-}
-
-body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
 * {
-  box-sizing: border-box;
-  padding: 0;
   margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+
 }
 
-a {
-  color: inherit;
-  text-decoration: none;
+body {
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  font-family: var(--font);
+  background-image:
+    linear-gradient(0deg, transparent 24%, var(--grid-color) 25%, var(--grid-color) 26%, transparent 27%, transparent 74%, var(--grid-color) 75%, var(--grid-color) 76%, transparent 77%, transparent),
+    linear-gradient(90deg, transparent 24%, var(--grid-color) 25%, var(--grid-color) 26%, transparent 27%, transparent 74%, var(--grid-color) 75%, var(--grid-color) 76%, transparent 77%, transparent);
+  background-size: 160px 160px;
+  height: 100vh;
 }
 
-@media (prefers-color-scheme: dark) {
-  html {
-    color-scheme: dark;
-  }
+
+body, html {
+  overflow-x: hidden;
+  height: 100%;
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+/* Default to Dark Mode */
+
+:root {
+  --bg-color: #000000;
+  --text-color: white;
+  --invert-color-reverse: 1 !important;
+  --grid-color: rgba(225, 225, 225, 0.06);
+  --navbar-avatar-bordercolor: linear-gradient(45deg, #ff6b6b, #573dd9);
+  --base-gradient: linear-gradient(90deg, rgba(197, 95, 244, 1), rgba(234, 59, 59, 1));
+  --light-hover-gradient: linear-gradient(270deg, rgba(229, 48, 136, 0.5), rgba(164, 24, 198, 0.5)) !important;
+  --font: 'Lexend', sans-serif;
+  --text-shadow-color: rgba(255, 255, 255, 0.25);
+}
+
+/* Manual Dark-Light Mode Toggle */
+.dark {
+  --bg-color: #000000 !important;
+  --text-color: white !important;
+  --invert-color-reverse: 1 !important;
+  --grid-color: rgba(225, 225, 225, 0.06) !important;
+  --base-gradient: linear-gradient(90deg, rgba(197, 95, 244, 1), rgba(234, 59, 59, 1)) !important;
+  --light-hover-gradient: linear-gradient(270deg, rgba(229, 48, 136, 0.5), rgba(164, 24, 198, 0.5)) !important;
+  --navbar-radial-bordercolor: linear-gradient(45deg, #ff7777, #573dd9) !important;
+  --text-shadow-color: rgba(255, 255, 255, 0.25) !important;
+}
+
+.light {
+  --bg-color: #d8dbe0 !important;
+  --text-color: #000000 !important;
+  --invert-color-reverse: 0 !important;
+  --invert-color: 1 !important;
+  --base-gradient: linear-gradient(90deg, rgb(208, 30, 253), rgb(234, 59, 100)) !important;
+  --light-hover-gradient: linear-gradient(270deg, rgba(230, 132, 255, 0.5), rgba(255, 157, 115, 0.5)) !important;
+  --navbar-radial-bordercolor: linear-gradient(45deg, #ff5bd6, #4800ff) !important;
+  --text-shadow-color: rgba(0, 0, 0, 0.25) !important;
+}
+
+.light body {
+  background-image:
+    linear-gradient(0deg, transparent 24%, rgba(221, 160, 221, 0.1) 25%, rgba(221, 160, 221, 0.1) 26%, transparent 27%, transparent 74%, rgba(255, 182, 193, 0.1) 75%, rgba(255, 182, 193, 0.1) 76%, transparent 77%, transparent),
+    linear-gradient(90deg, transparent 24%, rgba(221, 160, 221, 0.1) 25%, rgba(221, 160, 221, 0.1) 26%, transparent 27%, transparent 74%, rgba(255, 182, 193, 0.1) 75%, rgba(255, 182, 193, 0.1) 76%, transparent 77%, transparent);
 }
