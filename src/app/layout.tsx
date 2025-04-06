@@ -2,8 +2,7 @@
 import './globals.css';
 import { Lexend } from 'next/font/google';
 import { ReactNode } from 'react';
-import { Analytics } from '@vercel/analytics/next';
-import { SpeedInsights } from '@vercel/speed-insights/next'; // <-- updated import path
+import { Analytics } from "@vercel/analytics/react"
 import Navbar from '@/components/Navbar/Navbar';
 import { ThemeProvider } from '@/context/ThemeContext';
 
@@ -23,17 +22,16 @@ export const metadata = {
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en">
+      <Analytics />
       <body className={lexend.className}>
         <ThemeProvider>
-          <div className='content'>
-
+          <div className='app-container'>
             <Navbar />
-            {children}
-
+            <div className='app-content'>
+              {children}
+            </div>
           </div>
         </ThemeProvider>
-        <Analytics />
-        <SpeedInsights />
       </body>
     </html>
   );

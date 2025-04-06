@@ -8,31 +8,42 @@ body {
   background-color: var(--bg-color);
   color: var(--text-color);
   font-family: var(--font);
-  height: 100vh;
 }
 
 body, html {
+  width: 100vw;
   overflow-x: hidden;
-  height: 100%;
+  height: 100vh;
 }
 
-.content {
+/* App container layout - fix flex layout */
+.app-container {
   display: flex;
   flex-direction: column;
-  height: 100vh;
+  height: 100%;/* Use min-height instead of height */
+  width: 100%;
+}
+
+/* Content area with proper spacing - remove unwanted margin */
+.app-content {
+  flex: 1;
+  width: 100%;
   transition: padding-top 0.3s ease;
+  margin-top: 0; /* Explicitly set to zero */
 }
 
-.content.navbar-active {
-  padding-top: clamp(86px, 15vh, 100px);
+/* Only add padding when navbar is active in mobile view */
+body.navbar-mobile-active .app-content {
+  padding-top: clamp(86px, 15vh, 140px);
 }
 
+/* Media query for mobile adjustments */
 @media (max-width: 768px), (orientation: portrait) {
-  .content {
+  .app-container {
     position: relative;
   }
-}
 
+}
 
 :root {
   --mainpage-bg: url('/mainpage/backgrounddark.webp');

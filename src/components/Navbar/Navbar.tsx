@@ -17,7 +17,7 @@ const Navbar = () => {
       const portrait = window.matchMedia('(orientation: portrait)').matches;
       const isMobileOrPortrait = mobile || portrait;
       setIsMobile(isMobileOrPortrait);
-      setNavVisible(!isMobileOrPortrait);
+      setNavVisible(false); // Always close navbar on resize
     };
 
     // Run on initial mount
@@ -26,11 +26,34 @@ const Navbar = () => {
     return () => window.removeEventListener('resize', updateLayout);
   }, []);
 
+  // Set data attribute on body when navbar visibility changes
+  useEffect(() => {
+    if (typeof document !== 'undefined') {
+      if (isMobile && navVisible) {
+        document.body.setAttribute('data-navbar-active', 'true');
+        document.body.classList.add('navbar-mobile-active');
+        document.body.style.overflow = 'hidden';
+      } else {
+        document.body.removeAttribute('data-navbar-active');
+        document.body.classList.remove('navbar-mobile-active');
+        document.body.style.overflow = '';
+        document.body.classList.remove('pause-grid');
+      }
+    }
+  }, [isMobile, navVisible]);
+
   const toggleNav = () => {
     if (isMobile) {
-      requestAnimationFrame(() => {
-        setNavVisible(!navVisible);
-      });
+      if (navVisible) {
+        setNavVisible(false);
+      } else {
+        // Set a small timeout before showing to allow animations to reset
+        setTimeout(() => {
+          requestAnimationFrame(() => {
+            setNavVisible(true);
+          });
+        }, 50);
+      }
     }
   };
 
@@ -39,7 +62,6 @@ const Navbar = () => {
   };
 
   const isActive = (path: string) => {
-    // This would need to be updated to use Next.js router
     return typeof window !== 'undefined' && window.location.pathname === path;
   };
 

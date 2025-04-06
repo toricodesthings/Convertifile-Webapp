@@ -1,4 +1,4 @@
-import HomeClient from "@/components/HomeClient";
+import HomeClient from "@/components/Hero/Hero";
 
 const serverStatus = {
   status: "Online", // or "Offline"

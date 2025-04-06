@@ -1,7 +1,7 @@
 .navbar {
     display: flex;
     align-items: center;
-    gap: clamp(10px, 1vw, 20px);
+    gap: 5vh; /* Increased from clamp(10px, 1vw, 20px) to 5vh */
     justify-content: space-between;
     height: auto;
     margin: 2vh 10%;
@@ -9,7 +9,10 @@
     padding: 0;
     z-index: 1;
     background: transparent;
+
     transform: translateZ(0);
+    /* Remove the border if it was just for debugging */
+    border: none;
 }
 
 /* Navigation menu with hardware-accelerated animations */
@@ -332,24 +335,6 @@
     transform: scale(1);
 }
 
-.mobile-overlay {
-    display: none;
-    position: fixed;
-    inset: 0;
-    opacity: 0;
-    background: var(--background-color);
-    backdrop-filter: blur(24px);
-    z-index: 1;
-    will-change: opacity;
-    -webkit-backface-visibility: hidden;
-}
-
-.mobile-overlay.active {
-    opacity: 1;
-    display: flex;
-    flex-direction: column;
-    animation: dimBehind 0.3s ease forwards;
-}
 
 @keyframes dimBehind {
     from { opacity: 0; }
@@ -368,20 +353,18 @@
         height: auto;
         max-height: 100vh;
         scroll-behavior: smooth;
-        row-gap: 0;
-        gap: 5vh;
-        z-index: 1;
+row-gap: 0;        
+        z-index: 2;
         pointer-events: auto;
         transform: translateZ(0);
-    }
-    
-    .navbar::-webkit-scrollbar {
-        display: none;
-    }
-    
-    .navbar {
+
+        &::-webkit-scrollbar {
+            display: none;
+        }
+
         -ms-overflow-style: none;
         scrollbar-width: none;
+
     }
 
     .navbar.active {
@@ -390,15 +373,35 @@
         top: 0;
         left: 0;
         right: 0;
+        gap: 5vh; /* Maintain 5vh gap in mobile view too */
         margin: 0;
         padding: 2vh 5%;
         overflow-y: scroll;
     }
 
+    .mobile-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        opacity: 0;
+        background: var(--bg-color);
+        backdrop-filter: blur(24px);
+        z-index: 2;
+        will-change: opacity;
+        -webkit-backface-visibility: hidden;
+    }
+
+    .mobile-overlay.active {
+        opacity: 1;
+        display: flex;
+        flex-direction: column;
+        animation: dimBehind 0.3s ease forwards;
+    }
+
     .navbar::before {
         display: none;
     }
-
+    
     .avatar-wrapper {
         width: clamp(40px, calc(12.5vh + 2vw), 140px);
         aspect-ratio: 1;
@@ -418,12 +421,33 @@
     .nav-menu {
         gap: 5vh;
     }
-
+    
     .nav-menu.active,
     .nav-switch-wrapper.active {
         display: flex;
         transform: translateY(0);
-        margin: 10px 0;
+        margin: 10px 0; /* Add margin for better spacing */
+    }
+    
+    /* Reset animations for mobile menu items */
+    .nav-menu .pop-up li {
+        opacity: 0;
+        transform: none;
+        animation: none;
+    }
+
+    /* Add mobile-specific animations */
+    .nav-menu .pop-up:nth-child(1) li { animation: mobileMenuItemIn 0.2s ease-in-out forwards 0.1s; }
+    .nav-menu .pop-up:nth-child(2) li { animation: mobileMenuItemIn 0.2s ease-in-out forwards 0.2s; }
+    .nav-menu .pop-up:nth-child(3) li { animation: mobileMenuItemIn 0.2s ease-in-out forwards 0.3s; }
+    .nav-menu .pop-up:nth-child(4) li { animation: mobileMenuItemIn 0.2s ease-in-out forwards 0.4s; }
+    .nav-menu .pop-up:nth-child(5) li { animation: mobileMenuItemIn 0.2s ease-in-out forwards 0.5s; }
+    .nav-menu .pop-up:nth-child(6) li { animation: mobileMenuItemIn 0.2s ease-in-out forwards 0.6s; }
+
+    /* Animate the toggle switch */
+    .nav-switch-wrapper {
+        opacity: 0;
+        animation: mobileMenuItemIn 0.3s ease-out forwards 0.7s;
     }
 
     .nav-menu li {
@@ -439,4 +463,16 @@
         --container-height: clamp(44px, calc(6vh + 2vw), 56px);
     }
 
+
+}
+
+@keyframes mobileMenuItemIn {
+    from {
+        opacity: 0;
+        transform: translateX(-5px) translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) translateX(0);
+    }
 }

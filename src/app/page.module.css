@@ -1,8 +1,10 @@
 .home-page {
-    width: 100%;
-    height: 100%;
     flex: 1;
+    height: 100%;
     display: flex;
+    justify-content: space-between;
+    background: transparent;
+    margin-bottom: 2vh;
 }
 
 /* Loading indicator styles */
@@ -27,12 +29,6 @@
     color: var(--text-color);
 }
 
-@keyframes spin {
-    to {
-        transform: rotate(360deg);
-    }
-}
-
 .perspective-wrapper {
     position: fixed;
     top: 0;
@@ -40,7 +36,7 @@
     width: 100vw;
     transform-style: preserve-3d;
     height: 100vh;
-    perspective: 2000px;
+    perspective: 2500px;
     transform: scaleX(1.4) scaleY(1.3);
 }
 
@@ -73,6 +69,7 @@
         filter: blur(0px);
     }
 }
+
 
 .cloud {
     position: fixed;
@@ -131,12 +128,12 @@
 
 .convertifile-maincontainer {
     flex: 1;
+    height: 100%;
     display: flex;
     align-items: center;
     justify-content: space-evenly;
     flex-direction: column;
     margin: 0 10%;
-    margin-bottom: 2vh;
     gap: 20px;
     position: relative;
     box-sizing: border-box;
@@ -149,7 +146,8 @@
     align-items: center;
     margin: 0;
     flex-direction: column;
-    filter: drop-shadow(0 2px 2px rgba(var(--text-shadow-color-rgb), 0.35));
+    backface-visibility: hidden;
+
 }
 
 .title-gradient {
@@ -163,6 +161,7 @@
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     margin: 0;
+    filter: drop-shadow(0 1px 2px rgba(var(--text-shadow-color-rgb), 0.5));
 }
 
 .title-norm {
@@ -172,6 +171,7 @@
     line-height: 1;
     color: var(--text-color);
     margin: 0;
+    text-shadow: 0 2px 2px rgba(var(--text-shadow-color-rgb), 0.5);
 }
 
 .title-status {
@@ -224,6 +224,7 @@
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 2rem;
+    margin-bottom: 2vh;
     border-radius: 12px;
 }
 
@@ -256,10 +257,11 @@
     box-shadow:
         0 2px 8px rgba(var(--text-color-rgb), 0.4),
         inset 0 0 0 1px rgba(var(--text-color-rgb), 0.3);
-    backdrop-filter: blur(4px);
+    backdrop-filter: blur(2px);
     transition: all 0.3s ease-in-out;
     opacity: 0;
     transform: translateY(20px);
+    will-change: transform, opacity;
 }
 
 .convertifile-btnlink:hover span {
@@ -335,20 +337,48 @@
     }
 }
 
-@media (max-width: 768px) {
+@media (max-width: 768px), (orientation: portrait) {
+    .convertifile-maincontainer {
+        flex: 1;
+        display: flex;
+        justify-content: space-between;
+        flex-direction: column;
+        margin: 0 5%;
+        /* Ensure container fills available space */
+    }
+
     .convertifile-container {
         width: 100%;
         grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
     }
     .background-zoom {
-        background: var(--mainpage-bg) 50% 50% / cover no-repeat;
+        background: var(--mainpage-bg) center center / cover no-repeat;
     }
     .perspective-wrapper {
-        perspective: 1px;
-        perspective-origin: 50% 50%;
+        perspective: 1000px;
+        transform: scaleX(1.2) scaleY(1.1);
+    }
+    .animate-background {
+        animation: dramaticZoomInMobile 2.5s cubic-bezier(0.2, 0, 0.1, 1) forwards;
     }
 }
 
+/* Mobile animation keyframes with reduced 3D effects */
+@keyframes dramaticZoomInMobile {
+    0% {
+        transform: scale(1.2) translate3d(0, 0, -100px) rotateX(0deg);
+        filter: blur(1px);
+    }
+
+    40% {
+        filter: blur(6px);
+    }
+
+    100% {
+        transform: scale(4.5) translate3d(0, 7.5%, 0) rotateY(-25deg) rotateX(-10deg);
+        filter: blur(0px);
+    }
+}
 /*------------------------------*/
 /* Animation classes */
 .text-animate {
@@ -397,8 +427,18 @@
     animation-delay: 0.4s;
 }
 
-/* Stagger the spans */
-.convertifile-container span.in-view {
+/* Staggered animations for each span inside the container */
+.convertifile-container .convertifile-btnlink:nth-child(1) span.in-view {
     animation: spanFadeIn 0.3s ease-out forwards;
     animation-delay: 0.6s;
+}
+
+.convertifile-container .convertifile-btnlink:nth-child(2) span.in-view {
+    animation: spanFadeIn 0.3s ease-out forwards;
+    animation-delay: 0.8s;
+}
+
+.convertifile-container .convertifile-btnlink:nth-child(3) span.in-view {
+    animation: spanFadeIn 0.3s ease-out forwards;
+    animation-delay: 1s;
 }

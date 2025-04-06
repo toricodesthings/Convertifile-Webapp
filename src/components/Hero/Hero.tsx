@@ -4,7 +4,7 @@ import { useInView } from "react-intersection-observer";
 import { useState, useEffect } from "react";
 import HamsterLoader from "@/components/LoadingUI/HamsterLoader";
 import Image from "next/image";
-import styles from "../app/page.module.css";
+import styles from "../../app/page.module.css";
 
 import videoIcon from '@/assets/main/video.svg';
 import imgIcon from '@/assets/main/image.svg';
@@ -62,7 +62,7 @@ export default function HomeClient({ serverStatus }: { serverStatus: ServerStatu
     // Fallback in case images don't load
     const timeout = setTimeout(() => {
       setBackgroundsLoaded(true);
-    }, 3000);
+    }, 2000);
 
     return () => clearTimeout(timeout);
   }, []);
