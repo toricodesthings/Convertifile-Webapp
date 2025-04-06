@@ -2,20 +2,14 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-
 }
 
 body {
   background-color: var(--bg-color);
   color: var(--text-color);
   font-family: var(--font);
-  background-image:
-    linear-gradient(0deg, transparent 24%, var(--grid-color) 25%, var(--grid-color) 26%, transparent 27%, transparent 74%, var(--grid-color) 75%, var(--grid-color) 76%, transparent 77%, transparent),
-    linear-gradient(90deg, transparent 24%, var(--grid-color) 25%, var(--grid-color) 26%, transparent 27%, transparent 74%, var(--grid-color) 75%, var(--grid-color) 76%, transparent 77%, transparent);
-  background-size: 160px 160px;
   height: 100vh;
 }
-
 
 body, html {
   overflow-x: hidden;
@@ -26,47 +20,55 @@ body, html {
   display: flex;
   flex-direction: column;
   height: 100vh;
+  transition: padding-top 0.3s ease;
 }
 
-/* Default to Dark Mode */
+.content.navbar-active {
+  padding-top: clamp(86px, 15vh, 100px);
+}
+
+@media (max-width: 768px), (orientation: portrait) {
+  .content {
+    position: relative;
+  }
+}
+
 
 :root {
+  --mainpage-bg: url('/mainpage/backgrounddark.webp');
   --bg-color: #000000;
   --text-color: white;
-  --invert-color-reverse: 1 !important;
-  --grid-color: rgba(225, 225, 225, 0.06);
+  --text-color-rgb: 255, 255, 255;
+  --invert-color-reverse: 1;
   --navbar-avatar-bordercolor: linear-gradient(45deg, #ff6b6b, #573dd9);
-  --base-gradient: linear-gradient(90deg, rgba(197, 95, 244, 1), rgba(234, 59, 59, 1));
-  --light-hover-gradient: linear-gradient(270deg, rgba(229, 48, 136, 0.5), rgba(164, 24, 198, 0.5)) !important;
+  --base-gradient: linear-gradient(90deg, #A23CED, #ee3f3f);
+  --light-hover-gradient: linear-gradient(270deg, rgba(228, 110, 167, 0.5), rgba(161, 71, 212, 0.5));
+  --navbar-radial-bordercolor: linear-gradient(45deg, #ef594e, #8542e9);
   --font: 'Lexend', sans-serif;
-  --text-shadow-color: rgba(255, 255, 255, 0.25);
+  --text-shadow-color-rgb: 255, 238, 238;
 }
 
-/* Manual Dark-Light Mode Toggle */
 .dark {
+  --mainpage-bg: url('/mainpage/backgrounddark.webp') !important;
   --bg-color: #000000 !important;
   --text-color: white !important;
+  --text-color-rgb: 255, 255, 255 !important;
   --invert-color-reverse: 1 !important;
-  --grid-color: rgba(225, 225, 225, 0.06) !important;
-  --base-gradient: linear-gradient(90deg, rgba(197, 95, 244, 1), rgba(234, 59, 59, 1)) !important;
-  --light-hover-gradient: linear-gradient(270deg, rgba(229, 48, 136, 0.5), rgba(164, 24, 198, 0.5)) !important;
-  --navbar-radial-bordercolor: linear-gradient(45deg, #ff7777, #573dd9) !important;
-  --text-shadow-color: rgba(255, 255, 255, 0.25) !important;
+  --base-gradient: linear-gradient(90deg, #A23CED, #ee3f3f) !important;
+  --light-hover-gradient: linear-gradient(270deg, rgba(230, 65, 150, 0.6), rgba(173, 61, 237, 0.6)) !important;
+  --navbar-radial-bordercolor: linear-gradient(45deg, #ef594e, #8542e9) !important;
+  --text-shadow-color-rgb: 255, 238, 238 !important;
 }
 
 .light {
-  --bg-color: #d8dbe0 !important;
+  --mainpage-bg: url('/mainpage/backgroundlight.webp') !important;
+  --bg-color: #ffffff !important;
   --text-color: #000000 !important;
+  --text-color-rgb: 0, 0, 0 !important;
   --invert-color-reverse: 0 !important;
   --invert-color: 1 !important;
-  --base-gradient: linear-gradient(90deg, rgb(208, 30, 253), rgb(234, 59, 100)) !important;
-  --light-hover-gradient: linear-gradient(270deg, rgba(230, 132, 255, 0.5), rgba(255, 157, 115, 0.5)) !important;
-  --navbar-radial-bordercolor: linear-gradient(45deg, #ff5bd6, #4800ff) !important;
-  --text-shadow-color: rgba(0, 0, 0, 0.25) !important;
-}
-
-.light body {
-  background-image:
-    linear-gradient(0deg, transparent 24%, rgba(221, 160, 221, 0.1) 25%, rgba(221, 160, 221, 0.1) 26%, transparent 27%, transparent 74%, rgba(255, 182, 193, 0.1) 75%, rgba(255, 182, 193, 0.1) 76%, transparent 77%, transparent),
-    linear-gradient(90deg, transparent 24%, rgba(221, 160, 221, 0.1) 25%, rgba(221, 160, 221, 0.1) 26%, transparent 27%, transparent 74%, rgba(255, 182, 193, 0.1) 75%, rgba(255, 182, 193, 0.1) 76%, transparent 77%, transparent);
+  --base-gradient: linear-gradient(90deg, #aa75e7, #FA6EA8, #ff8d46);
+  --light-hover-gradient: linear-gradient(270deg, rgba(224, 134, 246, 0.5), rgba(255, 141, 70, 0.5)) !important;
+  --navbar-radial-bordercolor: linear-gradient(90deg, #f571b1,  #c396f7) !important;
+  --text-shadow-color-rgb: 26, 5, 26 !important;
 }

@@ -14,7 +14,7 @@ const lexend = Lexend({
 });
 
 export const metadata = {
-  title: 'Your App Title',
+  title: 'Convertifile',
   icons: {
     icon: '/favicon.svg',
   },
@@ -24,14 +24,14 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en">
       <body className={lexend.className}>
-        <div className='content'>
-          <ThemeProvider>
-            <Navbar />
+        <ThemeProvider>
+          <div className='content'>
 
+            <Navbar />
             {children}
 
-          </ThemeProvider>
-        </div>
+          </div>
+        </ThemeProvider>
         <Analytics />
         <SpeedInsights />
       </body>
