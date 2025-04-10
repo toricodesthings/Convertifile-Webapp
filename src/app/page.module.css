@@ -36,8 +36,8 @@
     width: 100vw;
     transform-style: preserve-3d;
     height: 100vh;
-    perspective: 2500px;
-    transform: scaleX(1.4) scaleY(1.3);
+    perspective: 3000px;
+    transform: scaleX(1.35) scaleY(1.3);
 }
 
 .background-zoom {
@@ -49,14 +49,13 @@
     will-change: transform, filter;
 }
 
-/* Animation class for background - only applied after loading */
 .animate-background {
     animation: dramaticZoomIn 2.5s cubic-bezier(0.2, 0, 0.1, 1) forwards;
 }
 
 @keyframes dramaticZoomIn {
     0% {
-        transform: scale(1.7) translate3d(0, 0, -2000px) rotateX(0deg);
+        transform: scale(1.3) translate3d(0, 0, -2500px) rotateX(0deg);
         filter: blur(1px);
     }
 
@@ -91,12 +90,12 @@
 
 /* Apply cloud animations only after background is loaded */
 .animate-cloud.cloud-left {
-    animation: cloudLeftMove 2s cubic-bezier(0.2, 0, 0.1, 1) forwards;
+    animation: cloudLeftMove 2s cubic-bezier(0.2, 0, 0.2, 1) forwards;
     animation-delay: 0.2s;
 }
 
 .animate-cloud.cloud-right {
-    animation: cloudRightMove 2s cubic-bezier(0.2, 0, 0.1, 1) forwards;
+    animation: cloudRightMove 2s cubic-bezier(0.2, 0, 0.2, 1) forwards;
     animation-delay: 0.2s;
 }
 
@@ -161,7 +160,7 @@
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     margin: 0;
-    filter: drop-shadow(0 1px 2px rgba(var(--text-shadow-color-rgb), 0.5));
+    filter: drop-shadow(0 4px 2px rgba(var(--text-shadow-color-rgb), 0.2));
 }
 
 .title-norm {
@@ -249,16 +248,15 @@
     justify-content: space-evenly;
     font-size: clamp(1rem, calc(1vw + 2vh), 2rem);
     aspect-ratio: 3/2;
-    border: 1px solid rgba(var(--text-color-rgb), 0.1);
+    border: 1px solid rgba(var(--text-color-rgb), 0.2);
     border-radius: 12px;
     background: var(--background-color);
     position: relative;
     z-index: 0;
     box-shadow:
-        0 2px 8px rgba(var(--text-color-rgb), 0.4),
-        inset 0 0 0 1px rgba(var(--text-color-rgb), 0.3);
-    backdrop-filter: blur(2px);
-    transition: all 0.3s ease-in-out;
+        0 2px 8px rgba(var(--text-color-rgb), 0.3),
+        inset 0 0 2px 1px rgba(var(--text-color-rgb), 0.2);
+    transition: all 0.3s ease;
     opacity: 0;
     transform: translateY(20px);
     will-change: transform, opacity;
@@ -267,11 +265,12 @@
 .convertifile-btnlink:hover span {
     background: transparent;
     box-shadow:
-        0 3px 12px rgba(var(--text-color-rgb), 0.75);
+        0 3px 14px rgba(var(--text-color-rgb), 0.8);
+    z-index: 1;
 }
 
 .hoveranimation {
-    transition: transform 0.3s cubic-bezier(0.6, 0, 0.2, 1);
+    transition: transform 0.3s cubic-bezier(0.2, 0, 0.32, 1);
 }
 
 .hoveranimation:hover {
@@ -288,8 +287,9 @@
     background: var(--light-hover-gradient);
     opacity: 0;
     transition: opacity 0.3s ease-in-out;
-    z-index: -1;
     border-radius: 12px;
+    filter: brightness(1.02);
+    z-index: -1;
 }
 
 .convertifile-btnlink:hover span::before {
@@ -299,41 +299,43 @@
 .convertifile-container span::after {
     content: "";
     position: absolute;
-    inset: -1px;
-    border: 1px solid transparent;
+    inset: 0px;
+    border: 2px solid transparent;
     border-radius: 12px;
     pointer-events: none;
-    z-index: 2;
+    z-index: 3;
 }
 
 .convertifile-container span:hover::after {
-    border-color: var(--text-color);
-    box-shadow: inset 0 0 1px rgba(var(--text-color-rgb), 0.6);
+    border-color: rgba(var(--text-color-rgb), 0.8);
+    box-shadow: inset 0 0 4px rgba(var(--text-color-rgb), 0.8);
     animation: borderDraw 0.3s ease forwards;
 }
 
 .convertifile-container span:not(:hover)::after {
+    border-color: rgba(var(--text-color-rgb), 0.8);
     box-shadow: inset 0 0 0px rgba(var(--text-color-rgb), 0);
     animation: borderDrawReverse 0.3s ease forwards;
 }
 
 @keyframes borderDraw {
     0% {
-        clip-path: inset(0 0 100% 0);
+        clip-path: inset(0 0 110% 0);
     }
 
     100% {
-        clip-path: inset(0 0 -12.5% 0);
+        clip-path: inset(0 0 -10% 0);
     }
 }
 
 @keyframes borderDrawReverse {
     0% {
-        clip-path: inset(0 0 -12.5% 0);
+        clip-path: inset(0 0 -10% 0);
     }
 
     100% {
-        clip-path: inset(0 0 100% 0);
+        clip-path: inset(0 0 110% 0);
+        opacity: 0.2;
     }
 }
 
@@ -355,11 +357,11 @@
         background: var(--mainpage-bg) center center / cover no-repeat;
     }
     .perspective-wrapper {
-        perspective: 1000px;
+        perspective: 1500px;
         transform: scaleX(1.2) scaleY(1.1);
     }
     .animate-background {
-        animation: dramaticZoomInMobile 2.5s cubic-bezier(0.2, 0, 0.1, 1) forwards;
+        animation: dramaticZoomInMobile 2.5s cubic-bezier(0.3, 0, 0.1, 1) forwards;
     }
 }
 
@@ -414,31 +416,31 @@
 
 /* When elements are in view, trigger the animation */
 .convertifile-title .text-animate:nth-child(1).in-view {
-    animation: textPop 0.3s ease-out forwards;
+    animation: textPop 0.3s cubic-bezier(0.2, 0, 0.32, 1) forwards;
 }
 
 .convertifile-title .text-animate:nth-child(2).in-view {
-    animation: textPop 0.3s ease-out forwards;
+    animation: textPop 0.3s cubic-bezier(0.2, 0, 0.32, 1) forwards;
     animation-delay: 0.2s;
 }
 
 .title-status.in-view {
-    animation: textPop 0.3s ease-out forwards;
+    animation: textPop 0.3s cubic-bezier(0.2, 0, 0.32, 1) forwards;
     animation-delay: 0.4s;
 }
 
 /* Staggered animations for each span inside the container */
 .convertifile-container .convertifile-btnlink:nth-child(1) span.in-view {
-    animation: spanFadeIn 0.3s ease-out forwards;
+    animation: spanFadeIn 0.3s cubic-bezier(0.2, 0, 0.32, 1) forwards;
     animation-delay: 0.6s;
 }
 
 .convertifile-container .convertifile-btnlink:nth-child(2) span.in-view {
-    animation: spanFadeIn 0.3s ease-out forwards;
+    animation: spanFadeIn 0.3s cubic-bezier(0.2, 0, 0.32, 1) forwards;
     animation-delay: 0.8s;
 }
 
 .convertifile-container .convertifile-btnlink:nth-child(3) span.in-view {
-    animation: spanFadeIn 0.3s ease-out forwards;
+    animation: spanFadeIn 0.3s cubic-bezier(0.2, 0, 0.32, 1) forwards;
     animation-delay: 1s;
 }

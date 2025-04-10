@@ -120,13 +120,15 @@
     border-radius: 12px;
 }
 
-.nav-menu li.active::after {
-    width: 15%;
-    border-radius: 12px;
+.nav-menu li.onpage::after {
+    width: 15%; 
+    color: var(--text-color)
 }
 
-.nav-menu li.active {
-    text-shadow: 0 0 15px rgba(245, 140, 255, 0.8);
+
+.nav-menu li.onpage a{
+    text-shadow: 0 0 2px rgba(var(--text-shadow-color-rgb),0.5);
+    font-weight: 400; 
 }
 
 .pop-up {
@@ -312,10 +314,10 @@
     border-radius: inherit;
     padding: 4px;
     background: var(--navbar-radial-bordercolor);
-    -mask:
+    -webkit-mask:
         linear-gradient(#fff 0 0) content-box,
         linear-gradient(#fff 0 0);
-    -webkit-mask:
+    mask:
         linear-gradient(#fff 0 0) content-box,
         linear-gradient(#fff 0 0);
     -webkit-mask-composite: xor;
@@ -353,7 +355,7 @@
         height: auto;
         max-height: 100vh;
         scroll-behavior: smooth;
-row-gap: 0;        
+        row-gap: 0;        
         z-index: 2;
         pointer-events: auto;
         transform: translateZ(0);
@@ -388,6 +390,7 @@ row-gap: 0;
         backdrop-filter: blur(24px);
         z-index: 2;
         will-change: opacity;
+        backface-visibility: hidden;
         -webkit-backface-visibility: hidden;
     }
 
@@ -455,6 +458,16 @@ row-gap: 0;
         width: 100%;
         transform: none;
         will-change: transform, opacity;
+    }
+
+    .nav-menu li.onpage::after {
+        width: 15%; /* Width for mobile */
+        height: 2px; /* Slightly thicker for mobile */
+    }
+
+    .nav-menu li.onpage {
+        /* Ensure mobile has the same styling */
+        text-shadow: 0 0 10px rgba(204, 100, 244, 0.7);
     }
 
     .toggle-switch {

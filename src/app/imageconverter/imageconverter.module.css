@@ -1,0 +1,840 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 80%;
+  height: 100%;
+  justify-content: flex-start;
+  gap: 6vh;
+  margin: 0 auto;
+}
+
+.pageTitle {
+  font-size: clamp(2rem, 4vw, 50px);
+  position: relative;
+  text-align: center;
+  color: var(--title-text-color);
+  text-shadow: 0 2px 4px rgba(var(--text-shadow-color-rgb), 0.2),
+  0 0 1px rgba(var(--subtle-glow-rgb-2), 0.5);
+}
+
+.uploadSection {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  min-height: 50vh;
+  max-height: 65vh;
+  padding: 20px;
+  border-radius: 24px;
+  position: relative;
+  border: 2px dashed rgba(var(--contentborder-color-rgb), 0.5);
+  box-shadow: 0 0px 2px rgba(var(--border-color-rgb, 0.1)), 
+              0 0px 4px rgba(var(--subtle-glow-rgb, 0.1)),
+              inset 0 0 4px 1px rgba(var(--subtle-glow-rgb-2), 0.05);
+
+  transition: all 0.3s ease;
+}
+section::before {
+  background-attachment: fixed;
+}
+
+.uploadSection:hover {
+  box-shadow: 0 0px 2px rgba(var(--border-color-rgb, 0.1)), 
+              0 0px 4px rgba(var(--subtle-glow-rgb, 0.1)),
+              inset 0 0 10px 2px rgba(var(--subtle-glow-rgb-2), 0.3);
+}
+
+.uploadSection::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: var(--imagepage-bg);
+  background-size: cover;
+  background-position: center;
+  opacity: 0.4;
+  z-index: -1;
+}
+
+.uploadSection.dragging {
+  border-color: #5649c0;
+  background-color: rgba(108, 92, 231, 0.1);
+}
+
+.dropOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(var(--highlight-rgb), 0.6);
+  backdrop-filter: blur(4px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 8px;
+  z-index: 10;
+}
+
+.dropOverlay p {
+  color: white;
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.instructTitle {
+  font-size: 2rem;
+  text-align: center;
+}
+
+.uploadInstruction {
+  height: 100%;
+  justify-content: center;
+  gap: 4vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.uploadButton {
+  position: relative;
+  display: flex;
+  align-items: center;
+  padding: 2vh 5vw;
+  border: 2px solid;
+  border-color: transparent;
+  font-size: clamp(1rem, 1.4vw, 2rem);
+  font-family: lexend;
+  background-color: inherit;
+  border-radius: 100px;
+  font-weight: 600;
+  color: var(--text-color);
+  border: 2px solid rgba(var(--border-color-rgb), 1);
+  box-shadow: 0 0 8px rgba(var(--subtle-glow-rgb, 0.5));
+  cursor: pointer;
+  overflow: hidden;
+  transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.uploadButton svg {
+  position: absolute;
+  width: 2rem;
+  fill: var(--text-color);
+  z-index: 9;
+  transition: all 1s cubic-bezier(0.2, 1, 0.3, 1);
+}
+
+.uploadButton .arr-1 {
+  right: 16px;
+}
+
+.uploadButton .arr-2 {
+  left: -25%;
+}
+
+.uploadButton .circle {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 10px;
+  height: 10px;
+  background-color: rgba(var(--hover-state-rgb), 0.6);
+  border-radius: 50%;
+  opacity: 0;
+  transition: all 1s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.uploadButton .buttonText {
+  position: relative;
+  z-index: 1;
+  transform: translateX(-10px);
+  transition: all 0.8s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.uploadButton:hover {
+  box-shadow: 0 0 4px rgba(var(--subtle-glow-rgb-2), 0.45);
+  color: var(--text-color);
+  border-radius: 12px;
+  border-color: rgba(var(--hover-state-rgb), 0.75);
+  transform: scale(1.2);
+}
+
+.uploadButton:hover .arr-1 {
+  right: -25%;
+}
+
+.uploadButton:hover .arr-2 {
+  left: 16px;
+}
+
+.uploadButton:hover .buttonText {
+  transform: translateX(10px);
+}
+
+.uploadButton:hover svg {
+  fill: var(--text-color);
+}
+
+.uploadButton:active {
+  transform: scale(0.98);
+}
+
+.uploadButton:hover .circle {
+  width: 50vw;
+  height: 50vw;
+  opacity: 1;
+}
+
+.dragDropNote {
+  font-size: 1rem;
+  color: var(--text-color);
+  margin-top: 10px;
+  text-align: center;
+}
+
+.fileInstruction {
+  height: 100%;
+  width: 100%;
+  justify-content: space-between;
+  gap: 4vh;
+  display: flex;
+  flex-direction: column;
+
+}
+
+.fileList {
+  padding: 0 2px;
+  overflow-x: hidden;
+  align-self: center;
+  width: 50%;
+  overflow-y: auto;
+  border-radius: 8px;
+}
+
+.fileTitle {
+  font-size: clamp(2rem, 3vw, 4rem);
+  text-align: center;
+  color: rgba(var(--highlight-rgb), 1);
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  animation: titleFadeIn 0.3s cubic-bezier(0.23, 1, 0.320, 1) forwards;
+}
+
+
+.fileTitle:hover {
+  transform: scale(1.03);
+  text-shadow: 0 2px 4px rgba(var(--text-shadow-color-rgb), 0.2);
+}
+
+@keyframes titleFadeIn {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fileItem {
+  padding: 0.75rem 1rem;
+  background-color: rgba(var(--bgcolor-rgb), 0.25);
+  border-bottom: 1px solid rgba(var(--contentborder-color-rgb), 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-radius: 12px;
+  width: 100%;
+  margin: 0 auto 8px;
+  box-shadow: 0 1px 4px rgba(var(--text-shadow-color-rgb), 0.1),
+  inset 0 -1px 2px 0 rgba(var(--subtle-glow-rgb), 0.5);
+  animation: popIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  opacity: 0;
+  transition: all 0.3s cubic-bezier(0.2, 0, 0.24, 1);
+}
+
+.fileItem:hover {
+  box-shadow: 0 1px 8px rgba(var(--text-shadow-color-rgb), 0.2),
+  inset 0 -1px 2px 0 rgba(var(--subtle-glow-rgb), 0.6);
+}
+
+/* Add fade out animation class for deleting files */
+.deletingItem {
+  animation: fadeOut 0.3s cubic-bezier(0.34, 0, 0.24, 1) forwards;
+  opacity: 0;
+  transform: scale(0.8) translateY(10px);
+  pointer-events: none;
+}
+
+@keyframes fadeOut {
+  0% {
+    opacity: 1;
+    transform: scale(1) translateX(0);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.9) translateY(10px);
+  }
+}
+
+@keyframes popIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.9) translateY(10px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.fileName {
+  font-size: 1rem;
+  max-width: 50%;
+  color: var(--text-color);
+  word-break: break-all;
+  flex: 1;
+  display: flex;
+  align-items: center;
+}
+
+.fileActions {
+  max-height: 100%;
+  align-items: stretch;
+  display: flex;
+  column-gap: 0.5vw;
+}
+
+/* Settings button styles */
+.settingBtn {
+  width: calc(1.5rem + 1vw);
+  aspect-ratio: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  background-color: rgba(var(--border-color-rgb), 1);
+  border-radius: 50%;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  border: none;
+  box-shadow: 0px 0px 0px 2px rgba(var(--border-color-rgb), 0.5);
+}
+
+.bar {
+  width: 50%;
+  height: 2px;
+  background-color: rgb(229, 229, 229);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  border-radius: 2px;
+}
+
+.bar::before {
+  content: "";
+  width: 2px;
+  height: 2px;
+  background-color: rgba(var(--border-color-rgb), 1);
+  position: absolute;
+  border-radius: 50%;
+  border: 2px solid white;
+  transition: all 0.3s;
+  box-shadow: 0px 0px 2px white;
+}
+
+.bar1::before {
+  transform: translateX(-4px);
+}
+
+.bar2::before {
+  transform: translateX(4px);
+}
+
+.settingBtn:hover .bar1::before {
+  transform: translateX(4px);
+}
+
+.settingBtn:hover .bar2::before {
+  transform: translateX(-4px);
+}
+
+.settingBtn:hover {
+  background-color: rgba(var(--border-color-rgb), 1);
+  box-shadow: 0px 0px 4px rgba(var(--subtle-glow-rgb), 0.8),
+  0px 0px 0px 2px rgba(var(--border-color-rgb), 1);
+}
+
+/* Delete button styles */
+.deleteBtn {
+  height: calc(1.5rem + 1vw);
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(var(--attention-color-rgb, 255, 95, 95), 0.8);
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0px 0px 0px 2px rgba(var(--attention-color-rgb, 255, 95, 95), 0.3);
+}
+
+.xIcon {
+  width: 24px;
+  height: 24px;
+  color: white;
+  transition: transform 1s ease;
+}
+
+.deleteBtn:hover .xIcon {
+  transform: rotate(360deg);
+}
+
+.deleteBtn:hover {
+  background-color: rgba(var(--attention-color-rgb, 255, 95, 95), 1);
+  box-shadow: 0px 0px 4px rgba(var(--subtle-glow-rgb-2), 0.8),
+  0px 0px 0px 2px rgba(var(--attention-color-rgb, 255, 95, 95), 1);
+}
+
+.buttonGroup {
+  align-self: center;
+  display: flex;
+  flex-direction: row;
+  width: 50%;
+}
+
+.buttonWrapper {
+  display: flex;
+  gap: 1rem;
+  justify-content: space-between;
+  transition: all 0.3s ease;
+  flex: 1;
+  height: auto;
+  margin: 0;
+}
+
+.hiddenButton {
+  align-self: center;
+  justify-self: center;
+  animation: btnFadeOut 0.2s ease forwards;
+}
+
+@keyframes btnFadeOut {
+  from {
+    opacity: 0.9;
+    width: auto;
+    transform: scale(1) translateX(0);
+  }
+  to {
+    opacity: 0;
+    height: 0;
+    padding: 0;
+    margin: 0;
+    transform: scale(0.9) translateX(-40px);
+    width: 0;
+    overflow: hidden;
+  }
+  
+}
+
+/* Add container for right-aligned buttons */
+.rightButtons {
+  display: flex;
+  flex-grow: 1;
+  gap: 1rem;
+  justify-content: flex-end;
+  flex-direction: row;
+  align-items: center;
+}
+
+.buttonGroup button:nth-child(1) {
+  animation: fadeInTopLeft 0.4s ease forwards;
+  animation-delay: 0.1s;
+  opacity: 0;
+  transform: translate(-10px, -10px);
+}
+
+.buttonGroup button:nth-child(2) {
+  animation: fadeInTopLeft 0.4s ease forwards;
+  animation-delay: 0.2s;
+  opacity: 0;
+  transform: translate(-10px, -10px);
+}
+
+.buttonGroup button:nth-child(3) {
+  animation: fadeInTopLeft 0.4s ease forwards;
+  animation-delay: 0.3s;
+  opacity: 0;
+  transform: translate(-10px, -10px);
+}
+
+@keyframes fadeInTopLeft {
+  0% {
+    opacity: 0;
+    transform: translate(-5px, -10px);
+  }
+  100% {
+    opacity: 1;
+    transform: translate(0, 0);
+  }
+}
+
+.uploadMoreButton {
+  position: relative;
+  display: flex;
+  align-items: center;
+  padding: 2vh 3vw;
+  border: 2px solid;
+  border-color: transparent;
+  font-size: clamp(1rem, 1.4vw, 2rem);
+  font-family: lexend;
+  background-color: inherit;
+  border-radius: 100px;
+  font-weight: 500;
+  color: var(--text-color);
+  border: 2px solid rgba(var(--secondary-color-rgb), 1);
+  cursor: pointer;
+  overflow: hidden;
+  transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.uploadMoreButton svg {
+  position: absolute;
+  width: 2rem;
+  fill: var(--text-color);
+  z-index: 9;
+  transition: all 1s cubic-bezier(0.2, 1, 0.3, 1);
+}
+
+.uploadMoreButton .arr-1 {
+  right: 16px;
+}
+
+.uploadMoreButton .arr-2 {
+  left: -25%;
+}
+
+.uploadMoreButton .circle {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 10px;
+  height: 10px;
+  background-color: rgba(var(--hover-state-rgb), 0.9);
+  border-radius: 50%;
+  opacity: 0;
+  transition: all 0.8s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.uploadMoreButton .buttonText {
+  position: relative;
+  z-index: 1;
+  transform: translateX(-10px);
+  transition: all 0.8s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.uploadMoreButton:hover {
+  box-shadow: 0 0 10px rgba(var(--subtle-glow-rgb-2), 0.5);
+  color: var(--text-color);
+  border-radius: 12px;
+  border-color: rgba(var(--hover-state-rgb), 0.9);
+  transform: scale(1.05);
+}
+
+.uploadMoreButton:hover .arr-1 {
+  right: -25%;
+}
+
+.uploadMoreButton:hover .arr-2 {
+  left: 16px;
+}
+
+.uploadMoreButton:hover .buttonText {
+  transform: translateX(10px);
+}
+
+.uploadMoreButton:hover svg {
+  fill: var(--text-color);
+}
+
+.uploadMoreButton:active {
+    transform: scale(0.98);
+}
+
+.uploadMoreButton:hover .circle {
+  width: 20vw;
+  height: 20vw;
+  opacity: 1;
+}
+
+.confirmButton {
+  justify-self: end;
+  position: relative;
+  box-shadow: 0 0 8px rgba(var(--subtle-glow-rgb, 0.2));
+  display: flex;
+  align-items: center;
+  padding: 2vh 5vw;
+  font-size: clamp(1rem, 1.4vw, 2rem);
+  font-family: lexend;
+  border-radius: 100px;
+  background: none;
+  font-weight: 500;
+  color: var(--text-color);
+  border: 2px solid rgba(var(--highlight-rgb), 0.8);
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.confirmButton:hover {
+  background-color: rgba(var(--highlight-rgb), 1);
+  color: white;
+  transform: scale(1.05);
+}
+
+.converting {
+  margin: 0 auto;
+  flex-grow: 1;
+  display: flex;
+  justify-content: center;
+  transition: all 0.4s ease;
+}
+
+.binButton {
+  justify-self: start;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  aspect-ratio: 1;
+  flex-shrink: 0;
+  height: 100%;
+  border-radius: 24px;
+  background-color: rgba(var(--attention-color-rgb), 0.75);
+  cursor: pointer;
+  border: 2px solid rgba(var(--attention-color-rgb), 1);
+  transition: all 0.3s ease;
+}
+
+.binBottom {
+  width: 15px;
+  color: var(--button-text-color, white);
+}
+
+.binTop {
+  width: 17px;
+  transform-origin: right;
+  transition-duration: 0.3s;
+  color: var(--button-text-color, white);
+}
+
+.binButton:hover .binTop {
+  transform: rotate(45deg);
+}
+
+.binButton:hover {
+  background-color: rgba(var(--attention-color-rgb), 1);
+  transform: scale(1.1);
+}
+
+.uploaderNote {
+  font-size: 0.8rem;
+  margin-bottom: -10px;
+  padding: 0;
+  color: var(--note-color);
+  text-align: center;
+}
+
+.formatSelector {
+  flex: 1;
+  position: relative;
+  width: 7.5vw;
+}
+
+.dropdownToggle {
+  background: none;
+  border: none;
+  height: 100%;
+  width: 100%;
+  border: 2px solid rgba(var(--secondary-color-rgb), 0.3);
+  background-color: rgba(var(--hover-state-rgb), 0.08);
+  padding: 0 0.5rem;
+  border-radius: 12px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.dropdownToggle span {
+  color: var(--text-color);
+  text-transform: uppercase;
+  font-weight: 600;
+  display: flex;
+  font-family: lexend;
+  justify-content: space-between;
+  flex-direction: row;
+  align-items: center;
+}
+
+.dropdownToggle .dropdownArrow {
+  padding: 2px;
+  fill: var(--text-color);
+  transform: rotate(-90deg);
+}
+
+.dropdownToggle .arrowRotate {
+  animation: rotateArrow 0.3s ease forwards;
+}
+
+.dropdownToggle:hover {
+  background-color: rgba(var(--hover-state-rgb), 0.6);
+}
+
+.formatDropdown {
+  position: absolute;
+  z-index: 1000;
+  background-color: var(--bg-color);
+  box-shadow: 0 0 20px rgba(var(--subtle-glow-rgb-2), 0.2);
+  min-width: 150px;
+  max-height: 250px;
+  overflow-y: scroll;
+}
+
+.formatOption {
+  border-bottom: 2px solid rgba(var(--secondary-color-rgb), 0.3);
+  border-radius: 12px;
+  text-transform: uppercase;
+  padding: 10px 20px;
+  font-weight: 400;
+  cursor: pointer;
+  transition: background-color 0.15s;
+}
+
+.formatOption:hover {
+  background-color: rgba(var(--hover-state-rgb), 0.7);
+}
+
+.conversionStatus {
+  flex: 1;
+  display:flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.conversionStatus span{
+  font-size: 1rem;
+  height: 100%;
+  color: rgba(var(--text-color-rgb), 1);
+  display: flex;
+  align-items: center;
+}
+
+/* From Uiverse.io by dylanharriscameron */ 
+.loaderBar {
+  margin-top: 2px;
+  width: 7.5vw;
+  height: 75%;
+  background: var(--bg-color);
+  border-radius: 24px;
+  box-shadow: 0 0 2px 1px rgba(var(--subtle-glow-rgb), 0.5);
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  margin: auto 0;
+}
+.loaderBar {
+  margin-top: 2px;
+  width: 7.5vw;
+  height: 75%;
+  background: var(--bg-color);
+  border-radius: 24px;
+  box-shadow: 0 0 2px 1px rgba(var(--subtle-glow-rgb), 0.5);
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  margin: auto 0;
+}
+
+.loaderProgress {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  border-radius: 24px;
+  background: linear-gradient(45deg, rgba(var(--border-color-rgb),1), rgba(var(--secondary-color-rgb), 1)) right/100% 100%;
+  box-shadow: 1px 0 8px rgba(var(--subtle-glow-rgb-2), 0.9);
+  transition: width 0.3s ease-out;
+}
+
+.blurredContent {
+  filter: blur(4px);
+  pointer-events: none;
+}
+
+@keyframes rotateArrow {
+  0% { transform: rotate(-90deg); }
+  100% { transform: rotate(0deg); }
+}
+
+/* Download button styles */
+.downloadButton {
+    box-shadow: 0px 0px 0px 2px rgba(var(--border-color-rgb, 255, 95, 95), 0.3);
+    background-color: rgba(var(--border-color-rgb, 255, 95, 95), 0.9);
+    width: calc(1.5rem + 1vw);
+    aspect-ratio: 1;
+    border: none;
+    border-radius: 50%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    position: relative;
+    transition-duration: .3s;
+    box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.11);
+}
+
+.downloadIcon {
+  fill: rgba(255, 255, 255, 0.901);
+}
+
+.downloadButton .iconTwo {
+  width: 50%;
+  height: 10%;
+  border: 2px solid white;
+  border-top: none;
+}
+
+.downloadButton:hover {
+  background-color: rgba(var(--highlight-rgb), 0.9);
+  transition-duration: .3s;
+}
+
+.downloadButton:hover .downloadIcon {
+  fill: rgb(255, 255, 255);
+  animation: slide-in-top 0.6s cubic-bezier(0.250, 0.460, 0.450, 0.940) both;
+}
+
+@keyframes slide-in-top {
+  0% {
+    transform: translateY(-10px);
+    opacity: 0;
+  }
+
+  100% {
+    transform: translateY(0px);
+    opacity: 1;
+  }
+}

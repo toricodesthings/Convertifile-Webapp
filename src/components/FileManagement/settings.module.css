@@ -1,0 +1,149 @@
+.settingsOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(var(--bg-color-rgb), 0.8);
+  backdrop-filter: blur(20px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.settingsContainer {
+  border-radius: 24px;
+  padding: 20px;
+  width: 50%;
+  box-shadow: 0 4px 24px rgba(var(--subtle-glow-rgb), 0.4),
+  inset 0 0 2px 1px rgba(var(--text-shadow-color-rgb), 0.1);
+  animation: windowFadeIn 0.6s cubic-bezier(0.23, 1, 0.320, 1);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 2vh;
+}
+
+.settingsTitle {
+  width: 100%;
+  font-size: clamp(2rem, 2vw, 3rem);
+  color: var(--text-color);
+}
+
+.settingsTitle span {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  height: 100%;
+}
+
+.settingsTitle .gearIcon {
+  max-height: 2rem;
+  stroke: var(--text-color);
+}
+
+.settingsfileName {
+  width: 100%;
+  font-size: 1rem;
+  color: rgba(var(--text-color-rgb),0.8);
+  overflow: hidden;
+  text-wrap: nowrap;
+  font-weight: 300;
+  text-overflow: ellipsis;
+}
+
+.settingOption {
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.applyButton {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    padding: 0.75rem 2rem;
+    background: none;
+
+    border: 2px solid rgba(var(--hover-state-rgb), 1);
+    font-size: 1rem;
+    border-radius: 12px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.applyButton span {
+    transition: all 0.3s ease;
+    font-size: 1rem;
+    color: rgba(var(--text-color-rgb), 0.8);
+}
+
+
+.applyButton:hover {
+  background-color: rgba(var(--hover-state-rgb), 1);
+}
+
+.applyButton:hover span {
+    color: rgba(var(--text-color-rgb), 1);
+    transform: scale(1.05);
+}
+
+.applyButton:hover svg{
+  transform: translateX(25%);
+  opacity: 1;
+}
+
+.applyButton svg {
+    opacity: 0.3;
+    transition: all 0.3s ease;
+    width: 1.5rem;
+    height: auto;
+    fill: var(--text-color)
+}
+
+.settingsButtons {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 20px;
+}
+
+.warning {
+    display: flex;
+    align-items: center;
+    padding: 8px 12px;
+    margin-top: 10px;
+    background-color: rgba(var(--attention-color-rgb), 0.1);
+    border-left: 4px solid rgba(var(--attention-color-rgb), 0.8);
+    border-radius: 4px;
+    font-size: 1rem;
+    color: rgba(var(--attention-color-rgb), 1);
+  }
+
+  .warning svg {
+    margin-right: 8px;
+  }
+
+  .formatSpecificSettings {
+    margin-top: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+}
+
+.formatSpecificSettings h4 {
+  margin-top: 0;
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+@keyframes windowFadeIn {
+  from { opacity: 0; transform: translateY(-5px) scale(0.9); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}

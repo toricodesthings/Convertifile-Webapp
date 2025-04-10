@@ -56,30 +56,65 @@ body.navbar-mobile-active .app-content {
   --light-hover-gradient: linear-gradient(270deg, rgba(228, 110, 167, 0.5), rgba(161, 71, 212, 0.5));
   --navbar-radial-bordercolor: linear-gradient(45deg, #ef594e, #8542e9);
   --font: 'Lexend', sans-serif;
-  --text-shadow-color-rgb: 255, 238, 238;
+  --text-shadow-color-rgb: 255, 245, 245;
 }
 
 .dark {
   --mainpage-bg: url('/mainpage/backgrounddark.webp') !important;
-  --bg-color: #000000 !important;
+  --imagepage-bg: url('/imagepage/bgdark.png') !important;
+
+  --bg-color: rgb(0, 0, 0) !important;
+  --bg-color-rgb: 0, 0, 0 !important;
+
   --text-color: white !important;
-  --text-color-rgb: 255, 255, 255 !important;
+  --note-color: rgb(196, 196, 196) !important;
+  --invert-text-color: rgb(0, 0, 0) !important;
   --invert-color-reverse: 1 !important;
-  --base-gradient: linear-gradient(90deg, #A23CED, #ee3f3f) !important;
-  --light-hover-gradient: linear-gradient(270deg, rgba(230, 65, 150, 0.6), rgba(173, 61, 237, 0.6)) !important;
-  --navbar-radial-bordercolor: linear-gradient(45deg, #ef594e, #8542e9) !important;
-  --text-shadow-color-rgb: 255, 238, 238 !important;
+  --base-gradient: linear-gradient(90deg, rgb(145, 73, 231), rgb(238, 63, 63)) !important;
+  --light-hover-gradient: linear-gradient(270deg, rgba(184, 66, 147, 0.7), rgba(184, 83, 217, 0.7)) !important;
+  --navbar-radial-bordercolor: linear-gradient(45deg, #ef594e, rgb(146, 64, 228)) !important;
+  --text-shadow-color-rgb: 255, 245, 245 !important;
+  /*Content*/
+  --title-text-color: #fffdff !important;
+  --contentborder-color-rgb: 245, 245, 245; /*white*/
+  --border-color-rgb: 160, 74, 174; /*purple, primary accent*/
+  --secondary-color-rgb: 200, 90, 180; /*warm red, secondary accent*/
+  --subtle-glow-rgb: 158, 85, 234; /*warm purple glow*/
+  --subtle-glow-rgb-2: 210, 75, 140; /*pink, glow*/
+  --hover-state-rgb: 184, 66, 160; /*interaction*/
+  --highlight-rgb: 184, 94, 217; /*purple, highlight*/
+
+  --attention-color-rgb: 238, 65, 65; /*orange, attention*/
 }
 
 .light {
   --mainpage-bg: url('/mainpage/backgroundlight.webp') !important;
+
+  --imagepage-bg: url('/imagepage/bg.png') !important;
+
   --bg-color: #ffffff !important;
+  --bg-color-rgb: 255, 255, 255 !important;
   --text-color: #000000 !important;
+  --invert-text-color: rgb(255, 255, 255) !important;
+
+  --note-color: rgb(101, 101, 101) !important;
   --text-color-rgb: 0, 0, 0 !important;
   --invert-color-reverse: 0 !important;
   --invert-color: 1 !important;
-  --base-gradient: linear-gradient(90deg, #aa75e7, #FA6EA8, #ff8d46);
+  --base-gradient: linear-gradient(90deg, rgb(168, 124, 249), rgb(250, 110, 168), rgb(255, 141, 70));
   --light-hover-gradient: linear-gradient(270deg, rgba(224, 134, 246, 0.5), rgba(255, 141, 70, 0.5)) !important;
   --navbar-radial-bordercolor: linear-gradient(90deg, #f571b1,  #c396f7) !important;
   --text-shadow-color-rgb: 26, 5, 26 !important;
+
+  /*Content*/
+  --title-text-color: #242126 !important;
+  --contentborder-color-rgb: 35, 35, 25; /*white*/
+  --border-color-rgb: 210, 156, 255; /*purple, primary accent*/
+  --secondary-color-rgb: 240, 134, 246; /*warm red, secondary accent*/
+  --subtle-glow-rgb: 168, 98, 248; /*warm purple glow*/
+  --subtle-glow-rgb-2: 250, 140, 180; /*pink, glow*/
+  --hover-state-rgb: 240, 131, 220; /*interaction*/
+  --highlight-rgb: 156, 124, 250; /*purple, highlight*/
+
+  --attention-color-rgb: 255, 80, 100; /*orange, attention*/
 }

@@ -10,23 +10,45 @@ type ThemeContextType = {
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export const ThemeProvider = ({ children }: { children: ReactNode }) => {
-  const [isDark, setIsDark] = useState(true);
+  // Don't set a default state immediately
+  const [isDark, setIsDark] = useState<boolean | null>(null);
 
+  // First useEffect: Run once on mount to get the theme from localStorage
   useEffect(() => {
-    const storedTheme = localStorage.getItem('theme');
-    if (storedTheme === 'light') setIsDark(false);
-    else setIsDark(true);
+    try {
+      const storedTheme = localStorage.getItem('theme');
+      if (storedTheme === 'light') {
+        setIsDark(false);
+      } else {
+        setIsDark(true);
+      }
+    } catch (error) {
+      console.error("Error accessing localStorage for theme management:", error);
+      setIsDark(true); // Fallback to dark mode
+    }
   }, []);
 
+  // Second useEffect: Update the DOM and localStorage when theme changes
   useEffect(() => {
-    const root = document.documentElement;
-    root.classList.remove('dark', 'light');
-    root.classList.add(isDark ? 'dark' : 'light');
-    localStorage.setItem('theme', isDark ? 'dark' : 'light');
+    // Skip the first render when isDark is null
+    if (isDark === null) return;
+    
+    try {
+      const root = document.documentElement;
+      root.classList.remove('dark', 'light');
+      root.classList.add(isDark ? 'dark' : 'light');
+      localStorage.setItem('theme', isDark ? 'dark' : 'light');
+    } catch (error) {
+      console.error("Error setting localStorage or updating classes:", error);
+    }
   }, [isDark]);
 
+  // Use null-check to avoid rendering children before theme is determined
   return (
-    <ThemeContext.Provider value={{ isDark, setIsDark }}>
+    <ThemeContext.Provider value={{ 
+      isDark: isDark === null ? true : isDark, 
+      setIsDark: (value) => setIsDark(value)
+    }}>
       {children}
     </ThemeContext.Provider>
   );
