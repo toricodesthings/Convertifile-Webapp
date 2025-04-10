@@ -19,14 +19,7 @@ interface FileUploaderProps {
  * @returns React component
  */
 const FileUploader: React.FC<FileUploaderProps> = ({
-  isDragging,
-  filesExist,
-  fileInputRef,
-  onButtonClick,
-  onDragEnter,
-  onDragOver,
-  onDragLeave,
-  onDrop
+  onButtonClick
 }) => {
   return (
     <div className={styles.uploadInstruction}>

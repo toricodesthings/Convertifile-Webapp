@@ -55,7 +55,6 @@ const ImageConverterPage = () => {
   const [conversionResults, setConversionResults] = useState<{ fileUrl: string, fileName: string }[]>([]);
   const [showDropdown, setShowDropdown] = useState<number | null>(null);
   const formatSelectorRef = useRef<HTMLDivElement>(null);
-  const [removeMetadata, setRemoveMetadata] = useState(true);
   const [allConversionsComplete, setAllConversionsComplete] = useState(false);
 
   // Settings states
