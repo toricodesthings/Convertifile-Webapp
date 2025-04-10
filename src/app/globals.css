@@ -16,6 +16,10 @@ body, html {
   height: 100vh;
 }
 
+section::before {
+  background-attachment: fixed;
+}
+
 /* App container layout - fix flex layout */
 .app-container {
   display: flex;
