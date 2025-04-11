@@ -3,8 +3,10 @@
 import { useInView } from "react-intersection-observer";
 import { useState, useEffect } from "react";
 import HamsterLoader from "@/components/LoadingUI/HamsterLoader";
+import ServerStatus from './Status';
 import Image from "next/image";
 import styles from "../../app/page.module.css";
+import Link from "next/link";
 
 import videoIcon from '@/assets/main/video.svg';
 import imgIcon from '@/assets/main/image.svg';
@@ -12,12 +14,7 @@ import docIcon from '@/assets/main/document.svg';
 
 const cloudImage = "/mainpage/transparentclouds.png"
 
-interface ServerStatusProps {
-  status: string;
-  isOnline: boolean;
-}
-
-export default function HomeClient({ serverStatus }: { serverStatus: ServerStatusProps }) {
+export default function HomeClient() {
   const [showAnimations, setShowAnimations] = useState(false);
   const [backgroundsLoaded, setBackgroundsLoaded] = useState(false);
   
@@ -114,36 +111,36 @@ export default function HomeClient({ serverStatus }: { serverStatus: ServerStatu
             All-In-One File Conversion Suite
           </h1>
         </div>
-        <h3 className={`${styles["title-status"]} ${styles["text-animate"]} ${showAnimations && backgroundsLoaded ? styles["in-view"] : ''}`}>
-          <span className={`${styles["status-dot"]} ${styles[serverStatus.isOnline ? "online" : "offline"]}`}></span>
-          Server Status: {serverStatus.status}
-        </h3>
+        {/* Replace the hardcoded status with the ServerStatus component */}
+        <div className={`${styles["title-status"]} ${styles["text-animate"]} ${showAnimations && backgroundsLoaded ? styles["in-view"] : ''}`}>
+          <ServerStatus styles={styles} />
+        </div>
         <div className={styles["convertifile-panel"]}>
           <div ref={containerRef} className={styles["convertifile-container"]}>
-            <a href="https://example.com" className={styles["convertifile-btnlink"]}>
+            <Link href="/imageconverter" className={styles["convertifile-btnlink"]}>
               <div className={styles["hoveranimation"]}>
                 <span className={`${showAnimations && backgroundsLoaded ? styles["in-view"] : ''}`}>
                   <Image src={imgIcon} alt="Image Icon" width="64" height="64" className={styles.icon} />
                   Image Convert
                 </span>
               </div>
-            </a>
-            <a href="https://example.com" className={styles["convertifile-btnlink"]}>
+            </Link>
+            <Link href="https://example.com" className={styles["convertifile-btnlink"]}>
               <div className={styles["hoveranimation"]}>
                 <span className={`${showAnimations && backgroundsLoaded ? styles["in-view"] : ''}`}>
                   <Image src={videoIcon} alt="Video Icon" width="64" height="64" className={styles.icon} />
                   Media Convert
                 </span>
               </div>
-            </a>
-            <a href="https://example.com" className={styles["convertifile-btnlink"]}>
+            </Link>
+            <Link href="https://example.com" className={styles["convertifile-btnlink"]}>
               <div className={styles["hoveranimation"]}>
                 <span className={`${showAnimations && backgroundsLoaded ? styles["in-view"] : ''}`}>
                   <Image src={docIcon} alt="Document Icon" width="64" height="64" className={styles.icon} />
                   Document Convert
                 </span>
               </div>
-            </a>
+            </Link>
           </div>
         </div>
       </div>

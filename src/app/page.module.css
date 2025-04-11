@@ -193,16 +193,17 @@
 }
 
 .status-dot.online {
-    background-color: #4ade80;
-    box-shadow: 0 0 12px rgba(0, 255, 94, 0.4);
+    background-color: #6fde4a;
+    box-shadow: 0 0 12px rgba(0, 255, 140, 0.4);
     animation: blink 0.7s ease infinite alternate;
     border: 1px solid rgb(239, 255, 239);
-    border-radius: 50%;
 }
 
 .status-dot.offline {
-    background-color: #ef4444;
-    box-shadow: 0 0 8px rgba(255, 59, 15, 0.3);
+    background-color: rgba(var(--attention-color-rgb), 1);
+    box-shadow: 0 0 8px rgba(var(--attention-color-rgb), 0.5);
+    border: 1px solid rgb(239, 255, 239);
+    animation: blink 2s ease infinite alternate;
 }
 
 @keyframes blink {
