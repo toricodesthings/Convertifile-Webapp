@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import styles from "./imageconverter.module.css";
 import { convertFile } from '../../backendcaller/imageConverter';
@@ -19,28 +19,18 @@ const AVAILABLE_FORMATS = ['jpg', 'png', 'gif', 'bmp', 'tiff', 'webp', 'ico', 'h
  * @returns React component
  */
 const ImageConverterPage = () => {
-  const defaultSettings: FileSettings = {
+  const defaultSettings = useMemo<FileSettings>(() => ({
     removeMetadata: false,
     compression: false,
     quality: 100,
     formatSpecific: {
-      webp: {
-        optimize: true
-      },
-      bmp: {
-        compression: true 
-      },
-      png: {
-        optimize: true
-      },
-      tiff: {
-        compression: "lzw"
-      },
-      avif: {
-        speed: 6
-      }
+      webp: { optimize: true },
+      bmp: { compression: true },
+      png: { optimize: true },
+      tiff: { compression: "lzw" },
+      avif: { speed: 6 }
     }
-  };
+  }), []);
   // File handling states
   const [isDragging, setIsDragging] = useState(false);
   const [files, setFiles] = useState<File[]>([]);
@@ -73,7 +63,7 @@ const ImageConverterPage = () => {
 // Initialize settings for new files
   useEffect(() => {
     setFileSettings(files.map(() => ({...defaultSettings})));
-  }, [files.length]); // Remove defaultSettings from dependencies
+  }, [files.length, defaultSettings]);
 
   const [buttonsVisible, setButtonsVisible] = useState(true);
 
@@ -100,11 +90,11 @@ const ImageConverterPage = () => {
       const handleClickOutside = (event: MouseEvent) => {
         // Cast the event target to Element to check if it's a node that matches our selectors
         const target = event.target as Element;
-
+  
         // Check if the click was outside both the dropdown and the toggle button
         const isOutsideDropdown = !target.closest(`.${styles.formatDropdown}`);
         const isOutsideToggle = !target.closest(`.${styles.dropdownToggle}`);
-
+  
         if (isOutsideDropdown && isOutsideToggle) {
           setShowDropdown(null);
         }
@@ -118,7 +108,7 @@ const ImageConverterPage = () => {
         document.removeEventListener('mousedown', handleClickOutside);
       };
     }
-  }, [showDropdown, styles]);
+  }, [showDropdown]);
 
   /**
    * Handle drag enter event

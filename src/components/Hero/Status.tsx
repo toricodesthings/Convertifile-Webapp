@@ -7,8 +7,9 @@ export type ServerStatusType = {
   isOnline: boolean;
 };
 
+
 // Accept styles as a prop to use the same styling from the Hero component
-const ServerStatus = ({ styles }: { styles: any }) => {
+const ServerStatus = ({ styles }: { styles: Record<string, string> }) => {
   const [status, setStatus] = useState<ServerStatusType>({
     status: 'Connecting...',
     isOnline: false
