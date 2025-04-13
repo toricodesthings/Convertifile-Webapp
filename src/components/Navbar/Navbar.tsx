@@ -75,14 +75,14 @@ const Navbar = () => {
         {isMobile ? (
           <div className="avatar-hovanimate" onClick={toggleNav}>
             <div className="avatar-wrapper">
-              <Image src="/logo.png" alt="Avatar" fill className="avatar" />
+              <Image src="/logo.png" alt="Avatar" fill priority={true} className="avatar" />
             </div>
           </div>
         ) : (
           <div className="avatar-hovanimate">
             <div className="avatar-wrapper">
               <Link href="/">
-                <Image src="/logo.png" alt="Avatar" fill className="avatar" />
+                <Image src="/logo.png" alt="Avatar" fill priority={true} className="avatar" />
               </Link>
             </div>
           </div>
