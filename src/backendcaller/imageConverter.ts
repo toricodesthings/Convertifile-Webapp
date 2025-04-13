@@ -3,20 +3,23 @@ interface ConversionSettings {
   compression: boolean;
   quality: number;
   formatSpecific: {
+    jpg: {
+      optimize: boolean;
+    }
     webp: {
       optimize: boolean;
     };
     bmp: {
       compression: boolean;
     };
+    tga: {
+      compression: boolean;
+    }
     png: {
       optimize: boolean;
     };
-    tiff: {
-      compression: "none" | "lzw" | "jpeg";
-    };
     avif: {
-      speed: number; // 0-10 value
+      speed: number; 
     };
   };
 }
@@ -64,32 +67,60 @@ export async function convertFile(
     const formData = new FormData();
     formData.append('file', file);
     formData.append('convert_to', format);
+    
+    // Append parameters in the exact order expected by the backend
     formData.append('remove_metadata', settings.removeMetadata.toString());
-
-    // Add compression settings if enabled
+    formData.append('compression', settings.compression.toString());
+    
+    // Only append quality if compression is enabled
     if (settings.compression) {
-      formData.append('compression', 'true');
       formData.append('quality', settings.quality.toString());
     }
+    
+    // Format-specific optimization parameter using switch case
+    let optimize = false;
     switch (format.toLowerCase()) {
-      case 'webp':
-        formData.append('optimize', settings.formatSpecific.webp.optimize.toString());
+      case 'jpg':
+        optimize = settings.formatSpecific.jpg.optimize;
         break;
-      
+      case 'webp':
+        optimize = settings.formatSpecific.webp.optimize;
+        break;
+      case 'png':
+        optimize = settings.formatSpecific.png.optimize;
+        break;
+    }
+    formData.append('optimize', optimize.toString());
+    
+    // BMP compression parameter
+    switch (format.toLowerCase()) {
       case 'bmp':
         formData.append('bmp_compression', settings.formatSpecific.bmp.compression.toString());
         break;
-      
-      case 'png':
-        formData.append('optimize', settings.formatSpecific.png.optimize.toString());
+      default:
+        formData.append('bmp_compression', 'true'); // default value
         break;
-      
+    }
+    
+    // TGA compression parameter
+    switch (format.toLowerCase()) {
+      case 'tga':
+        formData.append('tga_compression', settings.formatSpecific.tga.compression.toString());
+        break;
+      default:
+        formData.append('tga_compression', 'true'); // default value
+        break;
+    }
+    
+    formData.append('pdf_page_size', 'A4');
+    
+    // AVIF speed parameter
+    switch (format.toLowerCase()) {
       case 'avif':
         formData.append('avif_speed', settings.formatSpecific.avif.speed.toString());
         break;
-      
-      case 'tiff':
-        formData.append('tiff_compression', settings.formatSpecific.tiff.compression);
+      default:
+        formData.append('avif_speed', '6'); // default value
         break;
     }
 
@@ -120,8 +151,6 @@ export async function convertFile(
       mode: 'cors',
       credentials: 'include',
       headers: {
-        // Don't set Content-Type when using FormData as it will 
-        // automatically include the correct multipart/form-data with boundary
         'Accept': 'application/json'
       }
     });

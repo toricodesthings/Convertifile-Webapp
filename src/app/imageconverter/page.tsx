@@ -35,11 +35,12 @@ const ImageConverterPage = () => {
     compression: false,
     quality: 100,
     formatSpecific: {
+      jpg: { optimize: true },
       webp: { optimize: true },
       bmp: { compression: true },
+      tga: { compression: true },
       png: { optimize: true },
-      tiff: { compression: "lzw" },
-      avif: { speed: 6 }
+      avif: { speed: 6 },
     }
   }), []);
   

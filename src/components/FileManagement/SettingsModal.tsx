@@ -8,20 +8,23 @@ export interface FileSettings {
   compression: boolean;
   quality: number;
   formatSpecific: {
+    jpg: {
+      optimize: boolean;
+    }
     webp: {
       optimize: boolean;
     };
     bmp: {
       compression: boolean;
     };
+    tga: {
+      compression: boolean;
+    };
     png: {
       optimize: boolean;
     };
-    tiff: {
-      compression: "none" | "lzw" | "jpeg";
-    };
     avif: {
-      speed: number; // 0-10 value
+      speed: number;
     };
   };
 }
@@ -69,10 +72,42 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
 
   const renderFormatSpecificSettings = () => {
     switch (selectedFormat.toLowerCase()) {
+      case 'jpg':
+        return (
+          <div className={styles.formatSpecificSettings}>
+            <h4>JPEG Specific Settings</h4>
+            <div className={checkboxStyles.checkboxWrapper}>
+              <label className={`${checkboxStyles.checkbox}`}>
+                <input
+                  type="checkbox"
+                  className={`${checkboxStyles.checkboxTrigger} ${checkboxStyles.visuallyHidden}`}
+                  checked={settings.formatSpecific.jpg.optimize}
+                  onChange={(e) => onSettingsChange({
+                    ...settings,
+                    formatSpecific: {
+                      ...settings.formatSpecific,
+                      jpg: {
+                        ...settings.formatSpecific.jpg,
+                        optimize: e.target.checked
+                      }
+                    }
+                  })}
+                />
+                <span className={checkboxStyles.checkboxSymbol}>
+                  <svg className={checkboxStyles.checkboxIcon} aria-hidden="true" viewBox="0 0 12 10">
+                    <path d="M1 5.50025L3.99975 8.5L11.0005 1.5"></path>
+                  </svg>
+                </span>
+                <p className={checkboxStyles.checkboxTextwrapper}>Optimize Codec Selection (Recommended)</p>
+              </label>
+            </div>
+          </div>
+        );
+      
       case 'webp':
         return (
           <div className={styles.formatSpecificSettings}>
-            <h4>WebP Settings</h4>
+            <h4>WebP Specific Settings</h4>
             <div className={checkboxStyles.checkboxWrapper}>
               <label className={`${checkboxStyles.checkbox}`}>
                 <input
@@ -95,7 +130,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
                     <path d="M1 5.50025L3.99975 8.5L11.0005 1.5"></path>
                   </svg>
                 </span>
-                <p className={checkboxStyles.checkboxTextwrapper}>Optimize File Size</p>
+                <p className={checkboxStyles.checkboxTextwrapper}>Optimize Compression Quality</p>
               </label>
             </div>
           </div>
@@ -146,7 +181,74 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
           </div>
         );
 
-      // Add more cases for other formats...
+        case 'tga':
+          return (
+            <div className={styles.formatSpecificSettings}>
+              <h4>TGA Specific Settings</h4>
+              <div className={checkboxStyles.checkboxWrapper}>
+                <label className={`${checkboxStyles.checkbox}`}>
+                  <input
+                    type="checkbox"
+                    className={`${checkboxStyles.checkboxTrigger} ${checkboxStyles.visuallyHidden}`}
+                    checked={settings.formatSpecific.tga.compression}
+                    onChange={(e) => onSettingsChange({
+                      ...settings,
+                      formatSpecific: {
+                        ...settings.formatSpecific,
+                        tga: {
+                          ...settings.formatSpecific.tga,
+                          compression: e.target.checked
+                        }
+                      }
+                    })}
+                  />
+                  <span className={checkboxStyles.checkboxSymbol}>
+                    <svg className={checkboxStyles.checkboxIcon} aria-hidden="true" viewBox="0 0 12 10">
+                      <path d="M1 5.50025L3.99975 8.5L11.0005 1.5"></path>
+                    </svg>
+                  </span>
+                  <p className={checkboxStyles.checkboxTextwrapper}>
+                    Use RLE Compression
+                  </p>
+                </label>
+              </div>
+            </div>
+          );
+
+          case 'png':
+            return (
+              <div className={styles.formatSpecificSettings}>
+                <h4>PNG Specific Settings</h4>
+                <div className={checkboxStyles.checkboxWrapper}>
+                  <label className={`${checkboxStyles.checkbox}`}>
+                    <input
+                      type="checkbox"
+                      className={`${checkboxStyles.checkboxTrigger} ${checkboxStyles.visuallyHidden}`}
+                      checked={settings.formatSpecific.png.optimize}
+                      onChange={(e) => onSettingsChange({
+                        ...settings,
+                        formatSpecific: {
+                          ...settings.formatSpecific,
+                          png: {
+                            ...settings.formatSpecific.png,
+                            optimize: e.target.checked
+                          }
+                        }
+                      })}
+                    />
+                    <span className={checkboxStyles.checkboxSymbol}>
+                      <svg className={checkboxStyles.checkboxIcon} aria-hidden="true" viewBox="0 0 12 10">
+                        <path d="M1 5.50025L3.99975 8.5L11.0005 1.5"></path>
+                      </svg>
+                    </span>
+                    <p className={checkboxStyles.checkboxTextwrapper}>
+                      Optimize PNG (Recommended)
+                    </p>
+                  </label>
+                </div>
+              </div>
+            );
+
       case 'avif':
         return (
           <div className={styles.formatSpecificSettings}>

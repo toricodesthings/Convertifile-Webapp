@@ -69,7 +69,6 @@
     gap: 4px;
     padding: 0.75rem 2rem;
     background: none;
-
     border: 2px solid rgba(var(--hover-state-rgb), 1);
     font-size: 1rem;
     border-radius: 12px;
@@ -89,22 +88,23 @@
   background-color: rgba(var(--hover-state-rgb), 1);
 }
 
-.applyButton:hover span {
+.applyButton:hover{
     color: rgba(var(--text-color-rgb), 1);
     transform: scale(1.05);
 }
 
 .applyButton:hover svg{
-  transform: translateX(25%);
+  fill: rgba(var(--text-color-rgb), 1);
+  transform: translateX(100%);
   opacity: 1;
 }
 
 .applyButton svg {
     opacity: 0.3;
     transition: all 0.3s ease;
-    width: 1.5rem;
+    width: 1.25rem;
     height: auto;
-    fill: var(--text-color)
+    fill: rgba(var(--secondary-color-rgb), 1)
 }
 
 .settingsButtons {
