@@ -33,7 +33,7 @@ section::before {
   flex: 1;
   width: 100%;
   transition: padding-top 0.3s ease;
-  margin-top: 0; /* Explicitly set to zero */
+  margin-top: 0;
 }
 
 /* Only add padding when navbar is active in mobile view */
@@ -46,21 +46,34 @@ body.navbar-mobile-active .app-content {
   .app-container {
     position: relative;
   }
-
 }
 
+/*Ooo Colors*/
 :root {
-  --mainpage-bg: url('/mainpage/backgrounddark.webp');
-  --bg-color: #000000;
+  --mainpage-bg: url('/mainpage/backgrounddark.webp')
+  --imagepage-bg: url('/imagepage/bgdark.png');
+
+  --bg-color: rgb(0, 0, 0);
+  --bg-color-rgb: 0, 0, 0;
+
   --text-color: white;
-  --text-color-rgb: 255, 255, 255;
+  --note-color: rgb(196, 196, 196);
+  --invert-text-color: rgb(0, 0, 0);
   --invert-color-reverse: 1;
-  --navbar-avatar-bordercolor: linear-gradient(45deg, #ff6b6b, #573dd9);
-  --base-gradient: linear-gradient(90deg, #A23CED, #ee3f3f);
-  --light-hover-gradient: linear-gradient(270deg, rgba(228, 110, 167, 0.5), rgba(161, 71, 212, 0.5));
-  --navbar-radial-bordercolor: linear-gradient(45deg, #ef594e, #8542e9);
-  --font: 'Lexend', sans-serif;
+  --base-gradient: linear-gradient(90deg, rgb(145, 73, 231), rgb(238, 63, 63));
+  --light-hover-gradient: linear-gradient(270deg, rgba(184, 66, 147, 0.7), rgba(184, 83, 217, 0.7));
+  --navbar-radial-bordercolor: linear-gradient(45deg, #ef594e, rgb(146, 64, 228));
   --text-shadow-color-rgb: 255, 245, 245;
+  /*Content*/
+  --title-text-color: #fffdff;
+  --contentborder-color-rgb: 245, 245, 245; /*white*/
+  --border-color-rgb: 160, 74, 174; /*purple, primary accent*/
+  --secondary-color-rgb: 200, 90, 180; /*warm red, secondary accent*/
+  --subtle-glow-rgb: 158, 85, 234; /*warm purple glow*/
+  --subtle-glow-rgb-2: 210, 75, 140; /*pink, glow*/
+  --hover-state-rgb: 184, 66, 160; /*interaction*/
+  --highlight-rgb: 184, 94, 217; /*purple, highlight*/
+  --attention-color-rgb: 238, 65, 65; /*orange, attention*/
 }
 
 .dark {
@@ -87,13 +100,11 @@ body.navbar-mobile-active .app-content {
   --subtle-glow-rgb-2: 210, 75, 140; /*pink, glow*/
   --hover-state-rgb: 184, 66, 160; /*interaction*/
   --highlight-rgb: 184, 94, 217; /*purple, highlight*/
-
   --attention-color-rgb: 238, 65, 65; /*orange, attention*/
 }
 
 .light {
   --mainpage-bg: url('/mainpage/backgroundlight.webp') !important;
-
   --imagepage-bg: url('/imagepage/bg.png') !important;
 
   --bg-color: #ffffff !important;
@@ -119,6 +130,5 @@ body.navbar-mobile-active .app-content {
   --subtle-glow-rgb-2: 250, 140, 180; /*pink, glow*/
   --hover-state-rgb: 240, 131, 220; /*interaction*/
   --highlight-rgb: 156, 124, 250; /*purple, highlight*/
-
   --attention-color-rgb: 255, 80, 100; /*orange, attention*/
 }

@@ -9,6 +9,7 @@
   margin: 0 auto;
 }
 
+
 .pageTitle {
   font-size: clamp(2rem, 4vw, 50px);
   position: relative;
@@ -16,6 +17,16 @@
   color: var(--title-text-color);
   text-shadow: 0 2px 4px rgba(var(--text-shadow-color-rgb), 0.2),
   0 0 1px rgba(var(--subtle-glow-rgb-2), 0.5);
+  overflow: hidden;
+  white-space: nowrap;
+  margin: 0 auto;
+  animation: typing 1s steps(50, end);
+  border-right: 3px solid transparent;
+}
+
+@keyframes typing {
+  from { width: 0 }
+  to { width: 100% }
 }
 
 .uploadSection {
@@ -23,14 +34,14 @@
   flex-direction: column;
   align-items: center;
   width: 100%;
-  min-height: 50vh;
+  min-height: 55vh;
   max-height: 65vh;
   padding: 20px;
   border-radius: 24px;
   position: relative;
   border: 2px dashed rgba(var(--contentborder-color-rgb), 0.5);
-  box-shadow: 0 0px 2px rgba(var(--border-color-rgb, 0.1)), 
-              0 0px 4px rgba(var(--subtle-glow-rgb, 0.1)),
+  box-shadow: 0 0px 4px rgba(var(--border-color-rgb, 0.1)), 
+              0 0px 6px rgba(var(--subtle-glow-rgb, 0.1)),
               inset 0 0 4px 1px rgba(var(--subtle-glow-rgb-2), 0.05);
 
   transition: all 0.3s ease;
@@ -98,10 +109,9 @@
 .uploadButton {
   position: relative;
   display: flex;
+  justify-content: center;
   align-items: center;
   padding: 2vh 5vw;
-  border: 2px solid;
-  border-color: transparent;
   font-size: clamp(1rem, 1.4vw, 2rem);
   font-family: lexend;
   background-color: inherit;
@@ -109,7 +119,7 @@
   font-weight: 600;
   color: var(--text-color);
   border: 2px solid rgba(var(--border-color-rgb), 1);
-  box-shadow: 0 0 8px rgba(var(--subtle-glow-rgb, 0.5));
+  box-shadow: 0 0 4px rgba(var(--subtle-glow-rgb, 0.5));
   cursor: pointer;
   overflow: hidden;
   transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
@@ -117,9 +127,9 @@
 
 .uploadButton svg {
   position: absolute;
-  width: 2rem;
+  max-width: 25%;
   fill: var(--text-color);
-  z-index: 9;
+  z-index: 1;
   transition: all 1s cubic-bezier(0.2, 1, 0.3, 1);
 }
 
@@ -141,8 +151,9 @@
   background-color: rgba(var(--hover-state-rgb), 0.6);
   border-radius: 50%;
   opacity: 0;
-  transition: all 1s cubic-bezier(0.23, 1, 0.32, 1);
+  transition: all 0.8s cubic-bezier(0.23, 1, 0.32, 1);
 }
+
 
 .uploadButton .buttonText {
   position: relative;
@@ -185,6 +196,25 @@
   opacity: 1;
 }
 
+.buttonWrapper .uploadButton {
+  padding: 2vh 3vw;
+  min-width: 150px;
+  font-weight: 500;
+  border: 2px solid rgba(var(--secondary-color-rgb), 1);
+  transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.buttonWrapper .uploadButton .circle {
+    background-color: rgba(var(--hover-state-rgb), 0.9);
+    border-radius: 50%;
+  }
+
+.buttonWrapper .uploadButton:hover {
+    box-shadow: 0 0 10px rgba(var(--subtle-glow-rgb-2), 0.5);
+    border-color: rgba(var(--hover-state-rgb), 0.9);
+  }
+
+
 .dragDropNote {
   font-size: 1rem;
   color: var(--text-color);
@@ -204,9 +234,9 @@
 
 .fileList {
   padding: 0 2px;
-  overflow-x: hidden;
   align-self: center;
-  width: 50%;
+  width: 50vw;
+  overflow-x: hidden;
   overflow-y: auto;
   border-radius: 8px;
 }
@@ -239,8 +269,8 @@
 }
 
 .fileItem {
-  padding: 0.75rem 1rem;
-  background-color: rgba(var(--bgcolor-rgb), 0.25);
+  padding: 1rem;
+  background-color: rgba(var(--bg-color-rgb), 0.3);
   border-bottom: 1px solid rgba(var(--contentborder-color-rgb), 0.1);
   display: flex;
   align-items: center;
@@ -291,7 +321,7 @@
 }
 
 .fileName {
-  font-size: 1rem;
+  font-size: clamp(1rem, 1.25vw, 2rem);
   max-width: 50%;
   color: var(--text-color);
   word-break: break-all;
@@ -301,10 +331,10 @@
 }
 
 .fileActions {
-  max-height: 100%;
+  height: 100%;
   align-items: stretch;
   display: flex;
-  column-gap: 0.5vw;
+  gap: 0.5rem;
 }
 
 /* Settings button styles */
@@ -403,19 +433,24 @@
 
 .buttonGroup {
   align-self: center;
-  display: flex;
-  flex-direction: row;
-  width: 50%;
+  width: 50vw;
 }
 
 .buttonWrapper {
   display: flex;
+  flex-direction: row;
   gap: 1rem;
-  justify-content: space-between;
+  align-items: stretch;
   transition: all 0.3s ease;
-  flex: 1;
-  height: auto;
-  margin: 0;
+  width: 100%;
+  height: 100%;
+  margin-right: auto;
+}
+
+/* Container for grouping Add More and Convert buttons */
+.buttonWrapper > div:nth-child(2) {
+  margin-left: auto;
+  display: flex;
 }
 
 .hiddenButton {
@@ -440,16 +475,6 @@
     overflow: hidden;
   }
   
-}
-
-/* Add container for right-aligned buttons */
-.rightButtons {
-  display: flex;
-  flex-grow: 1;
-  gap: 1rem;
-  justify-content: flex-end;
-  flex-direction: row;
-  align-items: center;
 }
 
 .buttonGroup button:nth-child(1) {
@@ -484,99 +509,9 @@
   }
 }
 
-.uploadMoreButton {
-  position: relative;
-  display: flex;
-  align-items: center;
-  padding: 2vh 3vw;
-  border: 2px solid;
-  border-color: transparent;
-  font-size: clamp(1rem, 1.4vw, 2rem);
-  font-family: lexend;
-  background-color: inherit;
-  border-radius: 100px;
-  font-weight: 500;
-  color: var(--text-color);
-  border: 2px solid rgba(var(--secondary-color-rgb), 1);
-  cursor: pointer;
-  overflow: hidden;
-  transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
-}
-
-.uploadMoreButton svg {
-  position: absolute;
-  width: 2rem;
-  fill: var(--text-color);
-  z-index: 9;
-  transition: all 1s cubic-bezier(0.2, 1, 0.3, 1);
-}
-
-.uploadMoreButton .arr-1 {
-  right: 16px;
-}
-
-.uploadMoreButton .arr-2 {
-  left: -25%;
-}
-
-.uploadMoreButton .circle {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 10px;
-  height: 10px;
-  background-color: rgba(var(--hover-state-rgb), 0.9);
-  border-radius: 50%;
-  opacity: 0;
-  transition: all 0.8s cubic-bezier(0.23, 1, 0.32, 1);
-}
-
-.uploadMoreButton .buttonText {
-  position: relative;
-  z-index: 1;
-  transform: translateX(-10px);
-  transition: all 0.8s cubic-bezier(0.23, 1, 0.32, 1);
-}
-
-.uploadMoreButton:hover {
-  box-shadow: 0 0 10px rgba(var(--subtle-glow-rgb-2), 0.5);
-  color: var(--text-color);
-  border-radius: 12px;
-  border-color: rgba(var(--hover-state-rgb), 0.9);
-  transform: scale(1.05);
-}
-
-.uploadMoreButton:hover .arr-1 {
-  right: -25%;
-}
-
-.uploadMoreButton:hover .arr-2 {
-  left: 16px;
-}
-
-.uploadMoreButton:hover .buttonText {
-  transform: translateX(10px);
-}
-
-.uploadMoreButton:hover svg {
-  fill: var(--text-color);
-}
-
-.uploadMoreButton:active {
-    transform: scale(0.98);
-}
-
-.uploadMoreButton:hover .circle {
-  width: 20vw;
-  height: 20vw;
-  opacity: 1;
-}
-
 .confirmButton {
-  justify-self: end;
   position: relative;
-  box-shadow: 0 0 8px rgba(var(--subtle-glow-rgb, 0.2));
+  box-shadow: 0 0 4px rgba(var(--subtle-glow-rgb, 0.2));
   display: flex;
   align-items: center;
   padding: 2vh 5vw;
@@ -606,31 +541,32 @@
 }
 
 .binButton {
-  justify-self: start;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  width: 100%;
   aspect-ratio: 1;
-  flex-shrink: 0;
   height: 100%;
-  border-radius: 24px;
-  background-color: rgba(var(--attention-color-rgb), 0.75);
+  border-radius: 100px;
+  background: inherit;
   cursor: pointer;
+  box-shadow: 0px 0px 4px rgba(var(--attention-color-rgb), 0.5);
   border: 2px solid rgba(var(--attention-color-rgb), 1);
   transition: all 0.3s ease;
+  margin-right: auto;
 }
 
 .binBottom {
   width: 15px;
-  color: var(--button-text-color, white);
+  color: var(--text-color);
 }
 
 .binTop {
   width: 17px;
   transform-origin: right;
   transition-duration: 0.3s;
-  color: var(--button-text-color, white);
+  color: var(--text-color);
 }
 
 .binButton:hover .binTop {
@@ -640,6 +576,10 @@
 .binButton:hover {
   background-color: rgba(var(--attention-color-rgb), 1);
   transform: scale(1.1);
+}
+
+.binButton:hover .binBottom, .binButton:hover .binTop {
+  color: white;
 }
 
 .uploaderNote {
@@ -653,6 +593,7 @@
 .formatSelector {
   flex: 1;
   position: relative;
+  min-width: 5rem;
   width: 7.5vw;
 }
 
@@ -665,7 +606,7 @@
   background-color: rgba(var(--hover-state-rgb), 0.08);
   padding: 0 0.5rem;
   border-radius: 12px;
-  font-size: 1rem;
+  font-size: clamp(1rem, 1.25vw, 2rem);
   cursor: pointer;
   transition: background-color 0.2s;
 }
@@ -673,7 +614,7 @@
 .dropdownToggle span {
   color: var(--text-color);
   text-transform: uppercase;
-  font-weight: 600;
+  font-weight: 500;
   display: flex;
   font-family: lexend;
   justify-content: space-between;
@@ -697,17 +638,18 @@
 
 .formatDropdown {
   position: absolute;
-  z-index: 1000;
+  z-index: 100;
   background-color: var(--bg-color);
-  box-shadow: 0 0 20px rgba(var(--subtle-glow-rgb-2), 0.2);
+  box-shadow: 0 0 20px rgba(var(--subtle-glow-rgb-2), 0.3);
   min-width: 150px;
-  max-height: 250px;
+  max-width: 10vw;
+  max-height: 17.5vh;
+  border-radius: 12px;
   overflow-y: scroll;
 }
 
 .formatOption {
-  border-bottom: 2px solid rgba(var(--secondary-color-rgb), 0.3);
-  border-radius: 12px;
+  border-bottom: 2px solid rgba(var(--secondary-color-rgb), 0.5);
   text-transform: uppercase;
   padding: 10px 20px;
   font-weight: 400;
@@ -833,5 +775,143 @@
   100% {
     transform: translateY(0px);
     opacity: 1;
+  }
+}
+
+@media (max-width: 768px) and (orientation: portrait) {
+  .container {
+    width: 90%;
+  }
+
+  .uploadSection {
+    min-height: 60vh;
+    max-height: 70vh;
+  }
+
+  .fileList {
+    width: 100%;
+  }
+
+  .fileItem {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1rem;
+  }
+
+  .fileName {
+    text-align: left;
+    max-width: 100%;
+    white-space: nowrap;
+  }
+
+  .fileActions {
+    width: 100%;
+  }
+
+  .buttonGroup {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .buttonWrapper {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  
+  .buttonWrapper .uploadButton {
+    flex-grow: 1;
+    width: 100;
+  }
+  
+  .confirmButton {
+    flex-basis: 100%;
+    width: 100%;
+    justify-content: center;
+  }
+  
+  /* Make sure the div containing the upload button grows */
+  .buttonWrapper > div:nth-child(2) {
+    flex-grow: 1;
+    margin-left: 1rem;
+  }
+
+  .binButton{
+    aspect-ratio: 0;
+  }
+
+  /* Container for bin button */
+  .buttonWrapper > div:first-child {
+    width: calc(50% - 0.5rem);
+    flex: 0 0 calc(50% - 0.5rem);
+  }
+      /* Container for Add More button */
+  .buttonWrapper > div:nth-child(2) {
+    width: calc(50% - 0.5rem);
+    margin-left: 0;
+  }
+  
+}
+
+/* Add these styles to your existing CSS file */
+
+.notificationsContainer {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  width: auto;
+}
+
+.notification {
+  padding: 20px;
+  border-radius: 12px;
+  font-size: 1rem;
+  text-align: center;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 -2px 4px rgba(var(--text-shadow-color-rgb), 0.2);
+  animation: slideUp 0.3s ease-out forwards;
+  color: white;
+  border: 2px solid transparent;
+}
+
+.notification.error {
+  background-color: rgba(var(--attention-color-rgb), 0.5);
+}
+
+.notification.warning {
+  background-color: rgba(var(--secondary-color-rgb), 0.5);
+}
+
+.notification.success {
+  background-color: rgba(var(--border-color-rgb), 0.5);
+}
+
+.notificationClose {
+  background: transparent;
+  border: none;
+  color: white;
+  font-size: 1.2rem;
+  cursor: pointer;
+  padding: 0 0 0 16px;
+  margin: 0;
+  line-height: 1;
+}
+
+@keyframes slideUp {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
   }
 }

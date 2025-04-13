@@ -3,14 +3,25 @@
 import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import styles from "./imageconverter.module.css";
+import fileItemStyles from "../../components/FileManagement/fileItem.module.css";
 import { convertFile } from '../../backendcaller/imageConverter';
 import SettingsModal, { FileSettings } from '../../components/FileManagement/SettingsModal';
 import FileUploader from '../../components/FileManagement/FileUploader';
 
 /**
- * Available formats for image conversion
+ * Image Rules
  */
-const AVAILABLE_FORMATS = ['jpg', 'png', 'gif', 'bmp', 'tiff', 'webp', 'ico', 'heic', 'avif', 'pdf'];
+const AVAILABLE_FORMATS = ['jpg', 'png', 'webp', 'gif', 'bmp', 'tiff', 'ico', 'heic', 'avif', 'pdf', 'pbm', 'ppm', 'tga', 'sgi'];
+const MAX_FILE_SIZE_MB = 200;
+const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024; // Convert MB to bytes
+const MAX_FILES_COUNT = 10;
+
+// Notification type definition
+interface Notification {
+  id: string;
+  message: string;
+  type: 'error' | 'warning' | 'success';
+}
 
 /**
  * ImageConverterPage component - Main page for converting images between formats
@@ -31,41 +42,63 @@ const ImageConverterPage = () => {
       avif: { speed: 6 }
     }
   }), []);
-  // File handling states
-  const [isDragging, setIsDragging] = useState(false);
+  
+  // File management state
   const [files, setFiles] = useState<File[]>([]);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const dragCounter = useRef(0);
   const [filesAdded, setFilesAdded] = useState(false);
   const [deletingFileIndex, setDeletingFileIndex] = useState<number | null>(null);
   const [selectedFormats, setSelectedFormats] = useState<string[]>([]);
+  
+  // UI references and drag-drop state
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const formatSelectorRef = useRef<HTMLDivElement>(null);
+  const dragCounter = useRef(0);
+  const [isDragging, setIsDragging] = useState(false);
+  const [showDropdown, setShowDropdown] = useState<number | null>(null);
+  const [buttonsVisible, setButtonsVisible] = useState(true);
+  
+  // Conversion state
   const [isConverting, setIsConverting] = useState(false);
   const [conversionStatus, setConversionStatus] = useState<string[]>([]);
   const [conversionProgress, setConversionProgress] = useState<number[]>([]);
   const [conversionResults, setConversionResults] = useState<{ fileUrl: string, fileName: string }[]>([]);
-  const [showDropdown, setShowDropdown] = useState<number | null>(null);
-  const formatSelectorRef = useRef<HTMLDivElement>(null);
   const [allConversionsComplete, setAllConversionsComplete] = useState(false);
 
-  // Settings states
+  // Settings state
   const [showSettings, setShowSettings] = useState(false);
   const [currentFileIndex, setCurrentFileIndex] = useState<number>(-1);
   const [fileSettings, setFileSettings] = useState<FileSettings[]>([]);
-  const [tempSettings, setTempSettings] = useState<FileSettings>({...defaultSettings});
+  const [tempSettings, setTempSettings] = useState<FileSettings>({ ...defaultSettings });
 
-  // Track when files are added to trigger animations
+  // Notification state
+  const [notifications, setNotifications] = useState<Notification[]>([]);
+
+  // Function to add a notification
+  const addNotification = (message: string, type: 'error' | 'warning' | 'success' = 'error') => {
+    const id = Date.now().toString();
+    setNotifications(prev => [...prev, { id, message, type }]);
+    
+    // Auto remove after 3 seconds
+    setTimeout(() => {
+      setNotifications(prev => prev.filter(notification => notification.id !== id));
+    }, 3000);
+  };
+
+  // Function to remove a notification
+  const removeNotification = (id: string) => {
+    setNotifications(prev => prev.filter(notification => notification.id !== id));
+  };
+
   useEffect(() => {
     if (files.length > 0) {
       setFilesAdded(true);
     }
   }, [files]);
 
-// Initialize settings for new files
+  // Initialize settings for new files
   useEffect(() => {
-    setFileSettings(files.map(() => ({...defaultSettings})));
+    setFileSettings(files.map(() => ({ ...defaultSettings })));
   }, [files.length, defaultSettings]);
-
-  const [buttonsVisible, setButtonsVisible] = useState(true);
 
   // Add this effect to handle transitions
   useEffect(() => {
@@ -90,11 +123,11 @@ const ImageConverterPage = () => {
       const handleClickOutside = (event: MouseEvent) => {
         // Cast the event target to Element to check if it's a node that matches our selectors
         const target = event.target as Element;
-  
+
         // Check if the click was outside both the dropdown and the toggle button
-        const isOutsideDropdown = !target.closest(`.${styles.formatDropdown}`);
-        const isOutsideToggle = !target.closest(`.${styles.dropdownToggle}`);
-  
+        const isOutsideDropdown = !target.closest(`.${fileItemStyles.formatDropdown}`);
+        const isOutsideToggle = !target.closest(`.${fileItemStyles.dropdownToggle}`);
+
         if (isOutsideDropdown && isOutsideToggle) {
           setShowDropdown(null);
         }
@@ -110,9 +143,7 @@ const ImageConverterPage = () => {
     }
   }, [showDropdown]);
 
-  /**
-   * Handle drag enter event
-   */
+  // Handle drag enter event
   const handleDragEnter = (e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
@@ -121,10 +152,6 @@ const ImageConverterPage = () => {
       setIsDragging(true);
     }
   };
-
-  /**
-   * Handle drag leave event
-   */
   const handleDragLeave = (e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
@@ -133,40 +160,30 @@ const ImageConverterPage = () => {
       setIsDragging(false);
     }
   };
-
-  /**
-   * Handle drag over event
-   */
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
   };
 
-  /**
-   * Get file extension from filename
-   */
+  // Check whether file is an image and get its extension
   const getFileExtension = (filename: string): string => {
     return filename.split('.').pop()?.toLowerCase() || '';
   };
-
-  /**
-   * Get available formats excluding the current format
-   */
   const getAvailableFormats = (file: File): string[] => {
     const currentFormat = getFileExtension(file.name);
     return AVAILABLE_FORMATS.filter(format => format !== currentFormat);
   };
-
-  /**
-   * Check if file is an image based on MIME type
-   */
   const isImageFile = (file: File): boolean => {
     return file.type.startsWith('image/');
   };
 
-  /**
-   * Handle file drop event
-   */
+
+  // Restrictions application
+  const isFileSizeValid = (file: File): boolean => {
+    return file.size <= MAX_FILE_SIZE_BYTES;
+  };
+
+  // Handle file drop event
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
@@ -175,24 +192,43 @@ const ImageConverterPage = () => {
 
     if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
       const droppedFiles = Array.from(e.dataTransfer.files);
+      
+      // Check if adding the files would exceed the maximum count
+      if (files.length + droppedFiles.length > MAX_FILES_COUNT) {
+        addNotification(`You can only add up to ${MAX_FILES_COUNT} files at a time. You already have ${files.length} files.`);
+        return;
+      }
+      
+      // Filter out non-image files
       const imageFiles = droppedFiles.filter(isImageFile);
-
-      if (imageFiles.length < droppedFiles.length) {
-        alert(`${droppedFiles.length - imageFiles.length} file(s) were rejected because they are not images.`);
+      
+      // Filter out files exceeding size limit
+      const validSizeFiles = imageFiles.filter(isFileSizeValid);
+      
+      // Notify about rejected files
+      const rejectedForType = droppedFiles.length - imageFiles.length;
+      const rejectedForSize = imageFiles.length - validSizeFiles.length;
+      
+      if (rejectedForType > 0) {
+        addNotification(`${rejectedForType} file(s) were rejected because they are not images.`, 'warning');
+      }
+      
+      if (rejectedForSize > 0) {
+        addNotification(`${rejectedForSize} file(s) were rejected because they exceed the ${MAX_FILE_SIZE_MB}MB size limit.`, 'warning');
       }
 
-      if (imageFiles.length > 0) {
-        const newFiles = [...files, ...imageFiles];
+      if (validSizeFiles.length > 0) {
+        const newFiles = [...files, ...validSizeFiles];
         setFiles(newFiles);
         setSelectedFormats(prev => [
           ...prev,
-          ...imageFiles.map(file => getAvailableFormats(file)[0])
+          ...validSizeFiles.map(file => getAvailableFormats(file)[0])
         ]);
 
         // Initialize settings for new files
         setFileSettings(prev => [
           ...prev,
-          ...imageFiles.map(() => ({...defaultSettings}))
+          ...validSizeFiles.map(() => ({ ...defaultSettings }))
         ]);
 
         e.dataTransfer.clearData();
@@ -201,30 +237,47 @@ const ImageConverterPage = () => {
     }
   };
 
-  /**
-   * Handle file selection from input
-   */
+  // Handle file selection from Button input
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
       const selectedFiles = Array.from(e.target.files);
+      
+      // Check if adding the files would exceed the maximum count
+      if (files.length + selectedFiles.length > MAX_FILES_COUNT) {
+        addNotification(`You can only add up to ${MAX_FILES_COUNT} files at a time. You already have ${files.length} files.`);
+        return;
+      }
+      
+      // Filter out non-image files
       const imageFiles = selectedFiles.filter(isImageFile);
-
-      if (imageFiles.length < selectedFiles.length) {
-        alert(`${selectedFiles.length - imageFiles.length} file(s) cannot be added because they are not images.`);
+      
+      // Filter out files exceeding size limit
+      const validSizeFiles = imageFiles.filter(isFileSizeValid);
+      
+      // Notify about rejected files
+      const rejectedForType = selectedFiles.length - imageFiles.length;
+      const rejectedForSize = imageFiles.length - validSizeFiles.length;
+      
+      // Notify about rejected files
+      if (rejectedForType > 0) {
+        addNotification(`${rejectedForType} file(s) cannot be added because they are not images.`, 'warning');
+      }
+      if (rejectedForSize > 0) {
+        addNotification(`${rejectedForSize} file(s) cannot be added because they exceed the ${MAX_FILE_SIZE_MB}MB size limit.`, 'warning');
       }
 
-      if (imageFiles.length > 0) {
-        const newFiles = [...files, ...imageFiles];
+      if (validSizeFiles.length > 0) {
+        const newFiles = [...files, ...validSizeFiles];
         setFiles(newFiles);
         setSelectedFormats(prev => [
           ...prev,
-          ...imageFiles.map(file => getAvailableFormats(file)[0])
+          ...validSizeFiles.map(file => getAvailableFormats(file)[0])
         ]);
 
         // Initialize settings for new files
         setFileSettings(prev => [
           ...prev,
-          ...imageFiles.map(() => ({...defaultSettings}))
+          ...validSizeFiles.map(() => ({ ...defaultSettings }))
         ]);
 
         setFilesAdded(true);
@@ -232,39 +285,36 @@ const ImageConverterPage = () => {
     }
   };
 
-  /**
-   * Handle file input button click
-   */
+  // Handle button click to open file input dialog
   const handleButtonClick = () => {
     fileInputRef.current?.click();
   };
 
-  /**
-   * Clear all files
-   */
+  // Handle clearing files
   const handleClearFiles = () => {
     setFiles([]);
     setFilesAdded(false);
     setSelectedFormats([]);
     setConversionStatus([]);
     setFileSettings([]);
+
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
   };
 
-  /**
-   * Handle format change for a specific file
-   */
+  // Handle format change for a specific file
   const handleFormatChange = (index: number, format: string) => {
-    setSelectedFormats(prev => {
-      const updated = [...prev];
-      updated[index] = format;
-      return updated;
-    });
+    console.log(`Attempting to change format for index ${index} to ${format}`);
+    
+    // Direct assignment with a new array instead of using updater function
+    const updatedFormats = [...selectedFormats];
+    updatedFormats[index] = format;
+    setSelectedFormats(updatedFormats);
     setShowDropdown(null);
   };
 
-  /**
-   * Handle file deletion with animation
-   */
+  // Handle deleting a specific file
   const handleDeleteFile = (indexToDelete: number) => {
     // Mark the file as being deleted to trigger the animation
     setDeletingFileIndex(indexToDelete);
@@ -279,21 +329,21 @@ const ImageConverterPage = () => {
       if (files.length === 1) {
         setFilesAdded(false);
       }
-    }, 300); // Match this to the animation duration
+
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    }, 300);
   };
 
-  /**
-   * Open settings modal for a specific file
-   */
+  // Handle opening settings modal for a specific file
   const handleOpenSettings = (index: number) => {
     setCurrentFileIndex(index);
     setTempSettings({ ...fileSettings[index] });
     setShowSettings(true);
   };
 
-  /**
-   * Apply settings from the modal
-   */
+  // Handle applying settings from the modal
   const handleApplySettings = () => {
     setFileSettings(prev => {
       const updated = [...prev];
@@ -303,9 +353,7 @@ const ImageConverterPage = () => {
     setShowSettings(false);
   };
 
-  /**
-   * Handle conversion for all files
-   */
+  // Handle conversion process
   const handleConvert = async () => {
     if (allConversionsComplete) {
       // Reset everything
@@ -358,9 +406,7 @@ const ImageConverterPage = () => {
     setAllConversionsComplete(true);
   };
 
-  /**
-   * Handle downloading a converted file
-   */
+  // Handle downloading converted files
   const handleDownload = (url: string, filename: string) => {
     const a = document.createElement('a');
     a.href = url;
@@ -368,6 +414,36 @@ const ImageConverterPage = () => {
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
+  };
+
+  // Notification Component
+  const NotificationContainer = () => {
+    const [mounted, setMounted] = useState(false);
+    
+    useEffect(() => {
+      setMounted(true);
+      return () => setMounted(false);
+    }, []);
+    
+    return mounted ? createPortal(
+      <div className={styles.notificationsContainer}>
+        {notifications.map(notification => (
+          <div 
+            key={notification.id} 
+            className={`${styles.notification} ${styles[notification.type]}`}
+          >
+            <span>{notification.message}</span>
+            <button 
+              className={styles.notificationClose}
+              onClick={() => removeNotification(notification.id)}
+            >
+              &times;
+            </button>
+          </div>
+        ))}
+      </div>,
+      document.body
+    ) : null;
   };
 
   return (
@@ -403,23 +479,23 @@ const ImageConverterPage = () => {
             <div className={styles.fileList}>
               {files.map((file, index) => (
                 <div
-                  className={`${styles.fileItem} ${deletingFileIndex === index ? styles.deletingItem : ''}`}
+                  className={`${fileItemStyles.fileItem} ${deletingFileIndex === index ? fileItemStyles.deletingItem : ''}`}
                   key={index}
                   style={{ animationDelay: `${0.1 * index}s` }}
                 >
-                  <span className={styles.fileName}>{file.name}</span>
-                  <div className={styles.fileActions}>
+                  <span className={fileItemStyles.fileName}>{file.name}</span>
+                  <div className={fileItemStyles.fileActions}>
                     {isConverting ? (
                       <>
                         {conversionStatus[index] && (
-                          <div className={styles.fileActions}>
-                            <div className={styles.conversionStatus}>
+                          <div className={fileItemStyles.fileActions}>
+                            <div className={fileItemStyles.conversionStatus}>
                               {!conversionStatus[index].includes('Completed!') &&
                                 !conversionStatus[index].includes('Failed') &&
                                 !conversionStatus[index].includes('Timed out') ? (
-                                <div className={styles.loaderBar}>
+                                <div className={fileItemStyles.loaderBar}>
                                   <div
-                                    className={styles.loaderProgress}
+                                    className={fileItemStyles.loaderProgress}
                                     style={{ width: `${conversionProgress[index]}%` }}
                                   />
                                 </div>
@@ -428,16 +504,16 @@ const ImageConverterPage = () => {
                                 {conversionStatus[index]}
                               </span>
                               {conversionResults[index]?.fileUrl && (
-                                
+
                                 <button
-                                  className={styles.downloadButton}
+                                  className={fileItemStyles.downloadButton}
                                   onClick={() => handleDownload(
                                     conversionResults[index].fileUrl,
                                     conversionResults[index].fileName
                                   )}
                                 >
-                                  <svg className={styles.downloadIcon} viewBox="0 0 384 512" height="1em" xmlns="http://www.w3.org/2000/svg"><path d="M169.4 470.6c12.5 12.5 32.8 12.5 45.3 0l160-160c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L224 370.8 224 64c0-17.7-14.3-32-32-32s-32 14.3-32 32l0 306.7L54.6 265.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3l160 160z" /></svg>
-                                  <span className={styles.iconTwo} />
+                                  <svg className={fileItemStyles.downloadIcon} viewBox="0 0 384 512" height="1em" xmlns="http://www.w3.org/2000/svg"><path d="M169.4 470.6c12.5 12.5 32.8 12.5 45.3 0l160-160c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L224 370.8 224 64c0-17.7-14.3-32-32-32s-32 14.3-32 32l0 306.7L54.6 265.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3l160 160z" /></svg>
+                                  <span className={fileItemStyles.iconTwo} />
                                 </button>
                               )}
                             </div>
@@ -446,10 +522,10 @@ const ImageConverterPage = () => {
                       </>
                     ) : (
                       <>
-                        <div className={styles.fileActions}>
-                          <div className={styles.formatSelector} ref={formatSelectorRef}>
+                        <div className={fileItemStyles.fileActions}>
+                          <div className={fileItemStyles.formatSelector} ref={formatSelectorRef}>
                             <button
-                              className={styles.dropdownToggle}
+                              className={fileItemStyles.dropdownToggle}
                               onClick={() => setShowDropdown(showDropdown === index ? null : index)}
                             >
                               <span>
@@ -459,7 +535,7 @@ const ImageConverterPage = () => {
                                   xmlns="http://www.w3.org/2000/svg"
                                   height="1em"
                                   viewBox="0 0 512 512"
-                                  className={`${styles.dropdownArrow} ${showDropdown !== null ? styles.arrowRotate : ''}`}
+                                  className={`${fileItemStyles.dropdownArrow} ${showDropdown !== null ? fileItemStyles.arrowRotate : ''}`}
                                 >
                                   <path
                                     d="M233.4 406.6c12.5 12.5 32.8 12.5 45.3 0l192-192c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L256 338.7 86.6 169.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3l192 192z"
@@ -470,18 +546,24 @@ const ImageConverterPage = () => {
 
                             {showDropdown === index && createPortal(
                               <div
-                                className={styles.formatDropdown}
+                                className={fileItemStyles.formatDropdown}
                                 style={{
-                                  position: 'fixed', // Change to fixed positioning
+                                  position: 'fixed',
                                   top: formatSelectorRef.current?.getBoundingClientRect().bottom || 0,
                                   left: formatSelectorRef.current?.getBoundingClientRect().left || 0,
+                                  minWidth: formatSelectorRef.current?.offsetWidth || 'auto'
                                 }}
                               >
                                 {getAvailableFormats(file).map(format => (
                                   <div
                                     key={format}
-                                    className={styles.formatOption}
-                                    onClick={() => handleFormatChange(index, format)}
+                                    className={fileItemStyles.formatOption}
+                                    onClick={(e) => {
+                                      e.preventDefault();
+                                      e.stopPropagation();
+                                      console.log(`Format option clicked: ${format}`);
+                                      handleFormatChange(index, format);
+                                    }}
                                   >
                                     {format}
                                   </div>
@@ -490,15 +572,15 @@ const ImageConverterPage = () => {
                               document.body
                             )}
                           </div>
-                          <button className={styles.settingBtn} onClick={() => handleOpenSettings(index)}>
-                            <span className={`${styles.bar} ${styles.bar1}`}></span>
-                            <span className={`${styles.bar} ${styles.bar2}`}></span>
-                            <span className={`${styles.bar} ${styles.bar1}`}></span>
+                          <button className={fileItemStyles.settingBtn} onClick={() => handleOpenSettings(index)}>
+                            <span className={`${fileItemStyles.bar} ${fileItemStyles.bar1}`}></span>
+                            <span className={`${fileItemStyles.bar} ${fileItemStyles.bar2}`}></span>
+                            <span className={`${fileItemStyles.bar} ${fileItemStyles.bar1}`}></span>
                           </button>
 
-                          <button className={styles.deleteBtn} onClick={() => handleDeleteFile(index)}>
+                          <button className={fileItemStyles.deleteBtn} onClick={() => handleDeleteFile(index)}>
                             <svg
-                              className={styles.xIcon}
+                              className={fileItemStyles.xIcon}
                               xmlns="http://www.w3.org/2000/svg"
                               width="24"
                               height="24"
@@ -564,31 +646,29 @@ const ImageConverterPage = () => {
                     </button>
                   </div>
                 )}
-                <div className={styles.rightButtons}>
-                  {(buttonsVisible) && (
-                    <div className={isConverting ? styles.hiddenButton : ''}>
-                      <button className={`${styles.uploadMoreButton} ${isConverting ? styles.hiddenButton : ''}`} onClick={handleButtonClick} disabled={isConverting}>
-                        <svg xmlns="http://www.w3.org/2000/svg" width={24} viewBox="0 0 24 24" strokeWidth={2} strokeLinejoin="round" strokeLinecap="round" stroke="currentColor" height={24} fill="none" className={styles["arr-2"]}><line y2={19} y1={5} x2={12} x1={12} /><line y2={12} y1={12} x2={19} x1={5} /></svg>
-                        <span className={styles.buttonText}>Add More</span>
-                        <span className={styles.circle} />
-                        <svg xmlns="http://www.w3.org/2000/svg" width={24} viewBox="0 0 24 24" strokeWidth={2} strokeLinejoin="round" strokeLinecap="round" stroke="currentColor" height={24} fill="none" className={styles["arr-1"]}><line y2={19} y1={5} x2={12} x1={12} /><line y2={12} y1={12} x2={19} x1={5} /></svg>
-                      </button>
-                    </div>
-                  )}
-                  <button
-                    className={`${styles.confirmButton} ${isConverting || allConversionsComplete ? styles.converting : ''}`}
-                    onClick={handleConvert}
-                    disabled={(isConverting && !allConversionsComplete) || (!allConversionsComplete && files.length === 0)}
-                  >
-                    <span className={styles.buttonText}>
-                      {isConverting && !allConversionsComplete
-                        ? 'Converting...'
-                        : allConversionsComplete
-                          ? 'Convert More'
-                          : 'Convert'}
-                    </span>
-                  </button>
-                </div>
+                {(buttonsVisible) && (
+                  <div className={isConverting ? styles.hiddenButton : ''}>
+                    <button className={`${styles.uploadButton} ${isConverting ? styles.hiddenButton : ''}`} onClick={handleButtonClick} disabled={isConverting}>
+                      <svg xmlns="http://www.w3.org/2000/svg" width={24} viewBox="0 0 24 24" strokeWidth={2} strokeLinejoin="round" strokeLinecap="round" stroke="currentColor" height={24} fill="none" className={styles["arr-2"]}><line y2={19} y1={5} x2={12} x1={12} /><line y2={12} y1={12} x2={19} x1={5} /></svg>
+                      <span className={styles.buttonText}>Add More</span>
+                      <span className={styles.circle} />
+                      <svg xmlns="http://www.w3.org/2000/svg" width={24} viewBox="0 0 24 24" strokeWidth={2} strokeLinejoin="round" strokeLinecap="round" stroke="currentColor" height={24} fill="none" className={styles["arr-1"]}><line y2={19} y1={5} x2={12} x1={12} /><line y2={12} y1={12} x2={19} x1={5} /></svg>
+                    </button>
+                  </div>
+                )}
+                <button
+                  className={`${styles.confirmButton} ${isConverting || allConversionsComplete ? styles.converting : ''}`}
+                  onClick={handleConvert}
+                  disabled={(isConverting && !allConversionsComplete) || (!allConversionsComplete && files.length === 0)}
+                >
+                  <span className={styles.buttonText}>
+                    {isConverting && !allConversionsComplete
+                      ? 'Converting...'
+                      : allConversionsComplete
+                        ? 'Convert More'
+                        : 'Convert'}
+                  </span>
+                </button>
               </div>
             </div>
           </div>
@@ -607,8 +687,8 @@ const ImageConverterPage = () => {
 
         {files.length === 0 && (
           <p className={styles.uploaderNote}>
-            Supported Formats: JPG, PNG, GIF, BMP, TIFF, WEBP
-            | Files will only be stored for 10 minutes.
+            Supported Formats: JPG, PNG, GIF, BMP, TIFF, WEBP, ICO, HEIC, AVIF, PDF, PBM, PPM, TGA, SGI
+            | Max: {MAX_FILES_COUNT} files, {MAX_FILE_SIZE_MB}MB per file | Deletes after 15 Minutes
           </p>
         )}
       </section>
@@ -623,6 +703,9 @@ const ImageConverterPage = () => {
         onSettingsChange={setTempSettings}
         onApply={handleApplySettings}
       />
+      
+      {/* Render notifications */}
+      <NotificationContainer />
     </div>
   );
 };
