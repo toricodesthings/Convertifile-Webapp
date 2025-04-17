@@ -649,7 +649,7 @@ const ImageConverterPage = () => {
                 )}
                 {(buttonsVisible) && (
                   <div className={isConverting ? styles.hiddenButton : ''}>
-                    <button className={`${uploadButtonStyles.uploadButton} ${isConverting ? styles.hiddenButton : ''}`} onClick={handleButtonClick} disabled={isConverting}>
+                    <button className={`${filesAdded ? uploadButtonStyles.uploadBtnSmall : ""} ${uploadButtonStyles.uploadButton} ${isConverting ? styles.hiddenButton : ''}`} onClick={handleButtonClick} disabled={isConverting}>
                       <svg xmlns="http://www.w3.org/2000/svg" width={24} viewBox="0 0 24 24" strokeWidth={2} strokeLinejoin="round" strokeLinecap="round" stroke="currentColor" height={24} fill="none" className={uploadButtonStyles["arr-2"]}><line y2={19} y1={5} x2={12} x1={12} /><line y2={12} y1={12} x2={19} x1={5} /></svg>
                       <span className={uploadButtonStyles.buttonText}>Add More</span>
                       <span className={uploadButtonStyles.circle} />

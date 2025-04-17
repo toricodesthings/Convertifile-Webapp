@@ -219,7 +219,7 @@ export async function convertFile(
         if (!statusData.meta?.message) updateStatus('Completed!');
         if (!statusData.meta?.progress) updateProgress(100);
         const fileName = (statusData.filename ?? statusData.original_name) || `${file.name.split('.')[0]}.${format}`;
-        const fileId = statusData.file_id ?? taskId!;
+        const fileId = statusData.file_id ?? (taskId ? taskId : '');
         const fileUrl = `http://localhost:8000/convertifileapp/result/${fileId}`;
         setResult(fileUrl, fileName);
         resolve(true);

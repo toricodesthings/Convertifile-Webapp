@@ -359,11 +359,6 @@
     gap: 0.5rem;
   }
   
-  .buttonWrapper .uploadButton {
-    flex-grow: 1;
-    width: 100;
-  }
-  
   .confirmButton {
     flex-basis: 100%;
     width: 100%;

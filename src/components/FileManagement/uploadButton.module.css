@@ -87,7 +87,7 @@
   opacity: 1;
 }
 
-.buttonWrapper .uploadButton {
+.uploadBtnSmall {
   padding: 2vh 3vw;
   min-width: 150px;
   font-weight: 500;
@@ -95,12 +95,19 @@
   transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
 }
 
-.buttonWrapper .uploadButton .circle {
+.uploadBtnSmall .circle {
   background-color: rgba(var(--hover-state-rgb), 0.9);
   border-radius: 50%;
 }
 
-.buttonWrapper .uploadButton:hover {
+.uploadBtnSmall:hover {
   box-shadow: 0 0 10px rgba(var(--subtle-glow-rgb-2), 0.5);
   border-color: rgba(var(--hover-state-rgb), 0.9);
+}
+
+@media (max-width: 768px) and (orientation: portrait) {
+  .uploadButton {
+    flex-grow: 1;
+    width: 100;
+  }
 }
