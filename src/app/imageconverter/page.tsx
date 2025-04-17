@@ -4,6 +4,7 @@ import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import styles from "./imageconverter.module.css";
 import fileItemStyles from "../../components/FileManagement/fileItem.module.css";
+import uploadButtonStyles from "../../components/FileManagement/uploadButton.module.css";
 import { convertFile } from '../../backendcaller/imageConverter';
 import SettingsModal, { FileSettings } from '../../components/FileManagement/SettingsModal';
 import FileUploader from '../../components/FileManagement/FileUploader';
@@ -648,11 +649,11 @@ const ImageConverterPage = () => {
                 )}
                 {(buttonsVisible) && (
                   <div className={isConverting ? styles.hiddenButton : ''}>
-                    <button className={`${styles.uploadButton} ${isConverting ? styles.hiddenButton : ''}`} onClick={handleButtonClick} disabled={isConverting}>
-                      <svg xmlns="http://www.w3.org/2000/svg" width={24} viewBox="0 0 24 24" strokeWidth={2} strokeLinejoin="round" strokeLinecap="round" stroke="currentColor" height={24} fill="none" className={styles["arr-2"]}><line y2={19} y1={5} x2={12} x1={12} /><line y2={12} y1={12} x2={19} x1={5} /></svg>
-                      <span className={styles.buttonText}>Add More</span>
-                      <span className={styles.circle} />
-                      <svg xmlns="http://www.w3.org/2000/svg" width={24} viewBox="0 0 24 24" strokeWidth={2} strokeLinejoin="round" strokeLinecap="round" stroke="currentColor" height={24} fill="none" className={styles["arr-1"]}><line y2={19} y1={5} x2={12} x1={12} /><line y2={12} y1={12} x2={19} x1={5} /></svg>
+                    <button className={`${uploadButtonStyles.uploadButton} ${isConverting ? styles.hiddenButton : ''}`} onClick={handleButtonClick} disabled={isConverting}>
+                      <svg xmlns="http://www.w3.org/2000/svg" width={24} viewBox="0 0 24 24" strokeWidth={2} strokeLinejoin="round" strokeLinecap="round" stroke="currentColor" height={24} fill="none" className={uploadButtonStyles["arr-2"]}><line y2={19} y1={5} x2={12} x1={12} /><line y2={12} y1={12} x2={19} x1={5} /></svg>
+                      <span className={uploadButtonStyles.buttonText}>Add More</span>
+                      <span className={uploadButtonStyles.circle} />
+                      <svg xmlns="http://www.w3.org/2000/svg" width={24} viewBox="0 0 24 24" strokeWidth={2} strokeLinejoin="round" strokeLinecap="round" stroke="currentColor" height={24} fill="none" className={uploadButtonStyles["arr-1"]}><line y2={19} y1={5} x2={12} x1={12} /><line y2={12} y1={12} x2={19} x1={5} /></svg>
                     </button>
                   </div>
                 )}

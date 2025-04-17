@@ -168,6 +168,78 @@ export async function convertFile(
 
     // Start polling for task status
     return new Promise((resolve, reject) => {
+      // Utility functions for updating state
+      const updateStatus = (msg: string) => setConversionStatus(prev => {
+        const updated = [...prev];
+        updated[index] = msg;
+        return updated;
+      });
+      const updateProgress = (progress: number) => setConversionProgress(prev => {
+        const updated = [...prev];
+        updated[index] = progress;
+        return updated;
+      });
+      const setResult = (fileUrl: string, fileName: string) => setConversionResults(prev => {
+        const updated = [...prev];
+        updated[index] = { fileUrl, fileName };
+        return updated;
+      });
+
+      // Helper to handle fallback file check
+      const checkFileExists = async () => {
+        try {
+          const fileCheckResponse = await fetch(
+            `http://localhost:8000/convertifileapp/result/${taskId}`,
+            { method: 'HEAD', mode: 'cors', credentials: 'include' }
+          );
+          if (fileCheckResponse.ok) {
+            clearInterval(Number(statusCheckInterval));
+            updateStatus('Conversion completed!');
+            const fileName = `${file.name.split('.')[0]}.${format}`;
+            const fileUrl = `http://localhost:8000/convertifileapp/result/${taskId}`;
+            setResult(fileUrl, fileName);
+            resolve(true);
+            return true;
+          }
+        } catch (error) {
+          console.log("File check failed:", error);
+        }
+        return false;
+      };
+
+      // Status handlers
+      const handleCompleted = (statusData: TaskStatus) => {
+        clearInterval(Number(statusCheckInterval));
+        if (!statusData.meta?.message) updateStatus('Completed!');
+        if (!statusData.meta?.progress) updateProgress(100);
+        const fileName = (statusData.filename ?? statusData.original_name) || `${file.name.split('.')[0]}.${format}`;
+        const fileId = statusData.file_id ?? taskId!;
+        const fileUrl = `http://localhost:8000/convertifileapp/result/${fileId}`;
+        setResult(fileUrl, fileName);
+        resolve(true);
+      };
+
+      const handleFailed = (statusData: TaskStatus) => {
+        clearInterval(Number(statusCheckInterval));
+        const errorMsg = statusData.meta?.message || statusData.error || statusData.traceback || 'Unknown error';
+        if (!statusData.meta?.message) updateStatus(`Failed: ${errorMsg}`);
+        resolve(false);
+      };
+
+      const handleProcessing = (statusData: TaskStatus, status: string) => {
+        if (!statusData.meta?.message) updateStatus(status === 'processing' ? 'Processing...' : 'Started processing...');
+        if (!statusData.meta?.progress) updateProgress(status === 'processing' ? 50 : 25);
+      };
+
+      const handlePending = (statusData: TaskStatus) => {
+        if (!statusData.meta?.message) updateStatus('In queue...');
+        if (!statusData.meta?.progress) updateProgress(10);
+      };
+
+      const handleUnknown = (statusData: TaskStatus, status: string) => {
+        if (!statusData.meta?.message) updateStatus(status ? `Status: ${status}` : 'Unknown status');
+      };
+
       // Define the polling function
       const checkStatus = async () => {
         if (!taskId) {
@@ -182,11 +254,7 @@ export async function convertFile(
         // Stop checking after max retries
         if (retryCount > MAX_RETRIES) {
           clearInterval(Number(statusCheckInterval));
-          setConversionStatus(prev => {
-            const updated = [...prev];
-            updated[index] = 'Timed out! Retry later.';
-            return updated;
-          });
+          updateStatus('Timed out! Retry later.');
           resolve(false);
           return;
         }
@@ -208,168 +276,39 @@ export async function convertFile(
           const statusData: TaskStatus = await statusResponse.json();
           console.log(`Status data for ${file.name}:`, statusData);
 
-          // Check if the file exists directly as a fallback
+          // Fallback: check file exists if status is missing after several retries
           if (retryCount > 6 && !statusData.status && statusData.status !== 'completed') {
-            try {
-              // Make a HEAD request to see if the file exists
-              const fileCheckResponse = await fetch(
-                `http://localhost:8000/convertifileapp/result/${taskId}`,
-                { method: 'HEAD', mode: 'cors', credentials: 'include' }
-              );
-
-              if (fileCheckResponse.ok) {
-                // File exists but status wasn't updated correctly
-                clearInterval(Number(statusCheckInterval));
-                setConversionStatus(prev => {
-                  const updated = [...prev];
-                  updated[index] = 'Conversion completed!';
-                  return updated;
-                });
-
-                // Generate download info
-                const fileName = `${file.name.split('.')[0]}.${format}`;
-                const fileUrl = `http://localhost:8000/convertifileapp/result/${taskId}`;
-
-                setConversionResults(prev => {
-                  const updated = [...prev];
-                  updated[index] = { fileUrl, fileName };
-                  return updated;
-                });
-
-                resolve(true);
-                return;
-              }
-            } catch (error) {
-              console.log("File check failed:", error);
-            }
+            if (await checkFileExists()) return;
           }
 
-          // Get the actual status string (different backends might use different fields)
+          // Extract status string
           const statusValue = (statusData.status ?? statusData.state) || '';
-
           const status = typeof statusValue === 'string' ? statusValue.toLowerCase() : '';
 
-          // Extract meta information first - this applies to ALL status types
+          // Always update meta message/progress if present
           if (statusData.meta) {
-            // Always update with any message from meta when available
-            if (statusData.meta.message) {
-              setConversionStatus(prev => {
-                const updated = [...prev];
-                updated[index] = statusData.meta!.message!;
-                return updated;
-              });
-            }
-
-            // Always update progress when available
-            if (typeof statusData.meta.progress === 'number') {
-              setConversionProgress(prev => {
-                const updated = [...prev];
-                updated[index] = statusData.meta!.progress!;
-                return updated;
-              });
-            }
+            if (statusData.meta.message) updateStatus(statusData.meta.message);
+            if (typeof statusData.meta.progress === 'number') updateProgress(statusData.meta.progress);
           }
 
-          // Then handle the specific status cases
-          if (status === 'completed') {
-            // Conversion completed successfully
-            clearInterval(Number(statusCheckInterval));
-
-            // Only set default message if meta.message wasn't available
-            if (!statusData.meta?.message) {
-              setConversionStatus(prev => {
-                const updated = [...prev];
-                updated[index] = 'Completed!';
-                return updated;
-              });
-            }
-
-            // Set progress to 100% if not already set
-            if (!statusData.meta?.progress) {
-              setConversionProgress(prev => {
-                const updated = [...prev];
-                updated[index] = 100;
-                return updated;
-              });
-            }
-
-            // Generate download info
-            const fileName = (statusData.filename ?? statusData.original_name) || `${file.name.split('.')[0]}.${format}`;
-            const fileId = statusData.file_id ?? taskId;
-            const fileUrl = `http://localhost:8000/convertifileapp/result/${fileId}`;
-
-            // Add download information to results
-            setConversionResults(prev => {
-              const updated = [...prev];
-              updated[index] = { fileUrl, fileName };
-              return updated;
-            });
-
-            resolve(true);
-          } else if (status === 'failed') {
-            // Conversion failed
-            clearInterval(Number(statusCheckInterval));
-
-            // Get error message from meta if available, otherwise use default error sources
-            const errorMsg = statusData.meta?.message || statusData.error || statusData.traceback || 'Unknown error';
-
-            // Only set if we didn't already set from meta.message
-            if (!statusData.meta?.message) {
-              setConversionStatus(prev => {
-                const updated = [...prev];
-                updated[index] = `Failed: ${errorMsg}`;
-                return updated;
-              });
-            }
-
-            resolve(false);
-          } else if (status === 'processing') {
-            // Processing or Started - both indicate active processing
-            // We already handled meta.message and meta.progress earlier
-            if (!statusData.meta?.message) {
-              setConversionStatus(prev => {
-                const updated = [...prev];
-                updated[index] = status === 'processing' ? 'Processing...' : 'Started processing...';
-                return updated;
-              });
-            }
-
-            // Set a default progress if not already set
-            if (!statusData.meta?.progress) {
-              setConversionProgress(prev => {
-                const updated = [...prev];
-                updated[index] = status === 'processing' ? 50 : 25; // Higher for processing than started
-                return updated;
-              });
-            }
-          } else if (status === 'pending') {
-            // Task is waiting in queue
-            if (!statusData.meta?.message) {
-              setConversionStatus(prev => {
-                const updated = [...prev];
-                updated[index] = 'In queue...';
-                return updated;
-              });
-            }
-
-            if (!statusData.meta?.progress) {
-              setConversionProgress(prev => {
-                const updated = [...prev];
-                updated[index] = 10;
-                return updated;
-              });
-            }
-          } else {
-            // Unknown status
-            if (!statusData.meta?.message) {
-              setConversionStatus(prev => {
-                const updated = [...prev];
-                updated[index] = status ? `Status: ${status}` : 'Unknown status';
-                return updated;
-              });
-            }
-
-            // No default progress for unknown status
+          // Handle status
+          switch (status) {
+            case 'completed':
+              handleCompleted(statusData);
+              break;
+            case 'failed':
+              handleFailed(statusData);
+              break;
+            case 'processing':
+            case 'started':
+              handleProcessing(statusData, status);
+              break;
+            case 'pending':
+              handlePending(statusData);
+              break;
+            default:
+              handleUnknown(statusData, status);
+              break;
           }
         } catch (error) {
           console.error('Error checking conversion status:', error);

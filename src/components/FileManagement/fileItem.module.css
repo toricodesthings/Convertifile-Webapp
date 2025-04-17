@@ -220,6 +220,22 @@
     max-height: 17.5vh;
     border-radius: 12px;
     overflow-y: scroll;
+    /* Custom scrollbar styles */
+    scrollbar-width: thin;
+    scrollbar-color: rgba(var(--subtle-glow-rgb-2), 1) var(--bg-color);
+    animation: dropdownReveal 0.5s cubic-bezier(0.2, 1, 0.32, 1) 1;
+}
+
+.formatDropdown::-webkit-scrollbar {
+    width: 6px;
+    background: var(--bg-color);
+}
+.formatDropdown::-webkit-scrollbar-thumb {
+    background: rgba(var(--subtle-glow-rgb-2), 1);
+    border-radius: 8px;
+}
+.formatDropdown::-webkit-scrollbar-track {
+    background: var(--bg-color);
 }
 
 .formatOption {
@@ -336,6 +352,18 @@
 
     100% {
         transform: rotate(0deg);
+    }
+}
+
+@keyframes dropdownReveal {
+    0% {
+        opacity: 0;
+        max-height: 0;
+    }
+    100% {
+        opacity: 1;
+        max-height: 17.5vh;
+        transform: scaleY(1);
     }
 }
 
