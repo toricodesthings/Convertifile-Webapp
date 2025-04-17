@@ -115,7 +115,7 @@ const ImageConverterPage = () => {
     }
 
     return () => {
-      if (timeoutId) clearTimeout(timeoutId);
+      clearTimeout(timeoutId);
     };
   }, [isConverting]);
 
@@ -306,7 +306,6 @@ const ImageConverterPage = () => {
 
   // Handle format change for a specific file
   const handleFormatChange = (index: number, format: string) => {
-    console.log(`Attempting to change format for index ${index} to ${format}`);
     
     // Direct assignment with a new array instead of using updater function
     const updatedFormats = [...selectedFormats];
@@ -436,7 +435,7 @@ const ImageConverterPage = () => {
             <span>{notification.message}</span>
             <button 
               className={styles.notificationClose}
-              onClick={() => removeNotification(notification.id)}
+              onClick={() => { removeNotification(notification.id); }}
             >
               &times;
             </button>
@@ -452,7 +451,7 @@ const ImageConverterPage = () => {
       <h1 className={styles.pageTitle}>Image Converter</h1>
 
       <section
-        className={`${styles.uploadSection} ${isDragging ? styles.dragging : ''} ${showSettings ? styles.blurredContent : ''}`}
+        className={`${styles.uploadSection} ${filesAdded ? styles.solid : styles.dashed} ${isDragging ? styles.dragging : ''} ${showSettings ? styles.blurredContent : ''}`}
         onDragEnter={handleDragEnter}
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
@@ -527,7 +526,7 @@ const ImageConverterPage = () => {
                           <div className={fileItemStyles.formatSelector} ref={formatSelectorRef}>
                             <button
                               className={fileItemStyles.dropdownToggle}
-                              onClick={() => setShowDropdown(showDropdown === index ? null : index)}
+                              onClick={() => { setShowDropdown(showDropdown === index ? null : index); }}
                             >
                               <span>
                                 {selectedFormats[index] ? `${selectedFormats[index]}` : 'Select format'}
@@ -550,8 +549,8 @@ const ImageConverterPage = () => {
                                 className={fileItemStyles.formatDropdown}
                                 style={{
                                   position: 'fixed',
-                                  top: formatSelectorRef.current?.getBoundingClientRect().bottom || 0,
-                                  left: formatSelectorRef.current?.getBoundingClientRect().left || 0,
+                                  top: formatSelectorRef.current?.getBoundingClientRect().bottom ?? 0,
+                                  left: formatSelectorRef.current?.getBoundingClientRect().left ?? 0,
                                   minWidth: formatSelectorRef.current?.offsetWidth || 'auto'
                                 }}
                               >
@@ -562,7 +561,7 @@ const ImageConverterPage = () => {
                                     onClick={(e) => {
                                       e.preventDefault();
                                       e.stopPropagation();
-                                      console.log(`Format option clicked: ${format}`);
+                                    
                                       handleFormatChange(index, format);
                                     }}
                                   >
@@ -573,13 +572,13 @@ const ImageConverterPage = () => {
                               document.body
                             )}
                           </div>
-                          <button className={fileItemStyles.settingBtn} onClick={() => handleOpenSettings(index)}>
+                          <button className={fileItemStyles.settingBtn} onClick={() => { handleOpenSettings(index); }}>
                             <span className={`${fileItemStyles.bar} ${fileItemStyles.bar1}`}></span>
                             <span className={`${fileItemStyles.bar} ${fileItemStyles.bar2}`}></span>
                             <span className={`${fileItemStyles.bar} ${fileItemStyles.bar1}`}></span>
                           </button>
 
-                          <button className={fileItemStyles.deleteBtn} onClick={() => handleDeleteFile(index)}>
+                          <button className={fileItemStyles.deleteBtn} onClick={() => { handleDeleteFile(index); }}>
                             <svg
                               className={fileItemStyles.xIcon}
                               xmlns="http://www.w3.org/2000/svg"
@@ -688,8 +687,8 @@ const ImageConverterPage = () => {
 
         {files.length === 0 && (
           <p className={styles.uploaderNote}>
-            Supported Formats: JPG, PNG, GIF, BMP, TIFF, WEBP, ICO, HEIC, AVIF, PDF, PBM, PPM, TGA, SGI
-            | Max: {MAX_FILES_COUNT} files, {MAX_FILE_SIZE_MB}MB per file | Deletes after 15 Minutes
+            Supported Formats: JPG, PNG, GIF, BMP, TIFF, WEBP, ICO, HEIC, AVIF, PDF, PBM, PPM, TGA, SGI<br></br>
+            Max: {MAX_FILES_COUNT} files, {MAX_FILE_SIZE_MB}MB per file | Deletes after 15 Minutes
           </p>
         )}
       </section>

@@ -245,7 +245,7 @@ export async function convertFile(
           }
 
           // Get the actual status string (different backends might use different fields)
-          const statusValue = statusData.status || statusData.state || '';
+          const statusValue = (statusData.status ?? statusData.state) || '';
 
           const status = typeof statusValue === 'string' ? statusValue.toLowerCase() : '';
 
@@ -294,8 +294,8 @@ export async function convertFile(
             }
 
             // Generate download info
-            const fileName = statusData.filename || statusData.original_name || `${file.name.split('.')[0]}.${format}`;
-            const fileId = statusData.file_id || taskId;
+            const fileName = (statusData.filename ?? statusData.original_name) || `${file.name.split('.')[0]}.${format}`;
+            const fileId = statusData.file_id ?? taskId;
             const fileUrl = `http://localhost:8000/convertifileapp/result/${fileId}`;
 
             // Add download information to results

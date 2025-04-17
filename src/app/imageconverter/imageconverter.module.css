@@ -39,13 +39,21 @@
   padding: 20px;
   border-radius: 24px;
   position: relative;
-  border: 2px dashed rgba(var(--contentborder-color-rgb), 0.5);
   box-shadow: 0 0px 4px rgba(var(--border-color-rgb, 0.1)), 
               0 0px 6px rgba(var(--subtle-glow-rgb, 0.1)),
-              inset 0 0 4px 1px rgba(var(--subtle-glow-rgb-2), 0.05);
+              inset 0 0 4px 2px rgba(var(--subtle-glow-rgb-2), 0.1);
 
   transition: all 0.3s ease;
 }
+
+.dashed {
+  border: 1px dashed rgba(var(--contentborder-color-rgb), 0.5);
+}
+
+.solid {
+  border: 1px solid rgba(var(--contentborder-color-rgb), 0.5);
+}
+
 
 .uploadSection:hover {
   box-shadow: 0 0px 2px rgba(var(--border-color-rgb, 0.1)), 
@@ -585,6 +593,7 @@
 .uploaderNote {
   font-size: 0.8rem;
   margin-bottom: -10px;
+  line-height: 1.6;
   padding: 0;
   color: var(--note-color);
   text-align: center;

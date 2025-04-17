@@ -70,7 +70,7 @@ export default function HomeClient() {
         setShowAnimations(true);
       }, 1200);
       
-      return () => clearTimeout(timer);
+      return () => { clearTimeout(timer); };
     }
   }, [titleInViewRaw, containerInViewRaw, backgroundsLoaded]);
 
@@ -118,7 +118,7 @@ export default function HomeClient() {
         <div className={styles["convertifile-panel"]}>
           <div ref={containerRef} className={styles["convertifile-container"]}>
             <Link href="/imageconverter" className={styles["convertifile-btnlink"]}>
-              <div className={styles["hoveranimation"]}>
+              <div className={styles.hoveranimation}>
                 <span className={`${showAnimations && backgroundsLoaded ? styles["in-view"] : ''}`}>
                   <Image src={imgIcon} alt="Image Icon" width="64" height="64" className={styles.icon} />
                   Image Convert

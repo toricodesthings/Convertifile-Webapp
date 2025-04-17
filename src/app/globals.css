@@ -58,6 +58,7 @@ body.navbar-mobile-active .app-content {
 
   --text-color: white;
   --note-color: rgb(196, 196, 196);
+  --text-color-rgb: 255, 255, 255 !important;
   --invert-text-color: rgb(0, 0, 0);
   --invert-color-reverse: 1;
   --base-gradient: linear-gradient(90deg, rgb(145, 73, 231), rgb(238, 63, 63));
@@ -84,6 +85,7 @@ body.navbar-mobile-active .app-content {
   --bg-color-rgb: 0, 0, 0 !important;
 
   --text-color: white !important;
+  --text-color-rgb: 255, 255, 255 !important;
   --note-color: rgb(196, 196, 196) !important;
   --invert-text-color: rgb(0, 0, 0) !important;
   --invert-color-reverse: 1 !important;

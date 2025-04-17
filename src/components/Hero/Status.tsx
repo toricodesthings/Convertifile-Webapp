@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 
-export type ServerStatusType = {
+export interface ServerStatusType {
   status: string;
   isOnline: boolean;
 };
@@ -53,7 +53,7 @@ const ServerStatus = ({ styles }: { styles: Record<string, string> }) => {
     const intervalId = setInterval(checkServerStatus, 30000);
     
     // Clean up interval on component unmount
-    return () => clearInterval(intervalId);
+    return () => { clearInterval(intervalId); };
   }, []);
 
   return (
