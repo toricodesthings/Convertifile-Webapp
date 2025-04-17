@@ -169,21 +169,27 @@ export async function convertFile(
     // Start polling for task status
     return new Promise((resolve, reject) => {
       // Utility functions for updating state
-      const updateStatus = (msg: string) => setConversionStatus(prev => {
-        const updated = [...prev];
-        updated[index] = msg;
-        return updated;
-      });
-      const updateProgress = (progress: number) => setConversionProgress(prev => {
-        const updated = [...prev];
-        updated[index] = progress;
-        return updated;
-      });
-      const setResult = (fileUrl: string, fileName: string) => setConversionResults(prev => {
-        const updated = [...prev];
-        updated[index] = { fileUrl, fileName };
-        return updated;
-      });
+      const updateStatus = (msg: string) => {
+        setConversionStatus(prev => {
+          const updated = [...prev];
+          updated[index] = msg;
+          return updated;
+        });
+      };
+      const updateProgress = (progress: number) => {
+        setConversionProgress(prev => {
+          const updated = [...prev];
+          updated[index] = progress;
+          return updated;
+        });
+      };
+      const setResult = (fileUrl: string, fileName: string) => {
+        setConversionResults(prev => {
+          const updated = [...prev];
+          updated[index] = { fileUrl, fileName };
+          return updated;
+        });
+      };
 
       // Helper to handle fallback file check
       const checkFileExists = async () => {
