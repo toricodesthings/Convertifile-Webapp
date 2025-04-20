@@ -41,7 +41,7 @@ const MediaConverterPage = () => {
   const mediaType = files.length > 0 ? getMediaType(files[0]) : '';
 
   // Default settings for audio and video
-  const audioDefaultSettings: AudioFileSettings = {
+  const audioDefaultSettings = useMemo<AudioFileSettings>(() => ({
     removeMetadata: false,
     channels: 2,
     sampleRate: 44100,
@@ -57,9 +57,9 @@ const MediaConverterPage = () => {
       amr: { bitrate: '192k' },
       ac3: { bitrate: '192k' },
     }
-  };
+  }), []);
 
-  const videoDefaultSettings: VideoFileSettings = {
+  const videoDefaultSettings = useMemo<VideoFileSettings>(() => ({
     removeMetadata: false,
     codec: 'libx264',
     fps: null,
@@ -71,7 +71,7 @@ const MediaConverterPage = () => {
       ts: { profile: 'main', level: '4.0', crf: 23, speed: 'medium', bitrate: '8000' },
       mts: { profile: 'main', level: '4.0', crf: 23, speed: 'medium', bitrate: '8000' },
     }
-  };
+  }), []);
 
 
   // Pick defaultSettings based on mediaType

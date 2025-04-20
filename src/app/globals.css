@@ -22,6 +22,7 @@ section::before {
 
 /* App container layout - fix flex layout */
 .app-container {
+  background-color: rgba(var(--bg-color-rgb),0.5);
   display: flex;
   flex-direction: column;
   height: 100%;/* Use min-height instead of height */
@@ -37,7 +38,6 @@ section::before {
   bottom: 0;
   background-image: var(--bg);
   z-index: -1;
-  opacity: 0.3;
   background-position: 50% 50%;
   background-size: 127.5% 100%;
   /* Add animation for reveal */
