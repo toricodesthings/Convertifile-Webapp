@@ -1,4 +1,4 @@
-import type { FileSettings } from '../components/FileManagement/SettingsComponent/ImageSettingsModal';
+import type { FileSettings } from '../components/FileManagement/SettingsComponent/DocSettingsModal';
 
 interface TaskStatus {
   status?: string;
@@ -43,60 +43,21 @@ export async function convertFile(
     const formData = new FormData();
     formData.append('file', file);
     formData.append('convert_to', format);
-    
-    // Append parameters in the exact order expected by the backend
-    formData.append('remove_metadata', settings.removeMetadata.toString());
-    formData.append('compression', settings.compression.toString());
-    
-    // Only append quality if compression is enabled
-    if (settings.compression) {
-      formData.append('quality', settings.quality.toString());
-    }
-    
-    // Format-specific optimization parameter using switch case
-    let optimize = false;
+
+    // Only append format-specific settings that exist in DocSettingsModal's FileSettings
     switch (format.toLowerCase()) {
       case 'jpg':
-        optimize = settings.formatSpecific.jpg.optimize;
-        break;
       case 'webp':
-        optimize = settings.formatSpecific.webp.optimize;
+        if (format in settings.formatSpecific) {
+          formData.append('dpi', settings.formatSpecific[format as keyof typeof settings.formatSpecific].dpi.toString());
+        }
+        formData.append('quality', settings.formatSpecific[format as 'jpg' | 'webp'].quality.toString());
         break;
       case 'png':
-        optimize = settings.formatSpecific.png.optimize;
-        break;
-    }
-    formData.append('optimize', optimize.toString());
-    
-    // BMP compression parameter
-    switch (format.toLowerCase()) {
       case 'bmp':
-        formData.append('bmp_compression', settings.formatSpecific.bmp.compression.toString());
-        break;
-      default:
-        formData.append('bmp_compression', 'true'); // default value
-        break;
-    }
-    
-    // TGA compression parameter
-    switch (format.toLowerCase()) {
-      case 'tga':
-        formData.append('tga_compression', settings.formatSpecific.tga.compression.toString());
-        break;
-      default:
-        formData.append('tga_compression', 'true'); // default value
-        break;
-    }
-    
-    formData.append('pdf_page_size', 'A4');
-    
-    // AVIF speed parameter
-    switch (format.toLowerCase()) {
-      case 'avif':
-        formData.append('avif_speed', settings.formatSpecific.avif.speed.toString());
-        break;
-      default:
-        formData.append('avif_speed', '6');
+        if (format in settings.formatSpecific) {
+          formData.append('dpi', settings.formatSpecific[format as keyof typeof settings.formatSpecific].dpi.toString());
+        }
         break;
     }
 

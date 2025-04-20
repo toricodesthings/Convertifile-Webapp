@@ -5,12 +5,12 @@
   width: 80%;
   height: 100%;
   justify-content: flex-start;
-  gap: 5vh;
+  gap: 6vh;
   margin: 0 auto;
 }
 
 .pageTitle {
-  font-size: clamp(2rem, 4vw, 3rem);
+  font-size: clamp(2rem, 4vw, 50px);
   position: relative;
   text-align: center;
   color: var(--title-text-color);
@@ -19,7 +19,7 @@
   overflow: hidden;
   white-space: nowrap;
   margin: 0 auto;
-  animation: typing 1.2s steps(40, end);
+  animation: typing 1s steps(50, end);
   border-right: 3px solid transparent;
 }
 
@@ -33,9 +33,9 @@
   flex-direction: column;
   align-items: center;
   width: 100%;
-  min-height: 60vh;
+  min-height: 55vh;
   max-height: 65vh;
-  padding: max(2vh, 1vw);
+  padding: 20px;
   border-radius: 24px;
   position: relative;
   box-shadow: 0 0px 4px rgba(var(--border-color-rgb, 0.1)), 
@@ -46,6 +46,17 @@
   opacity: 0;
   transform: translateY(20px);
   animation: var(--page-anim);
+}
+
+@keyframes popIn {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .dashed {
@@ -70,7 +81,7 @@
   left: 0;
   width: 100%;
   height: 100%;
-  background-image: var(--imagepage-bg);
+  background-image: var(--mediapage-bg);
   background-size: cover;
   background-position: center;
   border-radius: 24px;

@@ -1,22 +1,27 @@
 'use client';
 
 import React, { useState, useMemo, useRef, useEffect } from 'react';
-import styles from "./imageconverter.module.css";
+import styles from "./mediaconverter.module.css";
 import fileItemStyles from "../../components/FileManagement/fileItem.module.css";
 import uploadButtonStyles from "../../components/FileManagement/uploadButton.module.css";
-import { convertFile } from '../../backendcaller/imageConverter';
-import ImageSettingsModal, { FileSettings } from '../../components/FileManagement/SettingsComponent/ImageSettingsModal';
+import { audioConvertFile } from '../../backendcaller/audioConverter';
+import { videoConvertFile } from '../../backendcaller/videoConverter';
 import FileUploader from '../../components/FileManagement/FileUploader';
 import FileInstruction from '../../components/FileManagement/FileInstruction';
 import NotificationContainer, { Notification } from '../../components/FileManagement/NotificationContainer';
+import AudioSettingsModal, { FileSettings as AudioFileSettings } from '../../components/FileManagement/SettingsComponent/AudioSettingsModal';
+import VideoSettingsModal, { FileSettings as VideoFileSettings } from '../../components/FileManagement/SettingsComponent/VideoSettingsModal';
+
+// Define type
+type FileSettings = AudioFileSettings | VideoFileSettings;
 
 /**
- * Image Rules
+ * Media Rules
  */
-const AVAILABLE_FORMATS = [['jpg', 'png', 'webp', 'gif', 'bmp', 'tiff', 'ico', 'heic', 'avif', 'pdf', 'pbm', 'ppm', 'tga', 'sgi']];
-const MAX_FILE_SIZE_MB = [200];
-const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB[0] * 1024 * 1024; // Convert MB to bytes
-const MAX_FILES_COUNT = 10;
+const AVAILABLE_FORMATS = [["mp4", "webm", "mkv", "mov", "avi", "wmv", "flv", "ts", "mts"], ["mp3", "ogg", "opus", "aac", "m4a", "flac", "alac", "wav", "aiff", "wma", "amr", "ac3"]];
+const MAX_FILE_SIZE_MB = [1024, 512]; // 1GB for video, 512MB for audio
+const MAX_FILE_SIZE_BYTES = [MAX_FILE_SIZE_MB[0] * 1024 * 1024, MAX_FILE_SIZE_MB[1] * 1024 * 1024]; // Convert MB to bytes
+const MAX_FILES_COUNT = 5;
 
 /**
  * ImageConverterPage component - Main page for converting images between formats
@@ -24,34 +29,69 @@ const MAX_FILES_COUNT = 10;
  * 
  * @returns React component
  */
-const ImageConverterPage = () => {
-  const defaultSettings = useMemo<FileSettings>(() => ({
-    removeMetadata: false,
-    compression: false,
-    quality: 100,
-    formatSpecific: {
-      jpg: { optimize: true },
-      webp: { optimize: true },
-      bmp: { compression: true },
-      tga: { compression: true },
-      png: { optimize: true },
-      avif: { speed: 6 },
-    }
-  }), []);
-  
+const MediaConverterPage = () => {
   // File management state
   const [files, setFiles] = useState<File[]>([]);
+  // Helper to get media type: "audio", "video", or ""
+  const getMediaType = (file: File): string => {
+    if (file.type.startsWith('video/')) return 'video';
+    if (file.type.startsWith('audio/')) return 'audio';
+    return '';
+  };
+  const mediaType = files.length > 0 ? getMediaType(files[0]) : '';
+
+  // Default settings for audio and video
+  const audioDefaultSettings: AudioFileSettings = {
+    removeMetadata: false,
+    channels: 2,
+    sampleRate: 44100,
+    codec: 'libmp3lame',
+    formatSpecific: {
+      mp3: { bitrate: '192k', compressionLevel: 6 },
+      ogg: { bitrate: '192k', compressionLevel: 10 },
+      opus: { bitrate: '192k', compressionLevel: 10 },
+      aac: { bitrate: '192k' },
+      m4a: { bitrate: '192k' },
+      flac: { compressionLevel: 5 },
+      wma: { bitrate: '192k' },
+      amr: { bitrate: '192k' },
+      ac3: { bitrate: '192k' },
+    }
+  };
+
+  const videoDefaultSettings: VideoFileSettings = {
+    removeMetadata: false,
+    codec: 'libx264',
+    fps: null,
+    formatSpecific: {
+      mp4: { profile: 'main', level: '4.0', crf: 23, speed: 'medium', bitrate: '8000' },
+      webm: { speed: 'good', bitrate: '6000' },
+      mkv: { profile: 'main', level: '4.0', crf: 23, speed: 'medium', bitrate: '8000' },
+      mov: { profile: 'main', level: '4.0', crf: 23, speed: 'medium', bitrate: '8000' },
+      ts: { profile: 'main', level: '4.0', crf: 23, speed: 'medium', bitrate: '8000' },
+      mts: { profile: 'main', level: '4.0', crf: 23, speed: 'medium', bitrate: '8000' },
+    }
+  };
+
+
+  // Pick defaultSettings based on mediaType
+  const defaultSettings = useMemo<FileSettings>(() => {
+    if (mediaType === 'audio') return audioDefaultSettings;
+    if (mediaType === 'video') return videoDefaultSettings;
+    return audioDefaultSettings;
+  }, [mediaType]);
+
   const [filesAdded, setFilesAdded] = useState(false);
   const [deletingFileIndex, setDeletingFileIndex] = useState<number | null>(null);
   const [selectedFormats, setSelectedFormats] = useState<string[]>([]);
-  
+
   // UI references and drag-drop state
   const fileInputRef = useRef<HTMLInputElement>(null);
   const dragCounter = useRef(0);
   const [isDragging, setIsDragging] = useState(false);
   const [showDropdown, setShowDropdown] = useState<number | null>(null);
   const [buttonsVisible, setButtonsVisible] = useState(true);
-  
+
   // Conversion state
   const [isConverting, setIsConverting] = useState(false);
   const [conversionStatus, setConversionStatus] = useState<string[]>([]);
@@ -63,7 +103,7 @@ const ImageConverterPage = () => {
   const [showSettings, setShowSettings] = useState(false);
   const [currentFileIndex, setCurrentFileIndex] = useState<number>(-1);
   const [fileSettings, setFileSettings] = useState<FileSettings[]>([]);
-  const [tempSettings, setTempSettings] = useState<FileSettings>({ ...defaultSettings });
+  const [tempSettings, setTempSettings] = useState<FileSettings>({ ...audioDefaultSettings });
 
   // Notification state
   const [notifications, setNotifications] = useState<Notification[]>([]);
@@ -72,7 +112,7 @@ const ImageConverterPage = () => {
   const addNotification = (message: string, type: 'error' | 'warning' | 'success' = 'error') => {
     const id = Date.now().toString();
     setNotifications(prev => [...prev, { id, message, type }]);
-    
+
     // Auto remove after 3 seconds
     setTimeout(() => {
       setNotifications(prev => prev.filter(notification => notification.id !== id));
@@ -92,8 +132,14 @@ const ImageConverterPage = () => {
 
   // Initialize settings for new files
   useEffect(() => {
-    setFileSettings(files.map(() => ({ ...defaultSettings })));
-  }, [files.length, defaultSettings]);
+    if (mediaType === 'audio') {
+      setFileSettings(files.map(() => ({ ...audioDefaultSettings })));
+      setTempSettings({ ...audioDefaultSettings });
+    } else if (mediaType === 'video') {
+      setFileSettings(files.map(() => ({ ...videoDefaultSettings })));
+      setTempSettings({ ...videoDefaultSettings });
+    }
+  }, [files.length, defaultSettings, mediaType]);
 
   useEffect(() => {
     let timeoutId: NodeJS.Timeout;
@@ -165,15 +211,18 @@ const ImageConverterPage = () => {
   };
   const getAvailableFormats = (file: File): string[] => {
     const currentFormat = getFileExtension(file.name);
-    return AVAILABLE_FORMATS[0].filter(format => format !== currentFormat);
-  };
-  const isImageFile = (file: File): boolean => {
-    return file.type.startsWith('image/');
+    const mediaType = getMediaType(file);
+    if (mediaType === 'video') {
+      return AVAILABLE_FORMATS[0].filter(format => format !== currentFormat);
+    } else if (mediaType === 'audio') {
+      return AVAILABLE_FORMATS[1].filter(format => format !== currentFormat);
+    }
+    return [];
   };
 
   // Restrictions application
   const isFileSizeValid = (file: File): boolean => {
-    return file.size <= MAX_FILE_SIZE_BYTES;
+    return file.size <= MAX_FILE_SIZE_BYTES[0];
   };
 
   // Handle file drop event
@@ -185,27 +234,47 @@ const ImageConverterPage = () => {
 
     if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
       const droppedFiles = Array.from(e.dataTransfer.files);
-      
+
       // Check if adding the files would exceed the maximum count
       if (files.length + droppedFiles.length > MAX_FILES_COUNT) {
         addNotification(`You can only add up to ${MAX_FILES_COUNT} files at a time. You already have ${files.length} files.`);
         return;
       }
-      
-      // Filter out non-image files
-      const imageFiles = droppedFiles.filter(isImageFile);
-      
-      // Filter out files exceeding size limit
-      const validSizeFiles = imageFiles.filter(isFileSizeValid);
-      
-      // Notify about rejected files
-      const rejectedForType = droppedFiles.length - imageFiles.length;
-      const rejectedForSize = imageFiles.length - validSizeFiles.length;
-      
-      if (rejectedForType > 0) {
-        addNotification(`${rejectedForType} file(s) were rejected because they are not images.`, 'warning');
+
+      // Only allow audio or video files, reject others
+      const validMediaFiles = droppedFiles.filter(f => getMediaType(f) === 'audio' || getMediaType(f) === 'video');
+      const rejectedNonMedia = droppedFiles.length - validMediaFiles.length;
+      if (rejectedNonMedia > 0) {
+        addNotification(`${rejectedNonMedia} file(s) were rejected because they are not audio or video files.`, 'warning');
       }
-      
+      if (validMediaFiles.length === 0) return;
+
+      // Determine current media type in state (if any)
+      const currentType = files.length > 0 ? getMediaType(files[0]) : '';
+      // Determine type of dropped files (if any)
+      const droppedTypes = validMediaFiles.map(getMediaType).filter(Boolean);
+      const uniqueDroppedTypes = Array.from(new Set(droppedTypes));
+
+      // If files already exist, only allow adding files of the same type
+      if (currentType && uniqueDroppedTypes.length > 0 && uniqueDroppedTypes.some(type => type !== currentType)) {
+        addNotification(`Cannot mix audio and video files. Please only add ${currentType} files.`, 'warning');
+        return;
+      }
+
+      // If dropping mixed types, only accept one type
+      let acceptedType = currentType || uniqueDroppedTypes[0] || '';
+      const mediaFiles = validMediaFiles.filter(f => getMediaType(f) === acceptedType);
+
+      // Reject files of other type
+      const rejectedForType = validMediaFiles.length - mediaFiles.length;
+
+      // Filter out files exceeding size limit
+      const validSizeFiles = mediaFiles.filter(isFileSizeValid);
+      const rejectedForSize = mediaFiles.length - validSizeFiles.length;
+
+      if (rejectedForType > 0) {
+        addNotification(`${rejectedForType} file(s) were rejected because they are not ${acceptedType} files.`, 'warning');
+      }
       if (rejectedForSize > 0) {
         addNotification(`${rejectedForSize} file(s) were rejected because they exceed the ${MAX_FILE_SIZE_MB}MB size limit.`, 'warning');
       }
@@ -217,43 +286,61 @@ const ImageConverterPage = () => {
           ...prev,
           ...validSizeFiles.map(file => getAvailableFormats(file)[0])
         ]);
-
-        // Initialize settings for new files
         setFileSettings(prev => [
           ...prev,
           ...validSizeFiles.map(() => ({ ...defaultSettings }))
         ]);
-
         e.dataTransfer.clearData();
         setFilesAdded(true);
       }
     }
   };
+
   // Handle file selection from Button input
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     setTimeout(() => {
       if (e.target.files && e.target.files.length > 0) {
         const selectedFiles = Array.from(e.target.files);
-        
+
         // Check if adding the files would exceed the maximum count
         if (files.length + selectedFiles.length > MAX_FILES_COUNT) {
           addNotification(`You can only add up to ${MAX_FILES_COUNT} files at a time. You already have ${files.length} files.`);
           return;
         }
-        
-        // Filter out non-image files
-        const imageFiles = selectedFiles.filter(isImageFile);
-        
+
+        // Only allow audio or video files, reject others
+        const validMediaFiles = selectedFiles.filter(f => getMediaType(f) === 'audio' || getMediaType(f) === 'video');
+        const rejectedNonMedia = selectedFiles.length - validMediaFiles.length;
+        if (rejectedNonMedia > 0) {
+          addNotification(`${rejectedNonMedia} file(s) cannot be added because they are not audio or video files.`, 'warning');
+        }
+        if (validMediaFiles.length === 0) return;
+
+        // Determine current media type in state (if any)
+        const currentType = files.length > 0 ? getMediaType(files[0]) : '';
+        // Determine type of selected files (if any)
+        const selectedTypes = validMediaFiles.map(getMediaType).filter(Boolean);
+        const uniqueSelectedTypes = Array.from(new Set(selectedTypes));
+
+        // If files already exist, only allow adding files of the same type
+        if (currentType && uniqueSelectedTypes.length > 0 && uniqueSelectedTypes.some(type => type !== currentType)) {
+          addNotification(`Cannot mix audio and video files. Please only add ${currentType} files.`, 'warning');
+          return;
+        }
+
+        // If selecting mixed types, only accept one type
+        let acceptedType = currentType || uniqueSelectedTypes[0] || '';
+        const mediaFiles = validMediaFiles.filter(f => getMediaType(f) === acceptedType);
+
+        // Reject files of other type
+        const rejectedForType = validMediaFiles.length - mediaFiles.length;
+
         // Filter out files exceeding size limit
-        const validSizeFiles = imageFiles.filter(isFileSizeValid);
-        
-        // Notify about rejected files
-        const rejectedForType = selectedFiles.length - imageFiles.length;
-        const rejectedForSize = imageFiles.length - validSizeFiles.length;
-        
-        // Notify about rejected files
+        const validSizeFiles = mediaFiles.filter(isFileSizeValid);
+        const rejectedForSize = mediaFiles.length - validSizeFiles.length;
+
         if (rejectedForType > 0) {
-          addNotification(`${rejectedForType} file(s) cannot be added because they are not images.`, 'warning');
+          addNotification(`${rejectedForType} file(s) cannot be added because they are not ${acceptedType} files.`, 'warning');
         }
         if (rejectedForSize > 0) {
           addNotification(`${rejectedForSize} file(s) cannot be added because they exceed the ${MAX_FILE_SIZE_MB}MB size limit.`, 'warning');
@@ -299,8 +386,7 @@ const ImageConverterPage = () => {
 
   // Handle format change for a specific file
   const handleFormatChange = (index: number, format: string) => {
-    
-    // Direct assignment with a new array instead of using updater function
+
     const updatedFormats = [...selectedFormats];
     updatedFormats[index] = format;
     setSelectedFormats(updatedFormats);
@@ -346,7 +432,6 @@ const ImageConverterPage = () => {
     setShowSettings(false);
   };
 
-  // Handle conversion process
   const handleConvert = async () => {
     if (allConversionsComplete) {
       // Reset everything
@@ -371,15 +456,27 @@ const ImageConverterPage = () => {
     // Process files sequentially to avoid resource contention
     for (let i = 0; i < files.length; i++) {
       try {
-        await convertFile(
-          files[i],
-          selectedFormats[i],
-          i,
-          fileSettings[i],
-          setConversionStatus,
-          setConversionResults,
-          setConversionProgress
-        );
+        if (mediaType === 'audio') {
+          await audioConvertFile(
+            files[i],
+            selectedFormats[i],
+            i,
+            fileSettings[i] as AudioFileSettings,
+            setConversionStatus,
+            setConversionResults,
+            setConversionProgress
+          );
+        } else if (mediaType === 'video') {
+          await videoConvertFile(
+            files[i],
+            selectedFormats[i],
+            i,
+            fileSettings[i] as VideoFileSettings,
+            setConversionStatus,
+            setConversionResults,
+            setConversionProgress
+          );
+        }
 
         // Add a small delay between files
         if (i < files.length - 1) {
@@ -409,12 +506,12 @@ const ImageConverterPage = () => {
     document.body.removeChild(a);
   };
 
-  // All image files have settings
+  // All media files have settings
   const hasSettings = () => true;
 
   return (
     <div className={styles.container}>
-      <h1 className={styles.pageTitle}>Image Converter</h1>
+      <h1 className={styles.pageTitle}>Media Converter</h1>
 
       <section
         className={`${styles.uploadSection} ${filesAdded ? styles.solid : styles.dashed} ${isDragging ? styles.dragging : ''} ${showSettings ? styles.blurredContent : ''}`}
@@ -434,7 +531,7 @@ const ImageConverterPage = () => {
           ref={fileInputRef}
           onChange={handleFileSelect}
           multiple
-          accept="image/*"
+          accept="video/*,audio/*"
           style={{ display: 'none' }}
         />
 
@@ -460,7 +557,7 @@ const ImageConverterPage = () => {
             filesAdded={filesAdded}
             uploadButtonStyles={uploadButtonStyles}
             allConversionsComplete={allConversionsComplete}
-            mediaType='image'
+            mediaType={mediaType}
             handleConvert={handleConvert}
             hasSettings={hasSettings}
           />
@@ -473,23 +570,36 @@ const ImageConverterPage = () => {
             maxFilesCount={MAX_FILES_COUNT}
             availableFormats={AVAILABLE_FORMATS}
             onButtonClick={handleButtonClick}
-            uploaderType='image'
-            noteLabels={['Images']}
+            uploaderType='media'
+            noteLabels={['Video', 'Audio']}
           />
         )}
+
       </section>
 
       {/* Settings Modal Component */}
-      <ImageSettingsModal
-        isVisible={showSettings}
-        fileName={files[currentFileIndex]?.name || ''}
-        fileSize={files[currentFileIndex]?.size || 0}
-        settings={tempSettings}
-        selectedFormat={selectedFormats[currentFileIndex] || ''}
-        onSettingsChange={setTempSettings}
-        onApply={handleApplySettings}
-      />
-      
+      {mediaType === 'audio' ? (
+        <AudioSettingsModal
+          isVisible={showSettings}
+          fileName={files[currentFileIndex]?.name || ''}
+          fileSize={files[currentFileIndex]?.size || 0}
+          settings={tempSettings as AudioFileSettings}
+          selectedFormat={selectedFormats[currentFileIndex] || ''}
+          onSettingsChange={s => setTempSettings(s as AudioFileSettings)}
+          onApply={handleApplySettings}
+        />
+      ) : mediaType === 'video' ? (
+        <VideoSettingsModal
+          isVisible={showSettings}
+          fileName={files[currentFileIndex]?.name || ''}
+          fileSize={files[currentFileIndex]?.size || 0}
+          settings={tempSettings as VideoFileSettings}
+          selectedFormat={selectedFormats[currentFileIndex] || ''}
+          onSettingsChange={s => setTempSettings(s as VideoFileSettings)}
+          onApply={handleApplySettings}
+        />
+      ) : null}
+
       {/* Render notifications */}
       <NotificationContainer
         notifications={notifications}
@@ -499,4 +609,4 @@ const ImageConverterPage = () => {
   );
 };
 
-export default ImageConverterPage;
+export default MediaConverterPage;

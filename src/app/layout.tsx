@@ -20,19 +20,21 @@ export const metadata = {
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {
+
   return (
     <html lang="en">
       <Analytics />
       <body className={lexend.className}>
+        <div className='app-container'>
         <ThemeProvider>
-          <div className='app-container'>
-            <Navbar />
-            <div className='app-content'>
-              {children}
-            </div>
+          <Navbar />
+          <div className='app-content'>
+            {children}
           </div>
         </ThemeProvider>
+        </div>
       </body>
     </html>
   );
 }
+

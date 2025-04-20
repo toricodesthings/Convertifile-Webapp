@@ -18,7 +18,7 @@ const ServerStatus = ({ styles }: { styles: Record<string, string> }) => {
   useEffect(() => {
     const checkServerStatus = async () => {
       try {
-        const response = await fetch('http://localhost:8000/health', {
+        const response = await fetch('http://localhost:8000/convertifileapp/health', {
           method: 'GET',
           headers: {
             'Accept': 'application/json',
@@ -26,9 +26,8 @@ const ServerStatus = ({ styles }: { styles: Record<string, string> }) => {
         });
         
         if (response.ok) {
-          const data = await response.json();
           setStatus({
-            status: data.status,
+            status: 'Online',
             isOnline: true
           });
         } else {

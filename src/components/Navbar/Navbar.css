@@ -1,7 +1,7 @@
 .navbar {
     display: flex;
     align-items: center;
-    gap: 5vh; /* Increased from clamp(10px, 1vw, 20px) to 5vh */
+    gap: 5vh;
     justify-content: space-between;
     height: auto;
     margin: 2vh 10%;
@@ -235,16 +235,16 @@
     transform: translateX(calc(var(--container-width) - 45px)) translateY(-50%);
     background: var(--navbar-radial-bordercolor);
     -webkit-box-shadow: none;
-    box-shadow: 0 0 8px rgb(255, 216, 143);
-    animation: sunRays 0.5s infinite alternate;
+    box-shadow: 0 0 4px rgb(255, 225, 169);
+    animation: sunRays 2s forwards;
 }
 
 @keyframes sunRays {
     from {
-        box-shadow: 0 0 6px rgb(255, 203, 105);
+        box-shadow: 0 0 4px rgb(255, 203, 105);
     }
     to{
-        box-shadow: 0 0 20px rgb(238, 153, 79);
+        box-shadow: 0 0 20px rgb(255, 180, 114);
     }
 }
 

@@ -1,0 +1,139 @@
+.dropdownContainer {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.customDropdown {
+    position: relative;
+    display: inline-block;
+    font-family: inherit;
+}
+
+.dropdownLabel {
+    display: flex;
+    align-items: center;
+    font-size: 1rem;
+}
+
+/* Trigger button */
+.customDropdownTrigger {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.25rem 1rem;
+    border-radius: 24px;
+    box-shadow: inset 0 0 1px rgba(var(--border-color-rgb), 1),
+        0 0 2px rgba(var(--subtle-glow-rgb), 0.2);
+    background: var(--bg-color);
+    color: var(--text-color);
+    font-size: 1rem;
+    border: 0;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    outline: none;
+    position: relative;
+    z-index: 2;
+}
+
+.customDropdownTrigger:hover {
+    background-color: rgba(var(--hover-state-rgb), 0.1);
+}
+
+.customDropdown.open .customDropdownTrigger {
+    box-shadow: 0 0 2px rgba(var(--subtle-glow-rgb), 0.5),
+        inset 0 0 1px rgba(var(--border-color-rgb), 1);
+}
+
+/* Arrow icon */
+.customDropdownArrow {
+    display: inline-block;
+    margin-left: 0.5rem;
+    transition: transform 0.3s cubic-bezier(0.4,0,0.2,1);
+    width: 1rem;
+    height: 1rem;
+    aspect-ratio: 1;
+    vertical-align: middle;
+}
+
+.customDropdownArrow svg {
+    height: 100%;
+    align-items: center;
+    stroke: var(--text-color);
+}
+
+.customDropdown.open .customDropdownArrow {
+    transform: rotate(180deg);
+}
+
+/* Dropdown menu */
+.customDropdownMenu {
+    position: absolute;
+    left: 0;
+    top: 100%;
+    width: max-content;
+    max-width: 90vw;
+    max-height: 240px;
+    overflow-y: auto;
+    background: var(--bg-color);
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(var(--subtle-glow-rgb), 0.5),
+        inset 0 0 1px rgba(var(--border-color-rgb), 1);
+    opacity: 0;
+    pointer-events: none;
+    transform: scaleY(0.9) translateY(-20px);
+    transform-origin: top;
+    transition: 
+        opacity 0.3s cubic-bezier(0.4,0,0.2,1),
+        transform 0.3s cubic-bezier(0.4,0,0.2,1);
+    overflow-x: hidden;
+    z-index: 100;
+    visibility: hidden;
+}
+
+/* Remove focus-within, use .open for open state */
+.customDropdown.open .customDropdownMenu {
+    opacity: 1;
+    pointer-events: auto;
+    transform: scaleY(1) translateY(0);
+    visibility: visible;
+}
+
+/* Dropdown option */
+.customDropdownOption {
+    display: block;
+    width: 100%;
+    padding: 0.5rem 1.25rem;
+    font-size: 1rem;
+    color: var(--text-color);
+    background: var(--bg-color);
+    border: none;
+    text-align: left;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border-radius: 12px;
+}
+
+/* Fade in on hover/focus */
+.customDropdownOption:hover,
+.customDropdownOption:focus {
+    background-color: rgba(var(--hover-state-rgb), 0.2);
+    opacity: 1;
+    border-radius: 12px;
+}
+
+/* Show selected option */
+.customDropdownOption.selected {
+    font-weight: 600;
+    background-color: rgba(var(--secondary-color-rgb), 0.5);
+    opacity: 1;
+    border-radius: 12px;
+}
+
+/* Hide native select */
+.select,
+.selectWrapper {
+    display: none !important;
+}
+

@@ -2,7 +2,7 @@
 
 import { useInView } from "react-intersection-observer";
 import { useState, useEffect } from "react";
-import HamsterLoader from "@/components/LoadingUI/HamsterLoader";
+import Loader from "@/components/LoadingUI/Loader";
 import ServerStatus from './Status';
 import Image from "next/image";
 import styles from "../../app/page.module.css";
@@ -68,7 +68,7 @@ export default function HomeClient() {
     if ((titleInViewRaw || containerInViewRaw) && backgroundsLoaded) {
       const timer = setTimeout(() => {
         setShowAnimations(true);
-      }, 1200);
+      }, 800);
       
       return () => { clearTimeout(timer); };
     }
@@ -78,7 +78,7 @@ export default function HomeClient() {
     <div className={styles["home-page"]}>
       {!backgroundsLoaded && (
         <div className={styles["loading-container"]}>
-          <HamsterLoader />
+          <Loader />
           <h2>Loading...</h2>
         </div>
       )}
@@ -125,7 +125,7 @@ export default function HomeClient() {
                 </span>
               </div>
             </Link>
-            <Link href="https://example.com" className={styles["convertifile-btnlink"]}>
+            <Link href="/mediaconverter" className={styles["convertifile-btnlink"]}>
               <div className={styles["hoveranimation"]}>
                 <span className={`${showAnimations && backgroundsLoaded ? styles["in-view"] : ''}`}>
                   <Image src={videoIcon} alt="Video Icon" width="64" height="64" className={styles.icon} />
@@ -133,7 +133,7 @@ export default function HomeClient() {
                 </span>
               </div>
             </Link>
-            <Link href="https://example.com" className={styles["convertifile-btnlink"]}>
+            <Link href="/documentconverter" className={styles["convertifile-btnlink"]}>
               <div className={styles["hoveranimation"]}>
                 <span className={`${showAnimations && backgroundsLoaded ? styles["in-view"] : ''}`}>
                   <Image src={docIcon} alt="Document Icon" width="64" height="64" className={styles.icon} />

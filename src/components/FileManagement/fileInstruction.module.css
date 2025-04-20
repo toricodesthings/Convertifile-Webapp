@@ -1,0 +1,253 @@
+.fileInstruction {
+  height: 100%;
+  width: 100%;
+  justify-content: space-between;
+  gap: 5vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.fileList {
+  padding: 0 2px;
+  align-self: center;
+  width: 50vw;
+  overflow-x: hidden;
+  overflow-y: auto;
+  border-radius: 8px;
+}
+
+.fileTitle {
+  width: 100%;
+  font-size: clamp(1.5rem, 2vw, 3rem);
+  text-align: center;
+  color: rgba(var(--highlight-rgb), 1);
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  animation: titleFadeIn 0.3s cubic-bezier(0.23, 1, 0.320, 1) forwards;
+}
+
+.fileTitle:hover {
+  transform: scale(1.03);
+  text-shadow: 0 2px 4px rgba(var(--text-shadow-color-rgb), 0.2);
+}
+
+@keyframes titleFadeIn {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.buttonGroup {
+  align-self: center;
+  width: 50vw;
+}
+
+.buttonWrapper {
+  display: flex;
+  flex-direction: row;
+  gap: 1rem;
+  align-items: stretch;
+  transition: all 0.3s ease;
+  width: 100%;
+  height: 100%;
+  margin-right: auto;
+}
+
+/* Container for grouping Add More and Convert buttons */
+.buttonWrapper > div:nth-child(2) {
+  margin-left: auto;
+  display: flex;
+}
+
+.hiddenButton {
+  align-self: center;
+  justify-self: center;
+  animation: btnFadeOut 0.2s ease forwards;
+}
+
+@keyframes btnFadeOut {
+  from {
+    opacity: 0.9;
+    width: auto;
+    transform: scale(1) translateX(0);
+  }
+  to {
+    opacity: 0;
+    height: 0;
+    padding: 0;
+    margin: 0;
+    transform: scale(0.9) translateX(-40px);
+    width: 0;
+    overflow: hidden;
+  }
+}
+
+.buttonGroup button:nth-child(1) {
+  animation: fadeInTopLeft 0.4s ease forwards;
+  animation-delay: 0.1s;
+  opacity: 0;
+  transform: translate(-10px, -10px);
+}
+
+.buttonGroup button:nth-child(2) {
+  animation: fadeInTopLeft 0.4s ease forwards;
+  animation-delay: 0.2s;
+  opacity: 0;
+  transform: translate(-10px, -10px);
+}
+
+.buttonGroup button:nth-child(3) {
+  animation: fadeInTopLeft 0.4s ease forwards;
+  animation-delay: 0.3s;
+  opacity: 0;
+  transform: translate(-10px, -10px);
+}
+
+@keyframes fadeInTopLeft {
+  0% {
+    opacity: 0;
+    transform: translate(-5px, -10px);
+  }
+  100% {
+    opacity: 1;
+    transform: translate(0, 0);
+  }
+}
+
+.confirmButton {
+  position: relative;
+  box-shadow: 0 0 4px rgba(var(--subtle-glow-rgb, 0.2));
+  display: flex;
+  align-items: center;
+  padding: 2vh 5vw;
+  font-size: clamp(1rem, 1.4vw, 2rem);
+  font-family: lexend;
+  border-radius: 100px;
+  background: none;
+  font-weight: 500;
+  color: var(--text-color);
+  border: 2px solid rgba(var(--highlight-rgb), 0.8);
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.confirmButton:hover {
+  background-color: rgba(var(--highlight-rgb), 1);
+  color: white;
+  border-radius: 12px;
+  transform: scale(1.05);
+}
+
+.converting {
+  margin: 0 auto;
+  flex-grow: 1;
+  display: flex;
+  justify-content: center;
+  transition: all 0.4s ease;
+}
+
+.binButton {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  aspect-ratio: 1;
+  height: 100%;
+  border-radius: 100px;
+  background: inherit;
+  cursor: pointer;
+  box-shadow: 0px 0px 4px rgba(var(--attention-color-rgb), 0.5);
+  border: 2px solid rgba(var(--attention-color-rgb), 1);
+  transition: all 0.3s ease;
+  margin-right: auto;
+}
+
+.binBottom {
+  width: 15px;
+  color: var(--text-color);
+}
+
+.binTop {
+  width: 17px;
+  transform-origin: right;
+  transition-duration: 0.3s;
+  color: var(--text-color);
+}
+
+.binButton:hover .binTop {
+  transform: rotate(45deg);
+}
+
+.binButton:hover {
+  background-color: rgba(var(--attention-color-rgb), 1);
+  transform: scale(1.1);
+}
+
+.binButton:hover .binBottom, .binButton:hover .binTop {
+  color: white;
+}
+
+.uploaderNote {
+  font-size: clamp(0.7rem, 0.9vw, 0.9rem);
+  padding: 0;
+  margin-bottom: -1.25%;
+  color: var(--note-color);
+  text-align: center;
+}
+
+.blurredContent {
+  filter: blur(4px);
+  pointer-events: none;
+}
+
+@media (max-width: 768px) and (orientation: portrait) {
+  .fileList {
+    width: 100%;
+  }
+
+  .buttonGroup {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .buttonWrapper {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  
+  .confirmButton {
+    flex-basis: 100%;
+    width: 100%;
+    justify-content: center;
+  }
+  
+  /* Make sure the div containing the upload button grows */
+  .buttonWrapper > div:nth-child(2) {
+    flex-grow: 1;
+    margin-left: 1rem;
+  }
+
+  .binButton{
+    aspect-ratio: 0;
+  }
+
+  /* Container for bin button */
+  .buttonWrapper > div:first-child {
+    width: calc(50% - 0.5rem);
+    flex: 0 0 calc(50% - 0.5rem);
+  }
+      /* Container for Add More button */
+  .buttonWrapper > div:nth-child(2) {
+    width: calc(50% - 0.5rem);
+    margin-left: 0;
+  }
+}

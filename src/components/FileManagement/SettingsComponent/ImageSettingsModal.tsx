@@ -1,7 +1,7 @@
 import React from 'react';
-import styles from './settings.module.css';
-import checkboxStyles from './checkbox.module.css';
-import sliderStyles from './slider.module.css';
+import styles from './settings.module.css'; 
+import checkboxStyles from '../checkbox.module.css';
+import sliderStyles from '../slider.module.css';
 
 export interface FileSettings {
   removeMetadata: boolean;
@@ -45,7 +45,7 @@ interface SettingsModalProps {
  * @param props - Component props containing settings and handler functions
  * @returns React component
  */
-const SettingsModal: React.FC<SettingsModalProps> = ({
+const ImageSettingsModal: React.FC<SettingsModalProps> = ({
   isVisible,
   fileName,
   fileSize,
@@ -374,4 +374,4 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
   );
 };
 
-export default SettingsModal;
+export default ImageSettingsModal;

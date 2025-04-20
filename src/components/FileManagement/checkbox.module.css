@@ -23,6 +23,7 @@
   cursor: pointer;
   align-items: center;
   justify-content: flex-start;
+  gap: 1rem;
 }
 
 .checkboxSymbol:hover {
@@ -32,10 +33,9 @@
 .checkboxSymbol {
   display: inline-block;
   display: flex;
-  margin-right: 1rem;
   border: var(--border-width) solid var(--c-primary);
   position: relative;
-  border-radius: 0.1em;
+  border-radius: 4px;
   width: 1.5rem;
   height: 1.5rem;
   transition: 0.3s ease;
@@ -70,7 +70,7 @@
 }
 
 .checkbox .checkboxIcon path {
-  transition: stroke-dashoffset var(--t-fast) var(--e-in);
+  transition: stroke-dashoffset var(--t-base) var(--e-in);
   stroke-dasharray: 30px, 31px;
   stroke-dashoffset: 31px;
 }
@@ -85,10 +85,9 @@
 }
 
 .checkboxTrigger:checked + .checkboxSymbol .checkboxIcon path {
-  transition: stroke-dashoffset var(--t-base) var(--e-out);
+  stroke-dasharray: 30px, 31px;
   stroke-dashoffset: 0px;
 }
-
 
 @keyframes ripple {
   from {

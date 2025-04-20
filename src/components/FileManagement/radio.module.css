@@ -1,0 +1,62 @@
+/* From Uiverse.io by Yaya12085 */ 
+.radioWrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.radioInput input {
+    display: none;
+  }
+  
+.radioInput {
+  padding: 0.25rem 0;
+  --container_width: max(10vw, 20vh);
+  position: relative;
+  display: flex;
+  align-items: center;
+  border-radius: 24px;
+  color: var(--text-color);
+  width: var(--container_width);
+  overflow: hidden;
+  box-shadow: inset 0 0 1px rgba(var(--border-color-rgb), 0.8),
+    0 0 1px rgba(var(--subtle-glow-rgb), 0.3);
+}
+
+.radioInput label {
+  width: 100%;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1;
+  font-weight: 500;
+  font-size: 14px;
+}
+
+.selection {
+  display: none;
+  position: absolute;
+  height: 100%;
+  width: calc(var(--container_width) / 2);
+  z-index: 0;
+  left: 0;
+  top: 0;
+  transition: .15s ease;
+}
+
+.radioInput label:has(input:checked) ~ .selection {
+  background-color: rgba(var(--secondary-color-rgb), 0.5);
+  border: 2px solid rgba(var(--secondary-color-rgb), 0.2);
+  border-radius: 24px;
+  font-weight: 600;
+  display: inline-block;
+}
+
+.radioInput label:nth-child(1):has(input:checked) ~ .selection {
+  transform: translateX(calc(var(--container_width) * 0/2));
+}
+
+.radioInput label:nth-child(2):has(input:checked) ~ .selection {
+  transform: translateX(calc(var(--container_width) * 1/2));
+}

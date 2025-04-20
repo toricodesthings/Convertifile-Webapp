@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { useTheme } from '@/context/ThemeContext';
 import './Navbar.css';
@@ -75,14 +74,14 @@ const Navbar = () => {
         {isMobile ? (
           <div className="avatar-hovanimate" onClick={toggleNav}>
             <div className="avatar-wrapper">
-              <Image src="/logo.png" alt="Avatar" fill priority={true} className="avatar" />
+              <img src="/logo.png" alt="Avatar" className="avatar" />
             </div>
           </div>
         ) : (
           <div className="avatar-hovanimate">
             <div className="avatar-wrapper">
               <Link href="/">
-                <Image src="/logo.png" alt="Avatar" fill priority={true} className="avatar" />
+                <img src="/logo.png" alt="Avatar" className="avatar" />
               </Link>
             </div>
           </div>
@@ -100,13 +99,13 @@ const Navbar = () => {
             </li>
           </div>
           <div className="pop-up">
-            <li className={isActive('/mediaoconv') ? 'onpage' : ''}>
-              <Link href="/mediaoconv" onClick={isMobile ? toggleNav : undefined}>Media</Link>
+            <li className={isActive('/mediaconverter') ? 'onpage' : ''}>
+              <Link href="/mediaconverter" onClick={isMobile ? toggleNav : undefined}>Media</Link>
             </li>
           </div>
           <div className="pop-up">
-            <li className={isActive('/fileconv') ? 'onpage' : ''}>
-              <Link href="/fileconv" onClick={isMobile ? toggleNav : undefined}>Document</Link>
+            <li className={isActive('/documentconverter') ? 'onpage' : ''}>
+              <Link href="/documentconverter" onClick={isMobile ? toggleNav : undefined}>Document</Link>
             </li>
           </div>
           <div className="pop-up">
@@ -115,8 +114,8 @@ const Navbar = () => {
             </li>
           </div>
           <div className="pop-up">
-            <li className={isActive('/help') ? 'onpage' : ''}>
-              <Link href="/help" onClick={isMobile ? toggleNav : undefined}>Help</Link>
+            <li className={isActive('/vidgiftool') ? 'onpage' : ''}>
+              <Link href="/vidgiftool" onClick={isMobile ? toggleNav : undefined}>Gif</Link>
             </li>
           </div>
         </ul>

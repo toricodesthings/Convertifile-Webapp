@@ -1,4 +1,4 @@
-import type { FileSettings } from '../components/FileManagement/SettingsComponent/ImageSettingsModal';
+import type { FileSettings } from '../components/FileManagement/SettingsComponent/VideoSettingsModal';
 
 interface TaskStatus {
   status?: string;
@@ -15,7 +15,7 @@ interface TaskStatus {
   }
 }
 
-export async function convertFile(
+export async function videoConvertFile(
   file: File,
   format: string,
   index: number,
@@ -39,66 +39,39 @@ export async function convertFile(
       return updated;
     });
 
-    // Prepare form data with file and settings
-    const formData = new FormData();
-    formData.append('file', file);
-    formData.append('convert_to', format);
-    
-    // Append parameters in the exact order expected by the backend
-    formData.append('remove_metadata', settings.removeMetadata.toString());
-    formData.append('compression', settings.compression.toString());
-    
-    // Only append quality if compression is enabled
-    if (settings.compression) {
-      formData.append('quality', settings.quality.toString());
+      // Prepare form data with file and settings
+  const formData = new FormData();
+  formData.append('file', file);
+  formData.append('convert_to', format);
+  formData.append('remove_metadata', settings.removeMetadata.toString());
+  if (settings.codec) {
+    formData.append('codec', settings.codec);
+  }
+  if (settings.fps !== undefined && settings.fps !== null) {
+    formData.append('fps', settings.fps.toString());
+  }
+
+  // Format-specific parameters
+  const fmt = format.toLowerCase();
+  const fmtSettings = settings.formatSpecific[fmt as keyof typeof settings.formatSpecific];
+
+  if (fmtSettings) {
+    if ('profile' in fmtSettings && fmtSettings.profile) {
+      formData.append('profile', fmtSettings.profile);
     }
-    
-    // Format-specific optimization parameter using switch case
-    let optimize = false;
-    switch (format.toLowerCase()) {
-      case 'jpg':
-        optimize = settings.formatSpecific.jpg.optimize;
-        break;
-      case 'webp':
-        optimize = settings.formatSpecific.webp.optimize;
-        break;
-      case 'png':
-        optimize = settings.formatSpecific.png.optimize;
-        break;
+    if ('level' in fmtSettings && fmtSettings.level) {
+      formData.append('level', fmtSettings.level);
     }
-    formData.append('optimize', optimize.toString());
-    
-    // BMP compression parameter
-    switch (format.toLowerCase()) {
-      case 'bmp':
-        formData.append('bmp_compression', settings.formatSpecific.bmp.compression.toString());
-        break;
-      default:
-        formData.append('bmp_compression', 'true'); // default value
-        break;
+    if ('crf' in fmtSettings && fmtSettings.crf !== undefined && fmtSettings.crf !== null) {
+      formData.append('crf', fmtSettings.crf.toString());
     }
-    
-    // TGA compression parameter
-    switch (format.toLowerCase()) {
-      case 'tga':
-        formData.append('tga_compression', settings.formatSpecific.tga.compression.toString());
-        break;
-      default:
-        formData.append('tga_compression', 'true'); // default value
-        break;
+    if ('speed' in fmtSettings && fmtSettings.speed) {
+      formData.append('speed', fmtSettings.speed);
     }
-    
-    formData.append('pdf_page_size', 'A4');
-    
-    // AVIF speed parameter
-    switch (format.toLowerCase()) {
-      case 'avif':
-        formData.append('avif_speed', settings.formatSpecific.avif.speed.toString());
-        break;
-      default:
-        formData.append('avif_speed', '6');
-        break;
+    if ('bitrate' in fmtSettings && fmtSettings.bitrate) {
+      formData.append('bitrate', fmtSettings.bitrate);
     }
+  }
 
     setConversionStatus(prev => {
       const updated = [...prev];

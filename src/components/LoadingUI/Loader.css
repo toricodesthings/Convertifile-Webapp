@@ -1,0 +1,102 @@
+.container_SevMini {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  transform: scale(1.5);
+}
+
+.Ghost {
+  transform: translate(0px, -20px);
+  z-index: -1;
+  animation: opacidad 2s infinite ease-in-out;
+}
+
+@keyframes opacidad {
+  0% {
+    opacity: 1;
+    scale: 1;
+  }
+
+  50% {
+    opacity: 0.5;
+    scale: 0.9;
+  }
+
+  100% {
+    opacity: 1;
+    scale: 1;
+  }
+}
+
+@keyframes estroboscopico {
+  0% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0;
+  }
+
+  51% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes rebote {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes estroboscopico1 {
+  0%,
+  50%,
+  100% {
+    fill: rgb(235, 85, 65);
+  }
+
+  25%,
+  75% {
+    fill: rgb(84, 40, 185);
+  }
+}
+
+@keyframes estroboscopico2 {
+  0%,
+  50%,
+  100% {
+    fill: #00e371;
+  }
+
+  25%,
+  75% {
+    fill: #118a23b4;
+  }
+}
+
+.SevMini {
+  animation: rebote 2s infinite ease-in-out;
+}
+
+#strobe_led1 {
+  animation: estroboscopico 0.3s infinite;
+}
+
+#strobe_color1 {
+  animation: estroboscopico2 0.6s infinite;
+}
+
+#strobe_color3 {
+  animation: estroboscopico1 0.6s infinite;
+  animation-delay: 3s;
+}

@@ -18,7 +18,7 @@
   -webkit-appearance: none;
   appearance: none;
   flex: 1;
-  height: 10px;
+  height: 12px;
   border-radius: 24px;
   background: var(--base-gradient);
   outline: none;
@@ -38,6 +38,7 @@
   height: 20px;
   border-radius: 50%;
   background-image: var(--navbar-radial-bordercolor);
+  transition: all 0.3s ease;
   cursor: pointer;
 }
 
@@ -50,13 +51,11 @@
 }
 
 .slider::-webkit-slider-thumb:hover {
-  background: #2980b9;
-  transform: scale(1.1);
+  transform: scale(1.2);
 }
 
 .slider::-moz-range-thumb:hover {
-  background: #2980b9;
-  transform: scale(1.1);
+  transform: scale(1.2);
 }
 
 .sliderValue {

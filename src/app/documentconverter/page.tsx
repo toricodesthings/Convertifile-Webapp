@@ -1,22 +1,30 @@
 'use client';
 
 import React, { useState, useMemo, useRef, useEffect } from 'react';
-import styles from "./imageconverter.module.css";
+import styles from "./docconverter.module.css";
 import fileItemStyles from "../../components/FileManagement/fileItem.module.css";
 import uploadButtonStyles from "../../components/FileManagement/uploadButton.module.css";
-import { convertFile } from '../../backendcaller/imageConverter';
-import ImageSettingsModal, { FileSettings } from '../../components/FileManagement/SettingsComponent/ImageSettingsModal';
+import { convertFile } from '../../backendcaller/documentConverter';
+import DocSettingsModal, { FileSettings } from '../../components/FileManagement/SettingsComponent/DocSettingsModal';
 import FileUploader from '../../components/FileManagement/FileUploader';
 import FileInstruction from '../../components/FileManagement/FileInstruction';
 import NotificationContainer, { Notification } from '../../components/FileManagement/NotificationContainer';
 
 /**
- * Image Rules
+ * Document Rules
  */
-const AVAILABLE_FORMATS = [['jpg', 'png', 'webp', 'gif', 'bmp', 'tiff', 'ico', 'heic', 'avif', 'pdf', 'pbm', 'ppm', 'tga', 'sgi']];
-const MAX_FILE_SIZE_MB = [200];
+const AVAILABLE_FORMATS = [['pdf', 'docx', 'txt', 'jpeg', 'png', 'tiff', 'webp', 'bmp']]; // Only document and supported image output formats
+const MAX_FILE_SIZE_MB = [100];
 const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB[0] * 1024 * 1024; // Convert MB to bytes
-const MAX_FILES_COUNT = 10;
+const MAX_FILES_COUNT = 15;
+
+// Supported conversions based on documentconvert.py logic
+const DOC_CONVERT_MAP: Record<string, string[]> = {
+  pdf: ['txt', 'docx', 'jpeg', 'png', 'tiff', 'webp', 'bmp'],
+  docx: ['pdf', 'txt'],
+  txt: ['pdf', 'docx'],
+  // Add more as you extend backend support
+};
 
 /**
  * ImageConverterPage component - Main page for converting images between formats
@@ -24,20 +32,16 @@ const MAX_FILES_COUNT = 10;
  * 
  * @returns React component
  */
-const ImageConverterPage = () => {
+const DocConverterPage = () => {
   const defaultSettings = useMemo<FileSettings>(() => ({
-    removeMetadata: false,
-    compression: false,
-    quality: 100,
     formatSpecific: {
-      jpg: { optimize: true },
-      webp: { optimize: true },
-      bmp: { compression: true },
-      tga: { compression: true },
-      png: { optimize: true },
-      avif: { speed: 6 },
+      jpg: { dpi: 200, quality: 100 },
+      webp: { dpi: 200, quality: 100 },
+      bmp: { dpi: 300 },
+      png: { dpi: 300 },
     }
   }), []);
+
   
   // File management state
   const [files, setFiles] = useState<File[]>([]);
@@ -163,12 +167,22 @@ const ImageConverterPage = () => {
   const getFileExtension = (filename: string): string => {
     return filename.split('.').pop()?.toLowerCase() || '';
   };
+
+  // Helper to get allowed extensions from AVAILABLE_FORMATS
+  const allowedExtensions = AVAILABLE_FORMATS[0].map(fmt => fmt.toLowerCase());
+
+  // Check if file extension is allowed for document conversion
+  const isAllowedDocumentFile = (file: File): boolean => {
+    const ext = getFileExtension(file.name);
+    // Reject any image file, even if extension matches
+    if (file.type.startsWith('image/')) return false;
+    return allowedExtensions.includes(ext);
+  };
+
   const getAvailableFormats = (file: File): string[] => {
     const currentFormat = getFileExtension(file.name);
-    return AVAILABLE_FORMATS[0].filter(format => format !== currentFormat);
-  };
-  const isImageFile = (file: File): boolean => {
-    return file.type.startsWith('image/');
+    // Only allow conversions defined in DOC_CONVERT_MAP
+    return DOC_CONVERT_MAP[currentFormat]?.filter(fmt => fmt !== currentFormat) || [];
   };
 
   // Restrictions application
@@ -192,18 +206,18 @@ const ImageConverterPage = () => {
         return;
       }
       
-      // Filter out non-image files
-      const imageFiles = droppedFiles.filter(isImageFile);
+      // Filter out files not in allowed document formats
+      const allowedFiles = droppedFiles.filter(isAllowedDocumentFile);
       
       // Filter out files exceeding size limit
-      const validSizeFiles = imageFiles.filter(isFileSizeValid);
+      const validSizeFiles = allowedFiles.filter(isFileSizeValid);
       
       // Notify about rejected files
-      const rejectedForType = droppedFiles.length - imageFiles.length;
-      const rejectedForSize = imageFiles.length - validSizeFiles.length;
+      const rejectedForType = droppedFiles.length - allowedFiles.length;
+      const rejectedForSize = allowedFiles.length - validSizeFiles.length;
       
       if (rejectedForType > 0) {
-        addNotification(`${rejectedForType} file(s) were rejected because they are not images.`, 'warning');
+        addNotification(`${rejectedForType} file(s) were rejected because they are not supported document formats (images are not accepted).`, 'warning');
       }
       
       if (rejectedForSize > 0) {
@@ -241,19 +255,19 @@ const ImageConverterPage = () => {
           return;
         }
         
-        // Filter out non-image files
-        const imageFiles = selectedFiles.filter(isImageFile);
+        // Filter out files not in allowed document formats
+        const allowedFiles = selectedFiles.filter(isAllowedDocumentFile);
         
         // Filter out files exceeding size limit
-        const validSizeFiles = imageFiles.filter(isFileSizeValid);
+        const validSizeFiles = allowedFiles.filter(isFileSizeValid);
         
         // Notify about rejected files
-        const rejectedForType = selectedFiles.length - imageFiles.length;
-        const rejectedForSize = imageFiles.length - validSizeFiles.length;
+        const rejectedForType = selectedFiles.length - allowedFiles.length;
+        const rejectedForSize = allowedFiles.length - validSizeFiles.length;
         
         // Notify about rejected files
         if (rejectedForType > 0) {
-          addNotification(`${rejectedForType} file(s) cannot be added because they are not images.`, 'warning');
+          addNotification(`${rejectedForType} file(s) cannot be added because they are not supported document formats (images are not accepted).`, 'warning');
         }
         if (rejectedForSize > 0) {
           addNotification(`${rejectedForSize} file(s) cannot be added because they exceed the ${MAX_FILE_SIZE_MB}MB size limit.`, 'warning');
@@ -409,12 +423,16 @@ const ImageConverterPage = () => {
     document.body.removeChild(a);
   };
 
-  // All image files have settings
-  const hasSettings = () => true;
+  // Only PDF to image formats have settings
+  const hasSettings = (file: File, selectedFormat: string) => {
+    const ext = file.name.split('.').pop()?.toLowerCase() || '';
+    const imageFormats = ['jpeg', 'png', 'tiff', 'webp', 'bmp'];
+    return ext === 'pdf' && imageFormats.includes(selectedFormat);
+  };
 
   return (
     <div className={styles.container}>
-      <h1 className={styles.pageTitle}>Image Converter</h1>
+      <h1 className={styles.pageTitle}>Document Converter</h1>
 
       <section
         className={`${styles.uploadSection} ${filesAdded ? styles.solid : styles.dashed} ${isDragging ? styles.dragging : ''} ${showSettings ? styles.blurredContent : ''}`}
@@ -434,7 +452,8 @@ const ImageConverterPage = () => {
           ref={fileInputRef}
           onChange={handleFileSelect}
           multiple
-          accept="image/*"
+          // Only allow document types/extensions, not images
+          accept=".pdf,.docx,.txt,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain"
           style={{ display: 'none' }}
         />
 
@@ -460,7 +479,7 @@ const ImageConverterPage = () => {
             filesAdded={filesAdded}
             uploadButtonStyles={uploadButtonStyles}
             allConversionsComplete={allConversionsComplete}
-            mediaType='image'
+            mediaType='document'
             handleConvert={handleConvert}
             hasSettings={hasSettings}
           />
@@ -473,14 +492,14 @@ const ImageConverterPage = () => {
             maxFilesCount={MAX_FILES_COUNT}
             availableFormats={AVAILABLE_FORMATS}
             onButtonClick={handleButtonClick}
-            uploaderType='image'
-            noteLabels={['Images']}
+            uploaderType='document'
+            noteLabels={['Documents']}
           />
         )}
       </section>
 
       {/* Settings Modal Component */}
-      <ImageSettingsModal
+      <DocSettingsModal
         isVisible={showSettings}
         fileName={files[currentFileIndex]?.name || ''}
         fileSize={files[currentFileIndex]?.size || 0}
@@ -499,4 +518,4 @@ const ImageConverterPage = () => {
   );
 };
 
-export default ImageConverterPage;
+export default DocConverterPage;
