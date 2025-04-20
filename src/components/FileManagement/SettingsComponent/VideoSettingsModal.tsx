@@ -100,7 +100,15 @@ const BITRATE_STEP = 100;
 
 const FPS_OPTIONS = [null, 24, 25, 30, 48, 50, 60];
 
-const SettingsModal: React.FC<SettingsModalProps> = (props) => {
+const SettingsModal: React.FC<SettingsModalProps> = ({
+  isVisible,
+  fileName,
+  fileSize,
+  settings,
+  selectedFormat,
+  onSettingsChange,
+  onApply
+}) => {
   // Move state declarations before the conditional return
   const [codecOpen, setCodecOpen] = React.useState(false);
   const [profileOpen, setProfileOpen] = React.useState(false);
@@ -128,25 +136,16 @@ const SettingsModal: React.FC<SettingsModalProps> = (props) => {
     return () => document.removeEventListener('mousedown', handleClick);
   }, [codecOpen, profileOpen, levelOpen, speedOpen, fpsOpen]);
 
+  // Ensure default codec is set when switching formats (like AudioSettingsModal)
   useEffect(() => {
-    if (props.isVisible && SUPPORTED_CODECS[props.selectedFormat.toLowerCase()]?.length > 0) {
-      const format = props.selectedFormat.toLowerCase();
-      const codecs = SUPPORTED_CODECS[format] || [];
-      if (codecs.length > 0 && (!props.settings.codec || !codecs.includes(props.settings.codec))) {
-        props.onSettingsChange({ ...props.settings, codec: codecs[0] });
-      }
+    const format = selectedFormat.toLowerCase();
+    const codecs = SUPPORTED_CODECS[format] || [];
+    if (codecs.length > 0 && (!settings.codec || !codecs.includes(settings.codec))) {
+      onSettingsChange({ ...settings, codec: codecs[0] });
     }
-  }, [props.selectedFormat, props.isVisible]);
+  }, [selectedFormat, settings, onSettingsChange]);
 
-  if (!props.isVisible) return null;
-  const {
-    fileName,
-    fileSize,
-    settings,
-    selectedFormat,
-    onSettingsChange,
-    onApply
-  } = props;
+  if (!isVisible) return null;
 
   const format = selectedFormat.toLowerCase();
   const codecs = SUPPORTED_CODECS[format] || [];

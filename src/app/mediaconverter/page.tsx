@@ -79,7 +79,7 @@ const MediaConverterPage = () => {
     if (mediaType === 'audio') return audioDefaultSettings;
     if (mediaType === 'video') return videoDefaultSettings;
     return audioDefaultSettings;
-  }, [mediaType]);
+  }, [mediaType, audioDefaultSettings, videoDefaultSettings]);
 
   const [filesAdded, setFilesAdded] = useState(false);
   const [deletingFileIndex, setDeletingFileIndex] = useState<number | null>(null);
@@ -139,7 +139,7 @@ const MediaConverterPage = () => {
       setFileSettings(files.map(() => ({ ...videoDefaultSettings })));
       setTempSettings({ ...videoDefaultSettings });
     }
-  }, [files.length, defaultSettings, mediaType]);
+  }, [files, audioDefaultSettings, videoDefaultSettings, defaultSettings, mediaType]);
 
   useEffect(() => {
     let timeoutId: NodeJS.Timeout;

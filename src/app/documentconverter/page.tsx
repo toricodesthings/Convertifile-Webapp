@@ -97,7 +97,7 @@ const DocConverterPage = () => {
   // Initialize settings for new files
   useEffect(() => {
     setFileSettings(files.map(() => ({ ...defaultSettings })));
-  }, [files.length, defaultSettings]);
+  }, [files, defaultSettings]);
 
   useEffect(() => {
     let timeoutId: NodeJS.Timeout;

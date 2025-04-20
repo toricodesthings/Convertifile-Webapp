@@ -21,7 +21,7 @@ interface FileInstructionProps {
   handleClearFiles: () => void;
   handleButtonClick: () => void;
   filesAdded: boolean;
-  uploadButtonStyles: any;
+  uploadButtonStyles: Record<string, string>;
   allConversionsComplete: boolean;
   mediaType: string;
   handleConvert: () => void;
