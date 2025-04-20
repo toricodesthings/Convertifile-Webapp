@@ -17,7 +17,7 @@
   padding: 20px;
   width: 50vw;
   box-shadow: 0 4px 24px rgba(var(--subtle-glow-rgb), 0.4),
-  inset 0 0 2px 1px rgba(var(--text-shadow-color-rgb), 0.1);
+    inset 0 0 2px 1px rgba(var(--text-shadow-color-rgb), 0.1);
   animation: windowFadeIn 0.6s cubic-bezier(0.23, 1, 0.320, 1);
   position: relative;
   display: flex;
@@ -46,7 +46,7 @@
 .settingsfileName {
   width: 100%;
   font-size: 1rem;
-  color: rgba(var(--text-color-rgb),0.8);
+  color: rgba(var(--text-color-rgb), 0.8);
   overflow: hidden;
   text-wrap: nowrap;
   font-weight: 300;
@@ -62,25 +62,25 @@
 }
 
 .applyButton {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: center;
-    gap: 4px;
-    padding: 0.75rem 2rem;
-    background: none;
-    border: 2px solid rgba(var(--hover-state-rgb), 1);
-    font-size: 1rem;
-    border-radius: 12px;
-    font-weight: bold;
-    cursor: pointer;
-    transition: all 0.3s ease;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 0.75rem 2rem;
+  background: none;
+  border: 2px solid rgba(var(--hover-state-rgb), 1);
+  font-size: 1rem;
+  border-radius: 12px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
 }
 
 .applyButton span {
-    transition: all 0.3s ease;
-    font-size: 1rem;
-    color: rgba(var(--text-color-rgb), 0.8);
+  transition: all 0.3s ease;
+  font-size: 1rem;
+  color: rgba(var(--text-color-rgb), 0.8);
 }
 
 
@@ -88,23 +88,23 @@
   background-color: rgba(var(--hover-state-rgb), 1);
 }
 
-.applyButton:hover{
-    color: rgba(var(--text-color-rgb), 1);
-    transform: scale(1.05);
+.applyButton:hover {
+  color: rgba(var(--text-color-rgb), 1);
+  transform: scale(1.05);
 }
 
-.applyButton:hover svg{
+.applyButton:hover svg {
   fill: rgba(var(--text-color-rgb), 1);
   transform: translateX(100%);
   opacity: 1;
 }
 
 .applyButton svg {
-    opacity: 0.3;
-    transition: all 0.3s ease;
-    width: 1.25rem;
-    height: auto;
-    fill: rgba(var(--secondary-color-rgb), 1)
+  opacity: 0.3;
+  transition: all 0.3s ease;
+  width: 1.25rem;
+  height: auto;
+  fill: rgba(var(--secondary-color-rgb), 1)
 }
 
 .settingsButtons {
@@ -114,27 +114,28 @@
 }
 
 .warning {
-    display: flex;
-    align-items: center;
-    padding: 8px 12px;
-    margin-top: 10px;
-    background-color: rgba(var(--attention-color-rgb), 0.1);
-    border-left: 4px solid rgba(var(--attention-color-rgb), 0.8);
-    border-radius: 4px;
-    font-size: 1rem;
-    color: rgba(var(--attention-color-rgb), 1);
-  }
+  display: flex;
+  align-items: center;
+  padding: 8px 12px;
+  margin-top: 10px;
+  background-color: rgba(var(--attention-color-rgb), 0.1);
+  border-left: 4px solid rgba(var(--attention-color-rgb), 0.8);
+  border-radius: 4px;
+  font-size: 1rem;
+  color: rgba(var(--attention-color-rgb), 1);
+}
 
-  .warning svg {
-    margin-right: 8px;
-  }
+.warning svg {
+  margin-right: 8px;
+}
 
-  .formatSpecificSettings {
-    margin-top: 10px;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 1rem;
+.formatSpecificSettings {
+  width: 100%;
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1rem;
 }
 
 .formatSpecificSettings h4 {
@@ -144,8 +145,15 @@
 }
 
 @keyframes windowFadeIn {
-  from { opacity: 0; transform: translateY(-5px) scale(0.9); }
-  to { opacity: 1; transform: translateY(0) scale(1); }
+  from {
+    opacity: 0;
+    transform: translateY(-5px) scale(0.9);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 @media (max-width: 768px) {

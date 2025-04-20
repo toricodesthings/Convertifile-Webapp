@@ -213,9 +213,11 @@ const MediaConverterPage = () => {
     const currentFormat = getFileExtension(file.name);
     const mediaType = getMediaType(file);
     if (mediaType === 'video') {
-      return AVAILABLE_FORMATS[0].filter(format => format !== currentFormat);
+      // Allow self-conversion: do not filter out the current format
+      return AVAILABLE_FORMATS[0];
     } else if (mediaType === 'audio') {
-      return AVAILABLE_FORMATS[1].filter(format => format !== currentFormat);
+      // Allow self-conversion: do not filter out the current format
+      return AVAILABLE_FORMATS[1];
     }
     return [];
   };
@@ -262,7 +264,7 @@ const MediaConverterPage = () => {
       }
 
       // If dropping mixed types, only accept one type
-      let acceptedType = currentType || uniqueDroppedTypes[0] || '';
+      const acceptedType = currentType || uniqueDroppedTypes[0] || '';
       const mediaFiles = validMediaFiles.filter(f => getMediaType(f) === acceptedType);
 
       // Reject files of other type
@@ -329,7 +331,7 @@ const MediaConverterPage = () => {
         }
 
         // If selecting mixed types, only accept one type
-        let acceptedType = currentType || uniqueSelectedTypes[0] || '';
+        const acceptedType = currentType || uniqueSelectedTypes[0] || '';
         const mediaFiles = validMediaFiles.filter(f => getMediaType(f) === acceptedType);
 
         // Reject files of other type

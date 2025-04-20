@@ -70,7 +70,7 @@
   left: 0;
   width: 100%;
   height: 100%;
-  background-image: var(--imagepage-bg);
+  background-image: var(--docpage-bg);
   background-size: cover;
   background-position: center;
   border-radius: 24px;

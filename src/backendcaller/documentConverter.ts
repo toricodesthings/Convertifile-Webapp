@@ -46,12 +46,12 @@ export async function convertFile(
 
     // Only append format-specific settings that exist in DocSettingsModal's FileSettings
     switch (format.toLowerCase()) {
-      case 'jpg':
+      case 'jpeg':
       case 'webp':
         if (format in settings.formatSpecific) {
           formData.append('dpi', settings.formatSpecific[format as keyof typeof settings.formatSpecific].dpi.toString());
         }
-        formData.append('quality', settings.formatSpecific[format as 'jpg' | 'webp'].quality.toString());
+        formData.append('quality', settings.formatSpecific[format as 'jpeg' | 'webp'].quality.toString());
         break;
       case 'png':
       case 'bmp':

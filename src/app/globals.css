@@ -70,9 +70,10 @@ body.navbar-mobile-active .app-content {
 :root {
   --page-anim: 0.3s popIn cubic-bezier(0.2, 0, 0.32, 1) forwards;
 
-  --mainpage-bg: url('/mainpage/backgrounddark.webp')
-  --imagepage-bg: url('/imagepage/bgdark.png')
+  --mainpage-bg: url('/mainpage/backgrounddark.webp');
+  --imagepage-bg: url('/imagepage/bgdark.png');
   --mediapage-bg: url('/mediapage/bgdark.png');
+  --docpage-bg: url('/docpage/bgdark.png');
 
   --bg: url('/bgdark.png');
 
@@ -112,6 +113,7 @@ body.navbar-mobile-active .app-content {
   --mainpage-bg: url('/mainpage/backgrounddark.webp') !important;
   --imagepage-bg: url('/imagepage/bgdark.png') !important;
   --mediapage-bg: url('/mediapage/bgdark.png') !important;
+  --docpage-bg: url('/docpage/bgdark.png') !important;
 
   --bg: url('/bgdark.png') !important;
 
@@ -153,6 +155,7 @@ body.navbar-mobile-active .app-content {
   --mainpage-bg: url('/mainpage/backgroundlight.webp') !important;
   --imagepage-bg: url('/imagepage/bg.png') !important;
   --mediapage-bg: url('/mediapage/bg.png') !important;
+  --docpage-bg: url('/docpage/bg.png') !important;
 
   --bg: url('/bg.png') !important;
 

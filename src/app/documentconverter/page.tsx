@@ -35,7 +35,7 @@ const DOC_CONVERT_MAP: Record<string, string[]> = {
 const DocConverterPage = () => {
   const defaultSettings = useMemo<FileSettings>(() => ({
     formatSpecific: {
-      jpg: { dpi: 200, quality: 100 },
+      jpeg: { dpi: 200, quality: 100 },
       webp: { dpi: 200, quality: 100 },
       bmp: { dpi: 300 },
       png: { dpi: 300 },

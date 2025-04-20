@@ -1,7 +1,7 @@
 .navbar {
     display: flex;
     align-items: center;
-    gap: 5vh;
+    gap: calc(2vh + 5vw);
     justify-content: space-between;
     height: auto;
     margin: 2vh 10%;
@@ -9,7 +9,6 @@
     padding: 0;
     z-index: 1;
     background: transparent;
-
     transform: translateZ(0);
     /* Remove the border if it was just for debugging */
     border: none;
@@ -22,7 +21,9 @@
     text-align: center;
     align-items: center;
     list-style: none;
-    gap: clamp(1rem, calc(3.5vw + 2.5vh), 10rem);
+    justify-content: space-between;
+    width: 100%;
+    gap: calc(2vh + 5vw);
     font-size: clamp(0.9rem, calc(0.5rem + 0.9vw), 2rem);
     margin: 0;
     padding: 0;

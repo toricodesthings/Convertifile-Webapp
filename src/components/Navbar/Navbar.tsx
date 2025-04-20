@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { useTheme } from '@/context/ThemeContext';
 import './Navbar.css';
@@ -74,14 +75,14 @@ const Navbar = () => {
         {isMobile ? (
           <div className="avatar-hovanimate" onClick={toggleNav}>
             <div className="avatar-wrapper">
-              <img src="/logo.png" alt="Avatar" className="avatar" />
+              <Image src="/logo.png" alt="Avatar" fill className="avatar" />
             </div>
           </div>
         ) : (
           <div className="avatar-hovanimate">
             <div className="avatar-wrapper">
               <Link href="/">
-                <img src="/logo.png" alt="Avatar" className="avatar" />
+                <Image src="/logo.png" alt="Avatar" fill className="avatar" />
               </Link>
             </div>
           </div>
@@ -109,13 +110,8 @@ const Navbar = () => {
             </li>
           </div>
           <div className="pop-up">
-            <li className={isActive('/filecompress') ? 'onpage' : ''}>
-              <Link href="/filecompress" onClick={isMobile ? toggleNav : undefined}>Compress</Link>
-            </li>
-          </div>
-          <div className="pop-up">
             <li className={isActive('/vidgiftool') ? 'onpage' : ''}>
-              <Link href="/vidgiftool" onClick={isMobile ? toggleNav : undefined}>Gif</Link>
+              <Link href="/vidgiftool" onClick={isMobile ? toggleNav : undefined}>Gif Tool</Link>
             </li>
           </div>
         </ul>
