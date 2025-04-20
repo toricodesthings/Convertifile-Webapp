@@ -210,7 +210,6 @@ const MediaConverterPage = () => {
     return filename.split('.').pop()?.toLowerCase() || '';
   };
   const getAvailableFormats = (file: File): string[] => {
-    const currentFormat = getFileExtension(file.name);
     const mediaType = getMediaType(file);
     if (mediaType === 'video') {
       // Allow self-conversion: do not filter out the current format
