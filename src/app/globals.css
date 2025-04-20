@@ -71,9 +71,9 @@ body.navbar-mobile-active .app-content {
   --page-anim: 0.3s popIn cubic-bezier(0.2, 0, 0.32, 1) forwards;
 
   --mainpage-bg: url('/mainpage/backgrounddark.webp');
-  --imagepage-bg: url('/imagepage/bgdark.png');
-  --mediapage-bg: url('/mediapage/bgdark.png');
-  --docpage-bg: url('/docpage/bgdark.png');
+  --imagepage-bg: url('/imagepage/bgdark.webp');
+  --mediapage-bg: url('/mediapage/bgdark.webp');
+  --docpage-bg: url('/docpage/bgdark.webp');
 
   --bg: url('/bgdark.png');
 
@@ -111,9 +111,9 @@ body.navbar-mobile-active .app-content {
 
 .dark {
   --mainpage-bg: url('/mainpage/backgrounddark.webp') !important;
-  --imagepage-bg: url('/imagepage/bgdark.png') !important;
-  --mediapage-bg: url('/mediapage/bgdark.png') !important;
-  --docpage-bg: url('/docpage/bgdark.png') !important;
+  --imagepage-bg: url('/imagepage/bgdark.webp') !important;
+  --mediapage-bg: url('/mediapage/bgdark.webp') !important;
+  --docpage-bg: url('/docpage/bgdark.webp') !important;
 
   --bg: url('/bgdark.png') !important;
 
@@ -153,9 +153,9 @@ body.navbar-mobile-active .app-content {
 
 .light {
   --mainpage-bg: url('/mainpage/backgroundlight.webp') !important;
-  --imagepage-bg: url('/imagepage/bg.png') !important;
-  --mediapage-bg: url('/mediapage/bg.png') !important;
-  --docpage-bg: url('/docpage/bg.png') !important;
+  --imagepage-bg: url('/imagepage/bg.webp') !important;
+  --mediapage-bg: url('/mediapage/bg.webp') !important;
+  --docpage-bg: url('/docpage/bg.webp') !important;
 
   --bg: url('/bg.png') !important;
 

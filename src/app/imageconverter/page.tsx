@@ -28,7 +28,7 @@ const ImageConverterPage = () => {
   const defaultSettings = useMemo<FileSettings>(() => ({
     removeMetadata: false,
     compression: false,
-    quality: 100,
+    quality: 92,
     formatSpecific: {
       jpg: { optimize: true },
       webp: { optimize: true },
@@ -305,6 +305,15 @@ const ImageConverterPage = () => {
     updatedFormats[index] = format;
     setSelectedFormats(updatedFormats);
     setShowDropdown(null);
+
+    // Set root compression to true if jpg or webp is selected
+    if (format === 'jpg' || format === 'webp' || format === 'avif' || format === 'heic') {
+      setFileSettings(prev => {
+        const updated = [...prev];
+        updated[index] = { ...updated[index], compression: true };
+        return updated;
+      });
+    }
   };
 
   // Handle deleting a specific file
