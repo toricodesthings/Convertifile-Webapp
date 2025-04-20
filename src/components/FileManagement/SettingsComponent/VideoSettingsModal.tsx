@@ -210,8 +210,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
   );
 
   // --- Profile dropdown for codecs with profiles ---
-  // Returns JSX.Element or null (never returns HTML string)
-  const renderProfileDropdown = (): React.ReactElement | null => {
+  const renderProfileDropdown = () => {
     if (!profiles.length) return null;
     const fs = settings.formatSpecific[format as keyof typeof settings.formatSpecific];
     return (
@@ -264,7 +263,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
     );
   };
 
-  const renderSpeedDropdown = (): React.ReactElement | null => {
+  const renderSpeedDropdown = () => {
     if (!speedPresets.length) return null;
     const fs = settings.formatSpecific[format as keyof typeof settings.formatSpecific];
     return (
@@ -317,7 +316,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
     );
   };
 
-  const renderFPSDropdown = (): React.ReactElement | null => (
+  const renderFPSDropdown = () => (
     <DropDown
       label="FPS:"
       open={fpsOpen}
