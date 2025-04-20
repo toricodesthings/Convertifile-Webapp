@@ -262,7 +262,17 @@ const MediaConverterPage = () => {
       addNotification(`${rejectedForType} file(s) were rejected because they are not ${acceptedType} files.`, 'warning');
     }
     if (rejectedForSize > 0) {
-      addNotification(`${rejectedForSize} file(s) were rejected because they exceed the ${MAX_FILE_SIZE_MB}MB size limit.`, 'warning');
+      // Show the correct max file size for the acceptedType
+      const sizeLimit =
+        acceptedType === 'video'
+          ? MAX_FILE_SIZE_MB[0]
+          : acceptedType === 'audio'
+          ? MAX_FILE_SIZE_MB[1]
+          : Math.max(...MAX_FILE_SIZE_MB);
+      addNotification(
+        `${rejectedForSize} file(s) were rejected because they exceed the ${sizeLimit}MB size limit.`,
+        'warning'
+      );
     }
 
     if (validSizeFiles.length > 0) {

@@ -96,7 +96,7 @@ export function pollTaskStatus({
 
     const handleFailed = (statusData: TaskStatus) => {
       clearInterval(Number(statusCheckInterval));
-      const errorMsg = (statusData.meta?.message ?? statusData.error) || statusData.traceback || 'Unknown error';
+      const errorMsg = (statusData.meta?.message ?? (statusData.error) ?? statusData.traceback) || 'Unknown error';
       if (!statusData.meta?.message) updateStatus(`Failed: ${errorMsg}`);
       resolve(false);
     };
@@ -188,7 +188,7 @@ export function pollTaskStatus({
       }
     };
 
-    statusCheckInterval = setInterval(checkStatus, pollInterval);
+    statusCheckInterval = setInterval(() => { void checkStatus(); }, pollInterval);
     void checkStatus();
   });
 }

@@ -48,7 +48,9 @@ const ServerStatus = ({ styles }: { styles: Record<string, string> }) => {
     void checkServerStatus();
     
     // Set up interval to check periodically (every 30 seconds)
-    const intervalId = setInterval(checkServerStatus, 30000);
+    const intervalId = setInterval(() => {
+      void checkServerStatus();
+    }, 30000);
     
     // Clean up interval on component unmount
     return () => { clearInterval(intervalId); };

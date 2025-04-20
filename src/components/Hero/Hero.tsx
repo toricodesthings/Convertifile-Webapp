@@ -126,7 +126,7 @@ export default function HomeClient() {
               </div>
             </Link>
             <Link href="/mediaconverter" className={styles["convertifile-btnlink"]}>
-              <div className={styles["hoveranimation"]}>
+              <div className={styles.hoveranimation}>
                 <span className={`${showAnimations && backgroundsLoaded ? styles["in-view"] : ''}`}>
                   <Image src={videoIcon} alt="Video Icon" width="64" height="64" className={styles.icon} />
                   Media Convert

@@ -48,7 +48,13 @@ export async function audioConvertFile(
         formData.append('lossless', fmtSettings.lossless ? 'true' : 'false');
       }
       if ('sampleRate' in fmtSettings && fmtSettings.sampleRate !== undefined && fmtSettings.sampleRate !== null) {
-        formData.append('sample_rate', fmtSettings.sampleRate.toString());
+        // Ensure sampleRate is a primitive value before stringifying
+        const sampleRateValue = typeof fmtSettings.sampleRate === 'object'
+          ? (fmtSettings.sampleRate ?? '') // Adjust this if your object structure differs
+          : fmtSettings.sampleRate;
+        if (sampleRateValue !== '') {
+          formData.append('sample_rate', sampleRateValue.toString());
+        }
       }
     }
 

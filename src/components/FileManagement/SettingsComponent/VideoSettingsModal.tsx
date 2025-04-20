@@ -359,7 +359,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
           className={`${dropdownStyles.customDropdownOption}${settings.fps === fps ? ' ' + dropdownStyles.selected : ''}`}
           tabIndex={fpsOpen ? 0 : -1}
           onClick={() => {
-            onSettingsChange({ ...settings, fps: fps as number });
+            onSettingsChange({ ...settings, fps: fps });
             setFpsOpen(false);
           }}
         >

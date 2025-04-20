@@ -177,7 +177,7 @@ const ImageConverterPage = () => {
     }
 
     if (rejectedForSize > 0) {
-      addNotification(`${rejectedForSize} file(s) were rejected because they exceed the ${MAX_FILE_SIZE_MB}MB size limit.`, 'warning');
+      addNotification(`${rejectedForSize} file(s) were rejected because they exceed the ${MAX_FILE_SIZE_MB[0]}MB size limit.`, 'warning');
     }
 
     if (validSizeFiles.length > 0) {

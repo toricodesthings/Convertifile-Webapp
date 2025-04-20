@@ -142,7 +142,7 @@ const DocConverterPage = () => {
 
   // Check whether file is an image and get its extension
   const getFileExtension = (filename: string): string => {
-    return filename.split('.').pop()?.toLowerCase() || '';
+    return filename.split('.').pop()?.toLowerCase() ?? '';
   };
 
   // Helper to get allowed extensions from AVAILABLE_FORMATS
@@ -190,7 +190,7 @@ const DocConverterPage = () => {
     }
 
     if (rejectedForSize > 0) {
-      addNotification(`${rejectedForSize} file(s) were rejected because they exceed the ${MAX_FILE_SIZE_MB}MB size limit.`, 'warning');
+      addNotification(`${rejectedForSize} file(s) were rejected because they exceed the ${MAX_FILE_SIZE_MB[0]}MB size limit.`, 'warning');
     }
 
     if (validSizeFiles.length > 0) {
