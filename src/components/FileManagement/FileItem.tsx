@@ -109,7 +109,7 @@ const FileItem: React.FC<FileItemProps> = ({
                       position: 'fixed',
                       top: formatSelectorRef.current?.getBoundingClientRect().bottom ?? 0,
                       left: formatSelectorRef.current?.getBoundingClientRect().left ?? 0,
-                      minWidth: formatSelectorRef.current?.offsetWidth || 'auto'
+                      minWidth: formatSelectorRef.current?.offsetWidth ?? 'auto'
                     }}
                   >
                     {availableFormats.map(format => (

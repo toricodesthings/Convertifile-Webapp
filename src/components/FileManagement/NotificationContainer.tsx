@@ -23,7 +23,7 @@ const NotificationContainer: React.FC<NotificationContainerProps> = ({
 
   useEffect(() => {
     setMounted(true);
-    return () => setMounted(false);
+    return () => { setMounted(false); };
   }, []);
 
   return mounted

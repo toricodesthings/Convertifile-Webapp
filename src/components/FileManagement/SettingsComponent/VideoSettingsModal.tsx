@@ -2,7 +2,9 @@ import React, { useEffect } from 'react';
 import styles from './settings.module.css';
 import checkboxStyles from '../checkbox.module.css';
 import dropdownStyles from '../dropdown.module.css';
-import sliderStyles from '../slider.module.css';
+import SettingsCheckbox from '../SettingsCheckbox';
+import SettingsSlider from '../SettingsSlider';
+import DropDown from '../DropDown';
 
 // --- Video FileSettings interface for backend compatibility ---
 export interface FileSettings {
@@ -133,7 +135,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
     if (codecOpen || profileOpen || levelOpen || speedOpen || fpsOpen) {
       document.addEventListener('mousedown', handleClick);
     }
-    return () => document.removeEventListener('mousedown', handleClick);
+    return () => { document.removeEventListener('mousedown', handleClick); };
   }, [codecOpen, profileOpen, levelOpen, speedOpen, fpsOpen]);
 
   // Ensure default codec is set when switching formats (like AudioSettingsModal)
@@ -163,17 +165,18 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
     return `${(size / (1024 * 1024 * 1024)).toFixed(2)} GB`;
   };
 
-  // --- Custom Dropdowns ---
+  // --- Custom Dropdowns using DropDown ---
   const renderCodecDropdown = () => (
-    <div className={dropdownStyles.dropdownContainer}>
-      <label className={dropdownStyles.dropdownLabel}>Codec:</label>
-      <div
-        className={
-          dropdownStyles.customDropdown +
-          (codecOpen ? ' ' + dropdownStyles.open : '')
-        }
-        ref={codecDropdownRef}
-      >
+    <DropDown
+      label="Codec:"
+      open={codecOpen}
+      setOpen={setCodecOpen}
+      dropdownRef={codecDropdownRef as React.RefObject<HTMLDivElement>}
+      containerClassName={dropdownStyles.dropdownContainer}
+      labelClassName={dropdownStyles.dropdownLabel}
+      dropdownClassName={dropdownStyles.customDropdown + (codecOpen ? ' ' + dropdownStyles.open : '')}
+      menuClassName={dropdownStyles.customDropdownMenu}
+      trigger={
         <button
           type="button"
           className={dropdownStyles.customDropdownTrigger}
@@ -187,44 +190,39 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
             </svg>
           </span>
         </button>
-        <div
-          className={dropdownStyles.customDropdownMenu}
-          aria-hidden={!codecOpen}
-          style={!codecOpen ? { pointerEvents: 'none' } : undefined}
+      }
+    >
+      {codecs.map(c => (
+        <button
+          type="button"
+          key={c}
+          className={`${dropdownStyles.customDropdownOption}${codec === c ? ' ' + dropdownStyles.selected : ''}`}
+          tabIndex={codecOpen ? 0 : -1}
+          onClick={() => {
+            onSettingsChange({ ...settings, codec: c });
+            setCodecOpen(false);
+          }}
         >
-          {codecs.map(c => (
-            <button
-              type="button"
-              key={c}
-              className={`${dropdownStyles.customDropdownOption}${codec === c ? ' ' + dropdownStyles.selected : ''}`}
-              tabIndex={codecOpen ? 0 : -1}
-              onClick={() => {
-                onSettingsChange({ ...settings, codec: c });
-                setCodecOpen(false);
-              }}
-            >
-              {c}
-            </button>
-          ))}
-        </div>
-      </div>
-    </div>
+          {c}
+        </button>
+      ))}
+    </DropDown>
   );
 
   const renderProfileDropdown = () => {
     if (!profiles.length) return null;
-    // Use format-specific settings for profile
     const fs = settings.formatSpecific[format as keyof typeof settings.formatSpecific];
     return (
-      <div className={dropdownStyles.dropdownContainer}>
-        <label className={dropdownStyles.dropdownLabel}>Profile:</label>
-        <div
-          className={
-            dropdownStyles.customDropdown +
-            (profileOpen ? ' ' + dropdownStyles.open : '')
-          }
-          ref={profileDropdownRef}
-        >
+      <DropDown
+        label="Profile:"
+        open={profileOpen}
+        setOpen={setProfileOpen}
+        dropdownRef={profileDropdownRef as React.RefObject<HTMLDivElement>}
+        containerClassName={dropdownStyles.dropdownContainer}
+        labelClassName={dropdownStyles.dropdownLabel}
+        dropdownClassName={dropdownStyles.customDropdown + (profileOpen ? ' ' + dropdownStyles.open : '')}
+        menuClassName={dropdownStyles.customDropdownMenu}
+        trigger={
           <button
             type="button"
             className={dropdownStyles.customDropdownTrigger}
@@ -238,82 +236,46 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
               </svg>
             </span>
           </button>
-          <div
-            className={dropdownStyles.customDropdownMenu}
-            aria-hidden={!profileOpen}
-            style={!profileOpen ? { pointerEvents: 'none' } : undefined}
+        }
+      >
+        {profiles.map(p => (
+          <button
+            type="button"
+            key={p}
+            className={`${dropdownStyles.customDropdownOption}${'profile' in fs && fs.profile === p ? ' ' + dropdownStyles.selected : ''}`}
+            tabIndex={profileOpen ? 0 : -1}
+            onClick={() => {
+              onSettingsChange({
+                ...settings,
+                formatSpecific: {
+                  ...settings.formatSpecific,
+                  [format as keyof typeof settings.formatSpecific]: { ...fs, profile: p }
+                }
+              });
+              setProfileOpen(false);
+            }}
           >
-            {profiles.map(p => (
-              <button
-                type="button"
-                key={p}
-                className={`${dropdownStyles.customDropdownOption}${'profile' in fs && fs.profile === p ? ' ' + dropdownStyles.selected : ''}`}
-                tabIndex={profileOpen ? 0 : -1}
-                onClick={() => {
-                  onSettingsChange({
-                    ...settings,
-                    formatSpecific: {
-                      ...settings.formatSpecific,
-                      [format as keyof typeof settings.formatSpecific]: { ...fs, profile: p }
-                    }
-                  });
-                  setProfileOpen(false);
-                }}
-              >
-                {p}
-              </button>
-            ))}
-          </div>
-        </div>
-      </div>
+            {p}
+          </button>
+        ))}
+      </DropDown>
     );
   };
 
-  const renderLevelSlider = () => {
-    if (!levels.length) return null;
-    const fs = settings.formatSpecific[format as keyof typeof settings.formatSpecific];
-    const min = 0;
-    const max = levels.length - 1;
-    const value = 'level' in fs && fs.level ? levels.indexOf(fs.level) : 0;
-    return (
-      <div className={sliderStyles.sliderContainer}>
-        <label className={sliderStyles.sliderLabel}>Level:</label>
-        <input
-          type="range"
-          min={min}
-          max={max}
-          value={value}
-          onChange={e => {
-            const idx = parseInt(e.target.value);
-            onSettingsChange({
-              ...settings,
-              formatSpecific: {
-                ...settings.formatSpecific,
-                [format as keyof typeof settings.formatSpecific]: { ...fs, level: levels[idx] }
-              }
-            });
-          }}
-          className={sliderStyles.slider}
-        />
-        <span className={sliderStyles.sliderValue}>{levels[value]}</span>
-      </div>
-    );
-  };
-
-  // --- Speed Preset Dropdown ---
   const renderSpeedDropdown = () => {
     if (!speedPresets.length) return null;
     const fs = settings.formatSpecific[format as keyof typeof settings.formatSpecific];
     return (
-      <div className={dropdownStyles.dropdownContainer}>
-        <label className={dropdownStyles.dropdownLabel}>Speed Preset:</label>
-        <div
-          className={
-            dropdownStyles.customDropdown +
-            (speedOpen ? ' ' + dropdownStyles.open : '')
-          }
-          ref={speedDropdownRef}
-        >
+      <DropDown
+        label="Speed Preset:"
+        open={speedOpen}
+        setOpen={setSpeedOpen}
+        dropdownRef={speedDropdownRef as React.RefObject<HTMLDivElement>}
+        containerClassName={dropdownStyles.dropdownContainer}
+        labelClassName={dropdownStyles.dropdownLabel}
+        dropdownClassName={dropdownStyles.customDropdown + (speedOpen ? ' ' + dropdownStyles.open : '')}
+        menuClassName={dropdownStyles.customDropdownMenu}
+        trigger={
           <button
             type="button"
             className={dropdownStyles.customDropdownTrigger}
@@ -327,48 +289,43 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
               </svg>
             </span>
           </button>
-          <div
-            className={dropdownStyles.customDropdownMenu}
-            aria-hidden={!speedOpen}
-            style={!speedOpen ? { pointerEvents: 'none' } : undefined}
+        }
+      >
+        {speedPresets.map(preset => (
+          <button
+            type="button"
+            key={preset}
+            className={`${dropdownStyles.customDropdownOption}${fs.speed === preset ? ' ' + dropdownStyles.selected : ''}`}
+            tabIndex={speedOpen ? 0 : -1}
+            onClick={() => {
+              onSettingsChange({
+                ...settings,
+                formatSpecific: {
+                  ...settings.formatSpecific,
+                  [format as keyof typeof settings.formatSpecific]: { ...fs, speed: preset }
+                }
+              });
+              setSpeedOpen(false);
+            }}
           >
-            {speedPresets.map(preset => (
-              <button
-                type="button"
-                key={preset}
-                className={`${dropdownStyles.customDropdownOption}${fs.speed === preset ? ' ' + dropdownStyles.selected : ''}`}
-                tabIndex={speedOpen ? 0 : -1}
-                onClick={() => {
-                  onSettingsChange({
-                    ...settings,
-                    formatSpecific: {
-                      ...settings.formatSpecific,
-                      [format as keyof typeof settings.formatSpecific]: { ...fs, speed: preset }
-                    }
-                  });
-                  setSpeedOpen(false);
-                }}
-              >
-                {preset}
-              </button>
-            ))}
-          </div>
-        </div>
-      </div>
+            {preset}
+          </button>
+        ))}
+      </DropDown>
     );
   };
 
-  // --- FPS Custom Dropdown ---
   const renderFPSDropdown = () => (
-    <div className={dropdownStyles.dropdownContainer}>
-      <label className={dropdownStyles.dropdownLabel}>FPS:</label>
-      <div
-        className={
-          dropdownStyles.customDropdown +
-          (fpsOpen ? ' ' + dropdownStyles.open : '')
-        }
-        ref={fpsDropdownRef}
-      >
+    <DropDown
+      label="FPS:"
+      open={fpsOpen}
+      setOpen={setFpsOpen}
+      dropdownRef={fpsDropdownRef as React.RefObject<HTMLDivElement>}
+      containerClassName={dropdownStyles.dropdownContainer}
+      labelClassName={dropdownStyles.dropdownLabel}
+      dropdownClassName={dropdownStyles.customDropdown + (fpsOpen ? ' ' + dropdownStyles.open : '')}
+      menuClassName={dropdownStyles.customDropdownMenu}
+      trigger={
         <button
           type="button"
           className={dropdownStyles.customDropdownTrigger}
@@ -382,40 +339,72 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
             </svg>
           </span>
         </button>
-        <div
-          className={dropdownStyles.customDropdownMenu}
-          aria-hidden={!fpsOpen}
-          style={!fpsOpen ? { pointerEvents: 'none' } : undefined}
+      }
+    >
+      <button
+        type="button"
+        className={`${dropdownStyles.customDropdownOption}${settings.fps === null || settings.fps === undefined ? ' ' + dropdownStyles.selected : ''}`}
+        tabIndex={fpsOpen ? 0 : -1}
+        onClick={() => {
+          onSettingsChange({ ...settings, fps: null });
+          setFpsOpen(false);
+        }}
+      >
+        Auto
+      </button>
+      {FPS_OPTIONS.filter(fps => fps !== null).map(fps => (
+        <button
+          type="button"
+          key={fps}
+          className={`${dropdownStyles.customDropdownOption}${settings.fps === fps ? ' ' + dropdownStyles.selected : ''}`}
+          tabIndex={fpsOpen ? 0 : -1}
+          onClick={() => {
+            onSettingsChange({ ...settings, fps: fps as number });
+            setFpsOpen(false);
+          }}
         >
-          <button
-            type="button"
-            className={`${dropdownStyles.customDropdownOption}${settings.fps === null || settings.fps === undefined ? ' ' + dropdownStyles.selected : ''}`}
-            tabIndex={fpsOpen ? 0 : -1}
-            onClick={() => {
-              onSettingsChange({ ...settings, fps: null });
-              setFpsOpen(false);
-            }}
-          >
-            Auto
-          </button>
-          {FPS_OPTIONS.filter(fps => fps !== null).map(fps => (
-            <button
-              type="button"
-              key={fps}
-              className={`${dropdownStyles.customDropdownOption}${settings.fps === fps ? ' ' + dropdownStyles.selected : ''}`}
-              tabIndex={fpsOpen ? 0 : -1}
-              onClick={() => {
-                onSettingsChange({ ...settings, fps: fps as number });
-                setFpsOpen(false);
-              }}
-            >
-              {fps} fps
-            </button>
-          ))}
-        </div>
-      </div>
-    </div>
+          {fps} fps
+        </button>
+      ))}
+    </DropDown>
   );
+
+  // --- Level slider for codecs with levels ---
+  const renderLevelSlider = () => {
+    if (!levels.length) return null;
+    const fs = settings.formatSpecific[format as keyof typeof settings.formatSpecific];
+    // Convert levels to numbers for slider, but keep string for display
+    const levelValues = levels.map(lvl => parseFloat(lvl));
+    const min = Math.min(...levelValues);
+    const max = Math.max(...levelValues);
+    // Find the closest level to the current value
+    const currentLevel = (fs && 'level' in fs && typeof fs.level === 'string')
+      ? parseFloat(fs.level)
+      : levelValues[0];
+    return (
+      <SettingsSlider
+        label="Level:"
+        min={min}
+        max={max}
+        step={0.1}
+        value={currentLevel}
+        onChange={val => {
+          // Find the closest string level
+          const closest = levels.reduce((prev, curr) =>
+            Math.abs(parseFloat(curr) - val) < Math.abs(parseFloat(prev) - val) ? curr : prev
+          );
+          onSettingsChange({
+            ...settings,
+            formatSpecific: {
+              ...settings.formatSpecific,
+              [format as keyof typeof settings.formatSpecific]: { ...fs, level: closest }
+            }
+          });
+        }}
+        valueDisplay={currentLevel}
+      />
+    );
+  };
 
   // --- Format-specific settings ---
   const renderFormatSpecificSettings = () => {
@@ -433,49 +422,39 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
             {renderProfileDropdown()}
             {renderLevelSlider()}
             {renderSpeedDropdown()}
-            {/* CRF Slider (inline, not a separate render function) */}
-            <div className={sliderStyles.sliderContainer}>
-              <label className={sliderStyles.sliderLabel}>
-              CRF (Quality):
-              </label>
-              <input
-              type="range"
+            <SettingsSlider
+              label="CRF (Quality):"
               min={crfRange.min}
               max={crfRange.max}
               value={'crf' in fs ? fs.crf : crfRange.default}
-              onChange={e => onSettingsChange({
-                ...settings,
-                formatSpecific: {
-                ...settings.formatSpecific,
-                [format as keyof typeof settings.formatSpecific]: { ...fs, crf: parseInt(e.target.value) }
-                }
-              })}
-              className={sliderStyles.slider}
-              />
-              <span className={sliderStyles.sliderValue}>{'crf' in fs ? fs.crf : crfRange.default}</span>
-            </div>
-            {/* Bitrate */}
-            <div className={sliderStyles.sliderContainer}>
-              <label className={sliderStyles.sliderLabel}>
-              Bitrate:
-              </label>
-              <input
-              type="range"
+              onChange={val =>
+                onSettingsChange({
+                  ...settings,
+                  formatSpecific: {
+                    ...settings.formatSpecific,
+                    [format as keyof typeof settings.formatSpecific]: { ...fs, crf: val }
+                  }
+                })
+              }
+              valueDisplay={'crf' in fs ? fs.crf : crfRange.default}
+            />
+            <SettingsSlider
+              label="Bitrate:"
               min={BITRATE_MIN}
               max={BITRATE_MAX}
               step={BITRATE_STEP}
               value={parseInt(fs.bitrate)}
-              onChange={e => onSettingsChange({
-                ...settings,
-                formatSpecific: {
-                ...settings.formatSpecific,
-                [format as keyof typeof settings.formatSpecific]: { ...fs, bitrate: `${e.target.value}` }
-                }
-              })}
-              className={sliderStyles.slider}
-              />
-              <span className={sliderStyles.sliderValue}>{(parseInt(fs.bitrate) / 1000).toFixed(1)}M</span>
-            </div>
+              onChange={val =>
+                onSettingsChange({
+                  ...settings,
+                  formatSpecific: {
+                    ...settings.formatSpecific,
+                    [format as keyof typeof settings.formatSpecific]: { ...fs, bitrate: val.toString() }
+                  }
+                })
+              }
+              valueDisplay={`${(parseInt(fs.bitrate) / 1000).toFixed(1)}M`}
+            />
           </div>
         );
       }
@@ -485,28 +464,23 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
           <div className={styles.formatSpecificSettings}>
             <h4>WEBM Specific Settings</h4>
             {renderSpeedDropdown()}
-            {/* Bitrate */}
-            <div className={sliderStyles.sliderContainer}>
-              <label className={sliderStyles.sliderLabel}>
-              Bitrate (Mbps):
-              </label>
-              <input
-              type="range"
+            <SettingsSlider
+              label="Bitrate (Mbps):"
               min={BITRATE_MIN}
               max={BITRATE_MAX}
               step={BITRATE_STEP}
               value={parseInt(fs.bitrate)}
-              onChange={e => onSettingsChange({
-                ...settings,
-                formatSpecific: {
-                  ...settings.formatSpecific,
-                  webm: { ...fs, bitrate: `${e.target.value}` }
-                }
-              })}
-              className={sliderStyles.slider}
-              />
-              <span className={sliderStyles.sliderValue}>{(parseInt(fs.bitrate) / 1000).toFixed(1)}M</span>
-            </div>
+              onChange={val =>
+                onSettingsChange({
+                  ...settings,
+                  formatSpecific: {
+                    ...settings.formatSpecific,
+                    webm: { ...fs, bitrate: val.toString() }
+                  }
+                })
+              }
+              valueDisplay={`${(parseInt(fs.bitrate) / 1000).toFixed(1)}M`}
+            />
           </div>
         );
       }
@@ -532,22 +506,12 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
         </h3>
         <div className={styles.settingOption}>
           {/* Remove Metadata */}
-          <div className={checkboxStyles.checkboxWrapper}>
-            <label className={checkboxStyles.checkbox}>
-              <input
-                type="checkbox"
-                className={`${checkboxStyles.checkboxTrigger} ${checkboxStyles.visuallyHidden}`}
-                checked={settings.removeMetadata}
-                onChange={e => onSettingsChange({ ...settings, removeMetadata: e.target.checked })}
-              />
-              <span className={checkboxStyles.checkboxSymbol}>
-                <svg className={checkboxStyles.checkboxIcon} aria-hidden="true" viewBox="0 0 12 10">
-                  <path d="M1 5.50025L3.99975 8.5L11.0005 1.5"></path>
-                </svg>
-              </span>
-              <p className={checkboxStyles.checkboxTextwrapper}>Remove Metadata</p>
-            </label>
-          </div>
+          <SettingsCheckbox
+            checked={settings.removeMetadata}
+            onChange={checked => onSettingsChange({ ...settings, removeMetadata: checked })}
+          >
+            <p className={checkboxStyles.checkboxTextwrapper}>Remove Metadata</p>
+          </SettingsCheckbox>
           {/* FPS */}
           {renderFPSDropdown()}
           {/* Codec */}

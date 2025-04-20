@@ -2,8 +2,10 @@ import React, { useEffect } from 'react';
 import styles from './settings.module.css';
 import checkboxStyles from '../checkbox.module.css';
 import radioStyles from '../radio.module.css';
-import sliderStyles from '../slider.module.css';
 import dropdownStyles from '../dropdown.module.css';
+import SettingsCheckbox from '../SettingsCheckbox';
+import SettingsSlider from '../SettingsSlider';
+import DropDown from '../DropDown';
 
 // --- Audio FileSettings interface for backend compatibility ---
 export interface FileSettings {
@@ -103,7 +105,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
     if (sampleRateOpen || codecOpen) {
       document.addEventListener('mousedown', handleClick);
     }
-    return () => document.removeEventListener('mousedown', handleClick);
+    return () => { document.removeEventListener('mousedown', handleClick); };
   }, [sampleRateOpen, codecOpen]);
 
   // Ensure default codec is set when switching formats
@@ -130,14 +132,18 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
   const BITRATE_MAX = 320;
   const BITRATE_STEP = 8;
 
-  // --- Custom Dropdown for Sample Rate ---
+  // --- Custom Dropdown for Sample Rate using DropDown ---
   const renderSampleRateDropdown = () => (
-    <div className={dropdownStyles.dropdownContainer}>
-      <label className={dropdownStyles.dropdownLabel}>Sample Rate:</label>
-      <div
-        className={dropdownStyles.customDropdown + (sampleRateOpen ? ' ' + dropdownStyles.open : '')}
-        ref={sampleRateDropdownRef}
-      >
+    <DropDown
+      label="Sample Rate:"
+      open={sampleRateOpen}
+      setOpen={setSampleRateOpen}
+      dropdownRef={sampleRateDropdownRef as React.RefObject<HTMLDivElement>}
+      containerClassName={dropdownStyles.dropdownContainer}
+      labelClassName={dropdownStyles.dropdownLabel}
+      dropdownClassName={dropdownStyles.customDropdown + (sampleRateOpen ? ' ' + dropdownStyles.open : '')}
+      menuClassName={dropdownStyles.customDropdownMenu}
+      trigger={
         <button
           type="button"
           className={dropdownStyles.customDropdownTrigger}
@@ -154,53 +160,52 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
             </svg>
           </span>
         </button>
-        <div
-          className={dropdownStyles.customDropdownMenu}
-          aria-hidden={!sampleRateOpen}
-          style={!sampleRateOpen ? { pointerEvents: 'none' } : undefined}
+      }
+    >
+      <button
+        type="button"
+        className={`${dropdownStyles.customDropdownOption}${!settings.sampleRate ? ' ' + dropdownStyles.selected : ''}`}
+        tabIndex={sampleRateOpen ? 0 : -1}
+        onClick={() => {
+          onSettingsChange({ ...settings});
+          setSampleRateOpen(false);
+        }}
+      >
+        Auto
+      </button>
+      {SAMPLE_RATES.map(sr => (
+        <button
+          type="button"
+          key={sr}
+          className={`${dropdownStyles.customDropdownOption}${settings.sampleRate === sr ? ' ' + dropdownStyles.selected : ''}`}
+          tabIndex={sampleRateOpen ? 0 : -1}
+          onClick={() => {
+            onSettingsChange({ ...settings, sampleRate: sr });
+            setSampleRateOpen(false);
+          }}
         >
-          <button
-            type="button"
-            className={`${dropdownStyles.customDropdownOption}${!settings.sampleRate ? ' ' + dropdownStyles.selected : ''}`}
-            tabIndex={sampleRateOpen ? 0 : -1}
-            onClick={() => {
-              onSettingsChange({ ...settings});
-              setSampleRateOpen(false);
-            }}
-          >
-            Auto
-          </button>
-          {SAMPLE_RATES.map(sr => (
-            <button
-              type="button"
-              key={sr}
-              className={`${dropdownStyles.customDropdownOption}${settings.sampleRate === sr ? ' ' + dropdownStyles.selected : ''}`}
-              tabIndex={sampleRateOpen ? 0 : -1}
-              onClick={() => {
-                onSettingsChange({ ...settings, sampleRate: sr });
-                setSampleRateOpen(false);
-              }}
-            >
-              {sr} Hz
-            </button>
-          ))}
-        </div>
-      </div>
-    </div>
+          {sr} Hz
+        </button>
+      ))}
+    </DropDown>
   );
 
-  // --- Custom Dropdown for Codec ---
+  // --- Custom Dropdown for Codec using DropDown ---
   const renderCodecDropdown = () => {
     const format = selectedFormat.toLowerCase();
     const codecs = SUPPORTED_CODECS[format] || [];
     if (codecs.length === 0) return null;
     return (
-      <div className={dropdownStyles.dropdownContainer}>
-        <label className={dropdownStyles.dropdownLabel}>Codec:</label>
-        <div
-          className={dropdownStyles.customDropdown + (codecOpen ? ' ' + dropdownStyles.open : '')}
-          ref={codecDropdownRef}
-        >
+      <DropDown
+        label="Codec:"
+        open={codecOpen}
+        setOpen={setCodecOpen}
+        dropdownRef={codecDropdownRef as React.RefObject<HTMLDivElement>}
+        containerClassName={dropdownStyles.dropdownContainer}
+        labelClassName={dropdownStyles.dropdownLabel}
+        dropdownClassName={dropdownStyles.customDropdown + (codecOpen ? ' ' + dropdownStyles.open : '')}
+        menuClassName={dropdownStyles.customDropdownMenu}
+        trigger={
           <button
             type="button"
             className={dropdownStyles.customDropdownTrigger}
@@ -214,28 +219,23 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
               </svg>
             </span>
           </button>
-          <div
-            className={dropdownStyles.customDropdownMenu}
-            aria-hidden={!codecOpen}
-            style={!codecOpen ? { pointerEvents: 'none' } : undefined}
+        }
+      >
+        {codecs.map(codec => (
+          <button
+            type="button"
+            key={codec}
+            className={`${dropdownStyles.customDropdownOption}${settings.codec === codec ? ' ' + dropdownStyles.selected : ''}`}
+            tabIndex={codecOpen ? 0 : -1}
+            onClick={() => {
+              onSettingsChange({ ...settings, codec });
+              setCodecOpen(false);
+            }}
           >
-            {codecs.map(codec => (
-              <button
-                type="button"
-                key={codec}
-                className={`${dropdownStyles.customDropdownOption}${settings.codec === codec ? ' ' + dropdownStyles.selected : ''}`}
-                tabIndex={codecOpen ? 0 : -1}
-                onClick={() => {
-                  onSettingsChange({ ...settings, codec });
-                  setCodecOpen(false);
-                }}
-              >
-                {codec}
-              </button>
-            ))}
-          </div>
-        </div>
-      </div>
+            {codec}
+          </button>
+        ))}
+      </DropDown>
     );
   };
 
@@ -247,53 +247,46 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
         return (
           <div className={styles.formatSpecificSettings}>
             <h4>Mp3 Specific Settings</h4>
-            <div className={sliderStyles.sliderContainer}>
-              <label className={sliderStyles.sliderLabel}>
-                Bitrate:</label>
-                <input
-                type="range"
-                min={BITRATE_MIN}
-                max={BITRATE_MAX}
-                step={BITRATE_STEP}
-                value={fs.bitrate ? parseInt(fs.bitrate) : 192}
-                onChange={e => onSettingsChange({
+            <SettingsSlider
+              label="Bitrate:"
+              min={BITRATE_MIN}
+              max={BITRATE_MAX}
+              step={BITRATE_STEP}
+              value={fs.bitrate ? parseInt(fs.bitrate) : 192}
+              onChange={val =>
+                onSettingsChange({
                   ...settings,
                   formatSpecific: {
                     ...settings.formatSpecific,
                     mp3: {
                       ...fs,
-                      bitrate: `${e.target.value}k`
+                      bitrate: `${val}k`
                     }
                   }
-                })}
-                className={sliderStyles.slider}
-              />
-              <span className={sliderStyles.sliderValue}>{fs.bitrate}</span>
-            </div>
+                })
+              }
+              valueDisplay={fs.bitrate}
+            />
             {settings.codec && CODECS_WITH_COMPRESSION_LEVEL.includes(settings.codec) && (
-              <div className={sliderStyles.sliderContainer}>
-                <label className={sliderStyles.sliderLabel}>
-                  Compression Level:
-                </label>
-                <input
-                  type="range"
-                  min={0}
-                  max={9}
-                  value={fs.compressionLevel}
-                  onChange={e => onSettingsChange({
+              <SettingsSlider
+                label="Compression Level:"
+                min={0}
+                max={9}
+                value={fs.compressionLevel}
+                onChange={val =>
+                  onSettingsChange({
                     ...settings,
                     formatSpecific: {
                       ...settings.formatSpecific,
                       mp3: {
                         ...fs,
-                        compressionLevel: parseInt(e.target.value)
+                        compressionLevel: val
                       }
                     }
-                  })}
-                  className={sliderStyles.slider}
-                />
-                <span className={sliderStyles.sliderValue}>{fs.compressionLevel}</span>
-              </div>
+                  })
+                }
+                valueDisplay={fs.compressionLevel}
+              />
             )}
           </div>
         );
@@ -303,53 +296,46 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
         return (
           <div className={styles.formatSpecificSettings}>
             <h4>Ogg Specific Settings</h4>
-            <div className={sliderStyles.sliderContainer}>
-              <label className={sliderStyles.sliderLabel}>
-              Bitrate:</label>
-              <input
-                type="range"
-                min={BITRATE_MIN}
-                max={BITRATE_MAX}
-                step={BITRATE_STEP}
-                value={fs.bitrate ? parseInt(fs.bitrate) : 192}
-                onChange={e => onSettingsChange({
+            <SettingsSlider
+              label="Bitrate:"
+              min={BITRATE_MIN}
+              max={BITRATE_MAX}
+              step={BITRATE_STEP}
+              value={fs.bitrate ? parseInt(fs.bitrate) : 192}
+              onChange={val =>
+                onSettingsChange({
                   ...settings,
                   formatSpecific: {
                     ...settings.formatSpecific,
                     ogg: {
                       ...fs,
-                      bitrate: `${e.target.value}k`
+                      bitrate: `${val}k`
                     }
                   }
-                })}
-                className={sliderStyles.slider}
-              />
-              <span className={sliderStyles.sliderValue}>{fs.bitrate ?? "192k"}</span>
-            </div>
+                })
+              }
+              valueDisplay={fs.bitrate ?? "192k"}
+            />
             {settings.codec && CODECS_WITH_COMPRESSION_LEVEL.includes(settings.codec) && (
-              <div className={sliderStyles.sliderContainer}>
-                <label className={sliderStyles.sliderLabel}>
-                  Compression Level:
-                </label>
-                <input
-                  type="range"
-                  min={0}
-                  max={10}
-                  value={fs.compressionLevel ?? 10}
-                  onChange={e => onSettingsChange({
+              <SettingsSlider
+                label="Compression Level:"
+                min={0}
+                max={10}
+                value={fs.compressionLevel ?? 10}
+                onChange={val =>
+                  onSettingsChange({
                     ...settings,
                     formatSpecific: {
                       ...settings.formatSpecific,
                       ogg: {
                         ...fs,
-                        compressionLevel: parseInt(e.target.value)
+                        compressionLevel: val
                       }
                     }
-                  })}
-                  className={sliderStyles.slider}
-                />
-                <span className={sliderStyles.sliderValue}>{fs.compressionLevel}</span>
-              </div>
+                  })
+                }
+                valueDisplay={fs.compressionLevel}
+              />
             )}
           </div>
         );
@@ -359,53 +345,46 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
         return (
           <div className={styles.formatSpecificSettings}>
             <h4>Opus Specific Settings</h4>
-            <div className={sliderStyles.sliderContainer}>
-              <label className={sliderStyles.sliderLabel}>
-              Bitrate:</label>
-              <input
-                type="range"
-                min={BITRATE_MIN}
-                max={BITRATE_MAX}
-                step={BITRATE_STEP}
-                value={fs.bitrate ? parseInt(fs.bitrate) : 192}
-                onChange={e => onSettingsChange({
+            <SettingsSlider
+              label="Bitrate:"
+              min={BITRATE_MIN}
+              max={BITRATE_MAX}
+              step={BITRATE_STEP}
+              value={fs.bitrate ? parseInt(fs.bitrate) : 192}
+              onChange={val =>
+                onSettingsChange({
                   ...settings,
                   formatSpecific: {
                     ...settings.formatSpecific,
                     opus: {
                       ...fs,
-                      bitrate: `${e.target.value}k`
+                      bitrate: `${val}k`
                     }
                   }
-                })}
-                className={sliderStyles.slider}
-              />
-              <span className={sliderStyles.sliderValue}>{fs.bitrate ?? "192k"}</span>
-            </div>
+                })
+              }
+              valueDisplay={fs.bitrate ?? "192k"}
+            />
             {settings.codec && CODECS_WITH_COMPRESSION_LEVEL.includes(settings.codec) && (
-              <div className={sliderStyles.sliderContainer}>
-                <label className={sliderStyles.sliderLabel}>
-                  Compression Level:
-                </label>
-                <input
-                  type="range"
-                  min={0}
-                  max={10}
-                  value={fs.compressionLevel ?? 10}
-                  onChange={e => onSettingsChange({
+              <SettingsSlider
+                label="Compression Level:"
+                min={0}
+                max={10}
+                value={fs.compressionLevel ?? 10}
+                onChange={val =>
+                  onSettingsChange({
                     ...settings,
                     formatSpecific: {
                       ...settings.formatSpecific,
                       opus: {
                         ...fs,
-                        compressionLevel: parseInt(e.target.value)
+                        compressionLevel: val
                       }
                     }
-                  })}
-                  className={sliderStyles.slider}
-                />
-                <span className={sliderStyles.sliderValue}>{fs.compressionLevel ?? 10}</span>
-              </div>
+                  })
+                }
+                valueDisplay={fs.compressionLevel ?? 10}
+              />
             )}
           </div>
         );
@@ -416,29 +395,26 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
         return (
           <div className={styles.formatSpecificSettings}>
             <h4>AAC-M4A Specific Settings</h4>
-            <div className={sliderStyles.sliderContainer}>
-              <label className={sliderStyles.sliderLabel}>
-              Bitrate:</label>
-              <input
-                type="range"
-                min={BITRATE_MIN}
-                max={BITRATE_MAX}
-                step={BITRATE_STEP}
-                value={fs.bitrate ? parseInt(fs.bitrate) : 192}
-                onChange={e => onSettingsChange({
+            <SettingsSlider
+              label="Bitrate:"
+              min={BITRATE_MIN}
+              max={BITRATE_MAX}
+              step={BITRATE_STEP}
+              value={fs.bitrate ? parseInt(fs.bitrate) : 192}
+              onChange={val =>
+                onSettingsChange({
                   ...settings,
                   formatSpecific: {
                     ...settings.formatSpecific,
                     [format]: {
                       ...fs,
-                      bitrate: `${e.target.value}k`
+                      bitrate: `${val}k`
                     }
                   }
-                })}
-                className={sliderStyles.slider}
-              />
-              <span className={sliderStyles.sliderValue}>{fs.bitrate ?? "192k"}</span>
-            </div>
+                })
+              }
+              valueDisplay={fs.bitrate ?? "192k"}
+            />
           </div>
         );
       }
@@ -447,29 +423,25 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
         return (
           <div className={styles.formatSpecificSettings}>
             {settings.codec && CODECS_WITH_COMPRESSION_LEVEL.includes(settings.codec) && (
-              <div className={sliderStyles.sliderContainer}>
-                <label className={sliderStyles.sliderLabel}>
-                  Compression Level:
-                </label>
-                <input
-                  type="range"
-                  min={0}
-                  max={12}
-                  value={fs.compressionLevel ?? 5}
-                  onChange={e => onSettingsChange({
+              <SettingsSlider
+                label="Compression Level:"
+                min={0}
+                max={12}
+                value={fs.compressionLevel ?? 5}
+                onChange={val =>
+                  onSettingsChange({
                     ...settings,
                     formatSpecific: {
                       ...settings.formatSpecific,
                       flac: {
                         ...fs,
-                        compressionLevel: parseInt(e.target.value)
+                        compressionLevel: val
                       }
                     }
-                  })}
-                  className={sliderStyles.slider}
-                />
-                <span className={sliderStyles.sliderValue}>{fs.compressionLevel ?? 5}</span>
-              </div>
+                  })
+                }
+                valueDisplay={fs.compressionLevel ?? 5}
+              />
             )}
           </div>
         );
@@ -492,22 +464,12 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
         </h3>
         <div className={styles.settingOption}>
           {/* Remove Metadata */}
-          <div className={checkboxStyles.checkboxWrapper}>
-            <label className={checkboxStyles.checkbox}>
-              <input
-                type="checkbox"
-                className={`${checkboxStyles.checkboxTrigger} ${checkboxStyles.visuallyHidden}`}
-                checked={settings.removeMetadata}
-                onChange={e => onSettingsChange({ ...settings, removeMetadata: e.target.checked })}
-              />
-              <span className={checkboxStyles.checkboxSymbol}>
-                <svg className={checkboxStyles.checkboxIcon} aria-hidden="true" viewBox="0 0 12 10">
-                  <path d="M1 5.50025L3.99975 8.5L11.0005 1.5"></path>
-                </svg>
-              </span>
-              <p className={checkboxStyles.checkboxTextwrapper}>Remove Metadata</p>
-            </label>
-          </div>
+          <SettingsCheckbox
+            checked={settings.removeMetadata}
+            onChange={checked => onSettingsChange({ ...settings, removeMetadata: checked })}
+          >
+            <p className={checkboxStyles.checkboxTextwrapper}>Remove Metadata</p>
+          </SettingsCheckbox>
           {/* Channels */}
           <div className={radioStyles.radioWrapper}>
             <label style={{ marginRight: '1rem' }}>Channels:</label>

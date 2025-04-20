@@ -1,6 +1,7 @@
 import React from 'react';
 import styles from './settings.module.css';
 import sliderStyles from '../slider.module.css';
+import SettingsSlider from '../SettingsSlider';
 
 export interface FileSettings {
   formatSpecific: {
@@ -69,94 +70,75 @@ const DocSettingsModal: React.FC<SettingsModalProps> = ({
       case 'webp':
         return (
           <div className={styles.formatSpecificSettings}>
-            <div className={sliderStyles.sliderContainer}>
-              <label className={sliderStyles.sliderLabel}>
-                DPI Level:
-              </label>
-              <input
-                type="range"
-                min={100}
-                max={600}
-                step={100}
-                value={settings.formatSpecific[format].dpi}
-                className={sliderStyles.slider}
-                onChange={e =>
-                  onSettingsChange({
-                    ...settings,
-                    formatSpecific: {
-                      ...settings.formatSpecific,
-                      [format]: {
-                        ...settings.formatSpecific[format],
-                        dpi: Number(e.target.value)
-                      }
+            <SettingsSlider
+              label="DPI Level:"
+              min={100}
+              max={600}
+              step={100}
+              value={settings.formatSpecific[format].dpi}
+              onChange={val =>
+                onSettingsChange({
+                  ...settings,
+                  formatSpecific: {
+                    ...settings.formatSpecific,
+                    [format]: {
+                      ...settings.formatSpecific[format],
+                      dpi: val
                     }
-                  })
-                }
-              />
-              <span className={sliderStyles.sliderValue}>{settings.formatSpecific[format].dpi}</span>
-            </div>
-            <div className={sliderStyles.sliderContainer}>
-              <label className={sliderStyles.sliderLabel}>
-                Image Quality:
-              </label>
-              <input
-                type="range"
-                min={1}
-                max={100}
-                step={1}
-                value={settings.formatSpecific[format].quality}
-                className={sliderStyles.slider}
-                onChange={e =>
-                  onSettingsChange({
-                    ...settings,
-                    formatSpecific: {
-                      ...settings.formatSpecific,
-                      [format]: {
-                        ...settings.formatSpecific[format],
-                        quality: Number(e.target.value)
-                      }
+                  }
+                })
+              }
+              valueDisplay={settings.formatSpecific[format].dpi}
+            />
+            <SettingsSlider
+              label="Image Quality:"
+              min={1}
+              max={100}
+              step={1}
+              value={settings.formatSpecific[format].quality}
+              onChange={val =>
+                onSettingsChange({
+                  ...settings,
+                  formatSpecific: {
+                    ...settings.formatSpecific,
+                    [format]: {
+                      ...settings.formatSpecific[format],
+                      quality: val
                     }
-                  })
-                }
-              />
-              <span className={sliderStyles.sliderValue}>{settings.formatSpecific[format].quality}</span>
-            </div>
+                  }
+                })
+              }
+              valueDisplay={settings.formatSpecific[format].quality}
+            />
           </div>
         );
-
       case 'png':
       case 'bmp':
         return (
           <div className={styles.formatSpecificSettings}>
-            <div className={sliderStyles.sliderWrapper}>
-              <label>
-                DPI
-                <input
-                  type="range"
-                  min={72}
-                  max={600}
-                  step={1}
-                  value={settings.formatSpecific[format].dpi}
-                  className={sliderStyles.slider}
-                  onChange={e =>
-                    onSettingsChange({
-                      ...settings,
-                      formatSpecific: {
-                        ...settings.formatSpecific,
-                        [format]: {
-                          ...settings.formatSpecific[format],
-                          dpi: Number(e.target.value)
-                        }
-                      }
-                    })
+            <SettingsSlider
+              label="DPI"
+              min={72}
+              max={600}
+              step={1}
+              value={settings.formatSpecific[format].dpi}
+              onChange={val =>
+                onSettingsChange({
+                  ...settings,
+                  formatSpecific: {
+                    ...settings.formatSpecific,
+                    [format]: {
+                      ...settings.formatSpecific[format],
+                      dpi: val
+                    }
                   }
-                />
-                <span className={sliderStyles.sliderValue}>{settings.formatSpecific[format].dpi}</span>
-              </label>
-            </div>
+                })
+              }
+              valueDisplay={settings.formatSpecific[format].dpi}
+              containerClassName={sliderStyles.sliderWrapper}
+            />
           </div>
         );
-
       default:
         return null;
     }

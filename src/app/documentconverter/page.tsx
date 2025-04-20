@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useState, useMemo, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
+import { useDropzone } from 'react-dropzone';
 import styles from "./docconverter.module.css";
 import fileItemStyles from "../../components/FileManagement/fileItem.module.css";
 import uploadButtonStyles from "../../components/FileManagement/uploadButton.module.css";
@@ -26,6 +27,15 @@ const DOC_CONVERT_MAP: Record<string, string[]> = {
   // Add more as you extend backend support
 };
 
+const defaultSettings: FileSettings = {
+  formatSpecific: {
+    jpeg: { dpi: 200, quality: 100 },
+    webp: { dpi: 200, quality: 100 },
+    bmp: { dpi: 300 },
+    png: { dpi: 300 },
+  }
+}
+
 /**
  * ImageConverterPage component - Main page for converting images between formats
  * This component handles file selection, format conversion settings, and processing
@@ -33,16 +43,7 @@ const DOC_CONVERT_MAP: Record<string, string[]> = {
  * @returns React component
  */
 const DocConverterPage = () => {
-  const defaultSettings = useMemo<FileSettings>(() => ({
-    formatSpecific: {
-      jpeg: { dpi: 200, quality: 100 },
-      webp: { dpi: 200, quality: 100 },
-      bmp: { dpi: 300 },
-      png: { dpi: 300 },
-    }
-  }), []);
 
-  
   // File management state
   const [files, setFiles] = useState<File[]>([]);
   const [filesAdded, setFilesAdded] = useState(false);
@@ -51,8 +52,6 @@ const DocConverterPage = () => {
   
   // UI references and drag-drop state
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const dragCounter = useRef(0);
-  const [isDragging, setIsDragging] = useState(false);
   const [showDropdown, setShowDropdown] = useState<number | null>(null);
   const [buttonsVisible, setButtonsVisible] = useState(true);
   
@@ -97,7 +96,7 @@ const DocConverterPage = () => {
   // Initialize settings for new files
   useEffect(() => {
     setFileSettings(files.map(() => ({ ...defaultSettings })));
-  }, [files, defaultSettings]);
+  }, [files]);
 
   useEffect(() => {
     let timeoutId: NodeJS.Timeout;
@@ -141,28 +140,6 @@ const DocConverterPage = () => {
     }
   }, [showDropdown]);
 
-  // Handle drag enter event
-  const handleDragEnter = (e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    dragCounter.current++;
-    if (dragCounter.current === 1) {
-      setIsDragging(true);
-    }
-  };
-  const handleDragLeave = (e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    dragCounter.current--;
-    if (dragCounter.current === 0) {
-      setIsDragging(false);
-    }
-  };
-  const handleDragOver = (e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-  };
-
   // Check whether file is an image and get its extension
   const getFileExtension = (filename: string): string => {
     return filename.split('.').pop()?.toLowerCase() || '';
@@ -190,105 +167,56 @@ const DocConverterPage = () => {
     return file.size <= MAX_FILE_SIZE_BYTES;
   };
 
-  // Handle file drop event
-  const handleDrop = (e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setIsDragging(false);
-    dragCounter.current = 0;
+  // Reusable function to validate and add files
+  const validateAndAddFiles = (incomingFiles: File[]) => {
+    // Check if adding the files would exceed the maximum count
+    if (files.length + incomingFiles.length > MAX_FILES_COUNT) {
+      addNotification(`You can only add up to ${MAX_FILES_COUNT} files at a time. You already have ${files.length} files.`);
+      return;
+    }
 
-    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
-      const droppedFiles = Array.from(e.dataTransfer.files);
-      
-      // Check if adding the files would exceed the maximum count
-      if (files.length + droppedFiles.length > MAX_FILES_COUNT) {
-        addNotification(`You can only add up to ${MAX_FILES_COUNT} files at a time. You already have ${files.length} files.`);
-        return;
-      }
-      
-      // Filter out files not in allowed document formats
-      const allowedFiles = droppedFiles.filter(isAllowedDocumentFile);
-      
-      // Filter out files exceeding size limit
-      const validSizeFiles = allowedFiles.filter(isFileSizeValid);
-      
-      // Notify about rejected files
-      const rejectedForType = droppedFiles.length - allowedFiles.length;
-      const rejectedForSize = allowedFiles.length - validSizeFiles.length;
-      
-      if (rejectedForType > 0) {
-        addNotification(`${rejectedForType} file(s) were rejected because they are not supported document formats (images are not accepted).`, 'warning');
-      }
-      
-      if (rejectedForSize > 0) {
-        addNotification(`${rejectedForSize} file(s) were rejected because they exceed the ${MAX_FILE_SIZE_MB}MB size limit.`, 'warning');
-      }
+    // Filter out files not in allowed document formats
+    const allowedFiles = incomingFiles.filter(isAllowedDocumentFile);
 
-      if (validSizeFiles.length > 0) {
-        const newFiles = [...files, ...validSizeFiles];
-        setFiles(newFiles);
-        setSelectedFormats(prev => [
-          ...prev,
-          ...validSizeFiles.map(file => getAvailableFormats(file)[0])
-        ]);
+    // Filter out files exceeding size limit
+    const validSizeFiles = allowedFiles.filter(isFileSizeValid);
 
-        // Initialize settings for new files
-        setFileSettings(prev => [
-          ...prev,
-          ...validSizeFiles.map(() => ({ ...defaultSettings }))
-        ]);
+    // Notify about rejected files
+    const rejectedForType = incomingFiles.length - allowedFiles.length;
+    const rejectedForSize = allowedFiles.length - validSizeFiles.length;
 
-        e.dataTransfer.clearData();
-        setFilesAdded(true);
-      }
+    if (rejectedForType > 0) {
+      addNotification(`${rejectedForType} file(s) were rejected because they are not supported document formats (images are not accepted).`, 'warning');
+    }
+
+    if (rejectedForSize > 0) {
+      addNotification(`${rejectedForSize} file(s) were rejected because they exceed the ${MAX_FILE_SIZE_MB}MB size limit.`, 'warning');
+    }
+
+    if (validSizeFiles.length > 0) {
+      const newFiles = [...files, ...validSizeFiles];
+      setFiles(newFiles);
+      setSelectedFormats(prev => [
+        ...prev,
+        ...validSizeFiles.map(file => getAvailableFormats(file)[0])
+      ]);
+
+      // Initialize settings for new files
+      setFileSettings(prev => [
+        ...prev,
+        ...validSizeFiles.map(() => ({ ...defaultSettings }))
+      ]);
+
+      setFilesAdded(true);
     }
   };
+
   // Handle file selection from Button input
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     setTimeout(() => {
       if (e.target.files && e.target.files.length > 0) {
         const selectedFiles = Array.from(e.target.files);
-        
-        // Check if adding the files would exceed the maximum count
-        if (files.length + selectedFiles.length > MAX_FILES_COUNT) {
-          addNotification(`You can only add up to ${MAX_FILES_COUNT} files at a time. You already have ${files.length} files.`);
-          return;
-        }
-        
-        // Filter out files not in allowed document formats
-        const allowedFiles = selectedFiles.filter(isAllowedDocumentFile);
-        
-        // Filter out files exceeding size limit
-        const validSizeFiles = allowedFiles.filter(isFileSizeValid);
-        
-        // Notify about rejected files
-        const rejectedForType = selectedFiles.length - allowedFiles.length;
-        const rejectedForSize = allowedFiles.length - validSizeFiles.length;
-        
-        // Notify about rejected files
-        if (rejectedForType > 0) {
-          addNotification(`${rejectedForType} file(s) cannot be added because they are not supported document formats (images are not accepted).`, 'warning');
-        }
-        if (rejectedForSize > 0) {
-          addNotification(`${rejectedForSize} file(s) cannot be added because they exceed the ${MAX_FILE_SIZE_MB}MB size limit.`, 'warning');
-        }
-
-        if (validSizeFiles.length > 0) {
-          const newFiles = [...files, ...validSizeFiles];
-          setFiles(newFiles);
-          setSelectedFormats(prev => [
-            ...prev,
-            ...validSizeFiles.map(file => getAvailableFormats(file)[0])
-          ]);
-
-          // Initialize settings for new files
-          setFileSettings(prev => [
-            ...prev,
-            ...validSizeFiles.map(() => ({ ...defaultSettings }))
-          ]);
-
-          setFilesAdded(true);
-        }
+        validateAndAddFiles(selectedFiles);
       }
     }, 0);
   };
@@ -425,34 +353,59 @@ const DocConverterPage = () => {
 
   // Only PDF to image formats have settings
   const hasSettings = (file: File, selectedFormat: string) => {
-    const ext = file.name.split('.').pop()?.toLowerCase() || '';
+    const ext = file.name.split('.').pop()?.toLowerCase() ?? '';
     const imageFormats = ['jpeg', 'png', 'tiff', 'webp', 'bmp'];
     return ext === 'pdf' && imageFormats.includes(selectedFormat);
   };
+
+  const onDrop = (acceptedFiles: File[]) => {
+    if (acceptedFiles && acceptedFiles.length > 0) {
+      validateAndAddFiles(acceptedFiles);
+    }
+  };
+
+  const {
+    getRootProps,
+    getInputProps,
+    isDragActive
+  } = useDropzone({
+    onDrop,
+    accept: {
+      'application/pdf': [],
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document': [],
+      'text/plain': [],
+      '.pdf': [],
+      '.docx': [],
+      '.txt': []
+    },
+    noClick: true,
+    multiple: true,
+    maxSize: MAX_FILE_SIZE_BYTES
+  });
 
   return (
     <div className={styles.container}>
       <h1 className={styles.pageTitle}>Document Converter</h1>
 
       <section
-        className={`${styles.uploadSection} ${filesAdded ? styles.solid : styles.dashed} ${isDragging ? styles.dragging : ''} ${showSettings ? styles.blurredContent : ''}`}
-        onDragEnter={handleDragEnter}
-        onDragOver={handleDragOver}
-        onDragLeave={handleDragLeave}
-        onDrop={handleDrop}
+        {...getRootProps({
+          className:
+            `${styles.uploadSection} ${filesAdded ? styles.solid : styles.dashed} ${isDragActive ? styles.dragging : ''} ${showSettings ? styles.blurredContent : ''}`
+        })}
       >
-        {isDragging && (
+        {isDragActive && (
           <div className={styles.dropOverlay}>
             <p>Drop Files Here</p>
           </div>
         )}
 
+        {/* Use dropzone's getInputProps for drag-and-drop, keep hidden input for manual click */}
+        <input {...getInputProps()} style={{ display: 'none' }} />
         <input
           type="file"
           ref={fileInputRef}
           onChange={handleFileSelect}
           multiple
-          // Only allow document types/extensions, not images
           accept=".pdf,.docx,.txt,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain"
           style={{ display: 'none' }}
         />
@@ -467,7 +420,7 @@ const DocConverterPage = () => {
             onFormatChange={handleFormatChange}
             onOpenSettings={handleOpenSettings}
             onDeleteFile={handleDeleteFile}
-            onDropdownToggle={(idx: number) => setShowDropdown(showDropdown === idx ? null : idx)}
+            onDropdownToggle={(idx: number) => { setShowDropdown(showDropdown === idx ? null : idx); }}
             isConverting={isConverting}
             conversionStatus={conversionStatus}
             conversionProgress={conversionProgress}
@@ -485,7 +438,7 @@ const DocConverterPage = () => {
           />
         ) : (
           <FileUploader
-            isDragging={isDragging}
+            isDragging={isDragActive}
             filesExist={filesAdded}
             fileInputRef={fileInputRef}
             maxFileSize={MAX_FILE_SIZE_MB}

@@ -1,7 +1,8 @@
 import React from 'react';
 import styles from './settings.module.css'; 
 import checkboxStyles from '../checkbox.module.css';
-import sliderStyles from '../slider.module.css';
+import SettingsCheckbox from '../SettingsCheckbox';
+import SettingsSlider from '../SettingsSlider';
 
 export interface FileSettings {
   removeMetadata: boolean;
@@ -76,31 +77,23 @@ const ImageSettingsModal: React.FC<SettingsModalProps> = ({
         return (
           <div className={styles.formatSpecificSettings}>
             <h4>JPEG Specific Settings</h4>
-            <div className={checkboxStyles.checkboxWrapper}>
-              <label className={checkboxStyles.checkbox}>
-                <input
-                  type="checkbox"
-                  className={`${checkboxStyles.checkboxTrigger} ${checkboxStyles.visuallyHidden}`}
-                  checked={settings.formatSpecific.jpg.optimize}
-                  onChange={(e) => onSettingsChange({
-                    ...settings,
-                    formatSpecific: {
-                      ...settings.formatSpecific,
-                      jpg: {
-                        ...settings.formatSpecific.jpg,
-                        optimize: e.target.checked
-                      }
+            <SettingsCheckbox
+              checked={settings.formatSpecific.jpg.optimize}
+              onChange={checked =>
+                onSettingsChange({
+                  ...settings,
+                  formatSpecific: {
+                    ...settings.formatSpecific,
+                    jpg: {
+                      ...settings.formatSpecific.jpg,
+                      optimize: checked
                     }
-                  })}
-                />
-                <span className={checkboxStyles.checkboxSymbol}>
-                  <svg className={checkboxStyles.checkboxIcon} aria-hidden="true" viewBox="0 0 12 10">
-                    <path d="M1 5.50025L3.99975 8.5L11.0005 1.5"></path>
-                  </svg>
-                </span>
-                <p className={checkboxStyles.checkboxTextwrapper}>Optimize Codec Selection (Recommended)</p>
-              </label>
-            </div>
+                  }
+                })
+              }
+            >
+              <p className={checkboxStyles.checkboxTextwrapper}>Optimize Codec Selection (Recommended)</p>
+            </SettingsCheckbox>
           </div>
         );
       
@@ -108,31 +101,23 @@ const ImageSettingsModal: React.FC<SettingsModalProps> = ({
         return (
           <div className={styles.formatSpecificSettings}>
             <h4>WebP Specific Settings</h4>
-            <div className={checkboxStyles.checkboxWrapper}>
-              <label className={`${checkboxStyles.checkbox}`}>
-                <input
-                  type="checkbox"
-                  className={`${checkboxStyles.checkboxTrigger} ${checkboxStyles.visuallyHidden}`}
-                  checked={settings.formatSpecific.webp.optimize}
-                  onChange={(e) => onSettingsChange({
-                    ...settings,
-                    formatSpecific: {
-                      ...settings.formatSpecific,
-                      webp: {
-                        ...settings.formatSpecific.webp,
-                        optimize: e.target.checked
-                      }
+            <SettingsCheckbox
+              checked={settings.formatSpecific.webp.optimize}
+              onChange={checked =>
+                onSettingsChange({
+                  ...settings,
+                  formatSpecific: {
+                    ...settings.formatSpecific,
+                    webp: {
+                      ...settings.formatSpecific.webp,
+                      optimize: checked
                     }
-                  })}
-                />
-                <span className={checkboxStyles.checkboxSymbol}>
-                  <svg className={checkboxStyles.checkboxIcon} aria-hidden="true" viewBox="0 0 12 10">
-                    <path d="M1 5.50025L3.99975 8.5L11.0005 1.5"></path>
-                  </svg>
-                </span>
-                <p className={checkboxStyles.checkboxTextwrapper}>Optimize Compression Quality</p>
-              </label>
-            </div>
+                  }
+                })
+              }
+            >
+              <p className={checkboxStyles.checkboxTextwrapper}>Optimize Compression Quality</p>
+            </SettingsCheckbox>
           </div>
         );
       
@@ -140,44 +125,36 @@ const ImageSettingsModal: React.FC<SettingsModalProps> = ({
         return (
           <div className={styles.formatSpecificSettings}>
             <h4>BMP Specific Settings</h4>
-            <div className={checkboxStyles.checkboxWrapper}>
-              <label className={`${checkboxStyles.checkbox}`}>
-                <input
-                  type="checkbox"
-                  className={`${checkboxStyles.checkboxTrigger} ${checkboxStyles.visuallyHidden}`}
-                  checked={settings.formatSpecific.bmp.compression}
-                  onChange={(e) => onSettingsChange({
-                    ...settings,
-                    formatSpecific: {
-                      ...settings.formatSpecific,
-                      bmp: {
-                        ...settings.formatSpecific.bmp,
-                        compression: e.target.checked
-                      }
+            <SettingsCheckbox
+              checked={settings.formatSpecific.bmp.compression}
+              onChange={checked =>
+                onSettingsChange({
+                  ...settings,
+                  formatSpecific: {
+                    ...settings.formatSpecific,
+                    bmp: {
+                      ...settings.formatSpecific.bmp,
+                      compression: checked
                     }
-                  })}
-                />
-                <span className={checkboxStyles.checkboxSymbol}>
-                  <svg className={checkboxStyles.checkboxIcon} aria-hidden="true" viewBox="0 0 12 10">
-                    <path d="M1 5.50025L3.99975 8.5L11.0005 1.5"></path>
-                  </svg>
-                </span>
-                <p className={checkboxStyles.checkboxTextwrapper}>
-                  Use RLE Compression
-                  <span className={styles.warningText}> (Recommended)</span>
-                </p>
-              </label>
-              {!settings.formatSpecific.bmp.compression && (
-                <div className={styles.warning}>
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
-                    <line x1="12" y1="9" x2="12" y2="13"></line>
-                    <line x1="12" y1="17" x2="12.01" y2="17"></line>
-                  </svg>
-                  Note: BMP files without compression can be extremely large.
-                </div>
-              )}
-            </div>
+                  }
+                })
+              }
+            >
+              <p className={checkboxStyles.checkboxTextwrapper}>
+                Use RLE Compression
+                <span className={styles.warningText}> (Recommended)</span>
+              </p>
+            </SettingsCheckbox>
+            {!settings.formatSpecific.bmp.compression && (
+              <div className={styles.warning}>
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                  <line x1="12" y1="9" x2="12" y2="13"></line>
+                  <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                </svg>
+                Note: BMP files without compression can be extremely large.
+              </div>
+            )}
           </div>
         );
 
@@ -185,33 +162,25 @@ const ImageSettingsModal: React.FC<SettingsModalProps> = ({
           return (
             <div className={styles.formatSpecificSettings}>
               <h4>TGA Specific Settings</h4>
-              <div className={checkboxStyles.checkboxWrapper}>
-                <label className={`${checkboxStyles.checkbox}`}>
-                  <input
-                    type="checkbox"
-                    className={`${checkboxStyles.checkboxTrigger} ${checkboxStyles.visuallyHidden}`}
-                    checked={settings.formatSpecific.tga.compression}
-                    onChange={(e) => onSettingsChange({
-                      ...settings,
-                      formatSpecific: {
-                        ...settings.formatSpecific,
-                        tga: {
-                          ...settings.formatSpecific.tga,
-                          compression: e.target.checked
-                        }
+              <SettingsCheckbox
+                checked={settings.formatSpecific.tga.compression}
+                onChange={checked =>
+                  onSettingsChange({
+                    ...settings,
+                    formatSpecific: {
+                      ...settings.formatSpecific,
+                      tga: {
+                        ...settings.formatSpecific.tga,
+                        compression: checked
                       }
-                    })}
-                  />
-                  <span className={checkboxStyles.checkboxSymbol}>
-                    <svg className={checkboxStyles.checkboxIcon} aria-hidden="true" viewBox="0 0 12 10">
-                      <path d="M1 5.50025L3.99975 8.5L11.0005 1.5"></path>
-                    </svg>
-                  </span>
-                  <p className={checkboxStyles.checkboxTextwrapper}>
-                    Use RLE Compression
-                  </p>
-                </label>
-              </div>
+                    }
+                  })
+                }
+              >
+                <p className={checkboxStyles.checkboxTextwrapper}>
+                  Use RLE Compression
+                </p>
+              </SettingsCheckbox>
             </div>
           );
 
@@ -219,33 +188,25 @@ const ImageSettingsModal: React.FC<SettingsModalProps> = ({
             return (
               <div className={styles.formatSpecificSettings}>
                 <h4>PNG Specific Settings</h4>
-                <div className={checkboxStyles.checkboxWrapper}>
-                  <label className={`${checkboxStyles.checkbox}`}>
-                    <input
-                      type="checkbox"
-                      className={`${checkboxStyles.checkboxTrigger} ${checkboxStyles.visuallyHidden}`}
-                      checked={settings.formatSpecific.png.optimize}
-                      onChange={(e) => onSettingsChange({
-                        ...settings,
-                        formatSpecific: {
-                          ...settings.formatSpecific,
-                          png: {
-                            ...settings.formatSpecific.png,
-                            optimize: e.target.checked
-                          }
+                <SettingsCheckbox
+                  checked={settings.formatSpecific.png.optimize}
+                  onChange={checked =>
+                    onSettingsChange({
+                      ...settings,
+                      formatSpecific: {
+                        ...settings.formatSpecific,
+                        png: {
+                          ...settings.formatSpecific.png,
+                          optimize: checked
                         }
-                      })}
-                    />
-                    <span className={checkboxStyles.checkboxSymbol}>
-                      <svg className={checkboxStyles.checkboxIcon} aria-hidden="true" viewBox="0 0 12 10">
-                        <path d="M1 5.50025L3.99975 8.5L11.0005 1.5"></path>
-                      </svg>
-                    </span>
-                    <p className={checkboxStyles.checkboxTextwrapper}>
-                      Optimize PNG (Recommended)
-                    </p>
-                  </label>
-                </div>
+                      }
+                    })
+                  }
+                >
+                  <p className={checkboxStyles.checkboxTextwrapper}>
+                    Optimize PNG (Recommended)
+                  </p>
+                </SettingsCheckbox>
               </div>
             );
 
@@ -253,29 +214,25 @@ const ImageSettingsModal: React.FC<SettingsModalProps> = ({
         return (
           <div className={styles.formatSpecificSettings}>
             <h4>AVIF Specific Settings</h4>
-            <div className={sliderStyles.sliderContainer}>
-              <label className={sliderStyles.sliderLabel}>
-                Encoder Speed (Lower = Better Quality):
-              </label>
-              <input
-                type="range"
-                min="0"
-                max="10"
-                value={settings.formatSpecific.avif.speed}
-                onChange={(e) => onSettingsChange({
+            <SettingsSlider
+              label="Encoder Speed (Lower = Better Quality):"
+              min={0}
+              max={10}
+              value={settings.formatSpecific.avif.speed}
+              onChange={val =>
+                onSettingsChange({
                   ...settings,
                   formatSpecific: {
                     ...settings.formatSpecific,
                     avif: {
                       ...settings.formatSpecific.avif,
-                      speed: parseInt(e.target.value)
+                      speed: val
                     }
                   }
-                })}
-                className={sliderStyles.slider}
-              />
-              <span className={sliderStyles.sliderValue}>{settings.formatSpecific.avif.speed}</span>
-            </div>
+                })
+              }
+              valueDisplay={settings.formatSpecific.avif.speed}
+            />
           </div>
         );
 
@@ -295,62 +252,42 @@ const ImageSettingsModal: React.FC<SettingsModalProps> = ({
           {fileName} {fileSize && `(${formatFileSize(fileSize)})`}
         </h3>
         <div className={styles.settingOption}>
-          <div className={checkboxStyles.checkboxWrapper}>
-            <label className={`${checkboxStyles.checkbox}`}>
-              <input
-                type="checkbox"
-                className={`${checkboxStyles.checkboxTrigger} ${checkboxStyles.visuallyHidden}`}
-                checked={settings.removeMetadata}
-                onChange={(e) => onSettingsChange({
-                  ...settings,
-                  removeMetadata: e.target.checked
-                })}
-              />
-              <span className={checkboxStyles.checkboxSymbol}>
-                <svg className={checkboxStyles.checkboxIcon} aria-hidden="true" viewBox="0 0 12 10">
-                  <path d="M1 5.50025L3.99975 8.5L11.0005 1.5"></path>
-                </svg>
-              </span>
-              <p className={checkboxStyles.checkboxTextwrapper}>Remove Image Metadata (EXIF)</p>
-            </label>
-          </div>
-          <div className={checkboxStyles.checkboxWrapper}>
-            <label className={`${checkboxStyles.checkbox}`}>
-              <input
-                type="checkbox"
-                className={`${checkboxStyles.checkboxTrigger} ${checkboxStyles.visuallyHidden}`}
-                checked={settings.compression}
-                onChange={(e) => onSettingsChange({
-                  ...settings,
-                  compression: e.target.checked
-                })}
-              />
-              <span className={checkboxStyles.checkboxSymbol}>
-                <svg className={checkboxStyles.checkboxIcon} aria-hidden="true" viewBox="0 0 12 10">
-                  <path d="M1 5.50025L3.99975 8.5L11.0005 1.5"></path>
-                </svg>
-              </span>
-              <p className={checkboxStyles.checkboxTextwrapper}>Enable Image Compression (Lossy)</p>
-            </label>
-          </div>
-          <div className={sliderStyles.sliderContainer}>
-            <label className={sliderStyles.sliderLabel}>
-              Quality:
-            </label>
-            <input
-              type="range"
-              min="1"
-              max="100"
-              value={settings.quality}
-              onChange={(e) => onSettingsChange({
+          <SettingsCheckbox
+            checked={settings.removeMetadata}
+            onChange={checked =>
+              onSettingsChange({
                 ...settings,
-                quality: parseInt(e.target.value)
-              })}
-              disabled={!settings.compression}
-              className={sliderStyles.slider}
-            />
-            <span className={sliderStyles.sliderValue}>{settings.quality}%</span>
-          </div>
+                removeMetadata: checked
+              })
+            }
+          >
+            <p className={checkboxStyles.checkboxTextwrapper}>Remove Image Metadata (EXIF)</p>
+          </SettingsCheckbox>
+          <SettingsCheckbox
+            checked={settings.compression}
+            onChange={checked =>
+              onSettingsChange({
+                ...settings,
+                compression: checked
+              })
+            }
+          >
+            <p className={checkboxStyles.checkboxTextwrapper}>Enable Image Compression (Lossy)</p>
+          </SettingsCheckbox>
+          <SettingsSlider
+            label="Quality:"
+            min={1}
+            max={100}
+            value={settings.quality}
+            onChange={val =>
+              onSettingsChange({
+                ...settings,
+                quality: val
+              })
+            }
+            disabled={!settings.compression}
+            valueDisplay={`${settings.quality}%`}
+          />
         </div>
         {renderFormatSpecificSettings()}
         <div className={styles.settingsButtons}>

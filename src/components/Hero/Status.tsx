@@ -5,8 +5,7 @@ import { useState, useEffect } from 'react';
 export interface ServerStatusType {
   status: string;
   isOnline: boolean;
-};
-
+}
 
 // Accept styles as a prop to use the same styling from the Hero component
 const ServerStatus = ({ styles }: { styles: Record<string, string> }) => {
@@ -46,7 +45,7 @@ const ServerStatus = ({ styles }: { styles: Record<string, string> }) => {
     };
 
     // Check immediately when component mounts
-    checkServerStatus();
+    void checkServerStatus();
     
     // Set up interval to check periodically (every 30 seconds)
     const intervalId = setInterval(checkServerStatus, 30000);

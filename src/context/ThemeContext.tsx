@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 
-type ThemeContextType = {
+interface ThemeContextType {
   isDark: boolean;
   setIsDark: (value: boolean) => void;
 };
@@ -46,7 +46,7 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
   // Use null-check to avoid rendering children before theme is determined
   return (
     <ThemeContext.Provider value={{ 
-      isDark: isDark === null ? true : isDark, 
+      isDark: isDark ?? true, 
       setIsDark: (value) => { setIsDark(value); }
     }}>
       {children}

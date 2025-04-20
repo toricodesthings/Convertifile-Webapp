@@ -61,7 +61,7 @@ export default function HomeClient() {
       setBackgroundsLoaded(true);
     }, 2000);
 
-    return () => clearTimeout(timeout);
+    return () => { clearTimeout(timeout); };
   }, []);
 
   useEffect(() => {
@@ -119,7 +119,7 @@ export default function HomeClient() {
           <div ref={containerRef} className={styles["convertifile-container"]}>
             <Link href="/imageconverter" className={styles["convertifile-btnlink"]}>
               <div className={styles.hoveranimation}>
-                <span className={`${showAnimations && backgroundsLoaded ? styles["in-view"] : ''}`}>
+                <span className={showAnimations && backgroundsLoaded ? styles["in-view"] : ''}>
                   <Image src={imgIcon} alt="Image Icon" width="64" height="64" className={styles.icon} />
                   Image Convert
                 </span>

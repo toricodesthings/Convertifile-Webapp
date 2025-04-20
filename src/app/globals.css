@@ -75,7 +75,7 @@ body.navbar-mobile-active .app-content {
   --mediapage-bg: url('/mediapage/bgdark.webp');
   --docpage-bg: url('/docpage/bgdark.webp');
 
-  --bg: url('/bgdark.png');
+  --bg: url('/bgdark.webp');
 
   --bg-color: rgb(0, 0, 0);
   --bg-color-rgb: 0, 0, 0;
@@ -115,7 +115,7 @@ body.navbar-mobile-active .app-content {
   --mediapage-bg: url('/mediapage/bgdark.webp') !important;
   --docpage-bg: url('/docpage/bgdark.webp') !important;
 
-  --bg: url('/bgdark.png') !important;
+  --bg: url('/bgdark.webp') !important;
 
   --bg-color: rgb(0, 0, 0) !important;
   --bg-color-rgb: 0, 0, 0 !important;
@@ -157,7 +157,7 @@ body.navbar-mobile-active .app-content {
   --mediapage-bg: url('/mediapage/bg.webp') !important;
   --docpage-bg: url('/docpage/bg.webp') !important;
 
-  --bg: url('/bg.png') !important;
+  --bg: url('/bg.webp') !important;
 
   --bg-color: #ffffff !important;
   --bg-color-rgb: 255, 255, 255 !important;

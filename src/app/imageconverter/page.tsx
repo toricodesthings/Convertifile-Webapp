@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useState, useMemo, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
+import { useDropzone } from 'react-dropzone';
 import styles from "./imageconverter.module.css";
 import fileItemStyles from "../../components/FileManagement/fileItem.module.css";
 import uploadButtonStyles from "../../components/FileManagement/uploadButton.module.css";
@@ -18,6 +19,19 @@ const MAX_FILE_SIZE_MB = [200];
 const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB[0] * 1024 * 1024; // Convert MB to bytes
 const MAX_FILES_COUNT = 10;
 
+const defaultSettings: FileSettings = {
+  removeMetadata: false,
+  compression: false,
+  quality: 92,
+  formatSpecific: {
+    jpg: { optimize: true },
+    webp: { optimize: true },
+    bmp: { compression: true },
+    tga: { compression: true },
+    png: { optimize: true },
+    avif: { speed: 6 },
+  }
+};
 /**
  * ImageConverterPage component - Main page for converting images between formats
  * This component handles file selection, format conversion settings, and processing
@@ -25,20 +39,6 @@ const MAX_FILES_COUNT = 10;
  * @returns React component
  */
 const ImageConverterPage = () => {
-  const defaultSettings = useMemo<FileSettings>(() => ({
-    removeMetadata: false,
-    compression: false,
-    quality: 92,
-    formatSpecific: {
-      jpg: { optimize: true },
-      webp: { optimize: true },
-      bmp: { compression: true },
-      tga: { compression: true },
-      png: { optimize: true },
-      avif: { speed: 6 },
-    }
-  }), []);
-  
   // File management state
   const [files, setFiles] = useState<File[]>([]);
   const [filesAdded, setFilesAdded] = useState(false);
@@ -47,8 +47,6 @@ const ImageConverterPage = () => {
   
   // UI references and drag-drop state
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const dragCounter = useRef(0);
-  const [isDragging, setIsDragging] = useState(false);
   const [showDropdown, setShowDropdown] = useState<number | null>(null);
   const [buttonsVisible, setButtonsVisible] = useState(true);
   
@@ -93,7 +91,7 @@ const ImageConverterPage = () => {
   // Initialize settings for new files
   useEffect(() => {
     setFileSettings(files.map(() => ({ ...defaultSettings })));
-  }, [files, defaultSettings]);
+  }, [files]);
 
   useEffect(() => {
     let timeoutId: NodeJS.Timeout;
@@ -137,31 +135,9 @@ const ImageConverterPage = () => {
     }
   }, [showDropdown]);
 
-  // Handle drag enter event
-  const handleDragEnter = (e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    dragCounter.current++;
-    if (dragCounter.current === 1) {
-      setIsDragging(true);
-    }
-  };
-  const handleDragLeave = (e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    dragCounter.current--;
-    if (dragCounter.current === 0) {
-      setIsDragging(false);
-    }
-  };
-  const handleDragOver = (e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-  };
-
   // Check whether file is an image and get its extension
   const getFileExtension = (filename: string): string => {
-    return filename.split('.').pop()?.toLowerCase() || '';
+    return filename.split('.').pop()?.toLowerCase() ?? '';
   };
   const getAvailableFormats = (file: File): string[] => {
     const currentFormat = getFileExtension(file.name);
@@ -176,105 +152,57 @@ const ImageConverterPage = () => {
     return file.size <= MAX_FILE_SIZE_BYTES;
   };
 
-  // Handle file drop event
-  const handleDrop = (e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setIsDragging(false);
-    dragCounter.current = 0;
+  // Unified file validation and addition logic
+  const validateAndAddFiles = (incomingFiles: FileList | File[]) => {
+    const arrFiles = Array.from(incomingFiles);
 
-    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
-      const droppedFiles = Array.from(e.dataTransfer.files);
-      
-      // Check if adding the files would exceed the maximum count
-      if (files.length + droppedFiles.length > MAX_FILES_COUNT) {
-        addNotification(`You can only add up to ${MAX_FILES_COUNT} files at a time. You already have ${files.length} files.`);
-        return;
-      }
-      
-      // Filter out non-image files
-      const imageFiles = droppedFiles.filter(isImageFile);
-      
-      // Filter out files exceeding size limit
-      const validSizeFiles = imageFiles.filter(isFileSizeValid);
-      
-      // Notify about rejected files
-      const rejectedForType = droppedFiles.length - imageFiles.length;
-      const rejectedForSize = imageFiles.length - validSizeFiles.length;
-      
-      if (rejectedForType > 0) {
-        addNotification(`${rejectedForType} file(s) were rejected because they are not images.`, 'warning');
-      }
-      
-      if (rejectedForSize > 0) {
-        addNotification(`${rejectedForSize} file(s) were rejected because they exceed the ${MAX_FILE_SIZE_MB}MB size limit.`, 'warning');
-      }
+    // Check if adding the files would exceed the maximum count
+    if (files.length + arrFiles.length > MAX_FILES_COUNT) {
+      addNotification(`You can only add up to ${MAX_FILES_COUNT} files at a time. You already have ${files.length} files.`);
+      return;
+    }
 
-      if (validSizeFiles.length > 0) {
-        const newFiles = [...files, ...validSizeFiles];
-        setFiles(newFiles);
-        setSelectedFormats(prev => [
-          ...prev,
-          ...validSizeFiles.map(file => getAvailableFormats(file)[0])
-        ]);
+    // Filter out non-image files
+    const imageFiles = arrFiles.filter(isImageFile);
 
-        // Initialize settings for new files
-        setFileSettings(prev => [
-          ...prev,
-          ...validSizeFiles.map(() => ({ ...defaultSettings }))
-        ]);
+    // Filter out files exceeding size limit
+    const validSizeFiles = imageFiles.filter(isFileSizeValid);
 
-        e.dataTransfer.clearData();
-        setFilesAdded(true);
-      }
+    // Notify about rejected files
+    const rejectedForType = arrFiles.length - imageFiles.length;
+    const rejectedForSize = imageFiles.length - validSizeFiles.length;
+
+    if (rejectedForType > 0) {
+      addNotification(`${rejectedForType} file(s) were rejected because they are not images.`, 'warning');
+    }
+
+    if (rejectedForSize > 0) {
+      addNotification(`${rejectedForSize} file(s) were rejected because they exceed the ${MAX_FILE_SIZE_MB}MB size limit.`, 'warning');
+    }
+
+    if (validSizeFiles.length > 0) {
+      const newFiles = [...files, ...validSizeFiles];
+      setFiles(newFiles);
+      setSelectedFormats(prev => [
+        ...prev,
+        ...validSizeFiles.map(file => getAvailableFormats(file)[0])
+      ]);
+
+      // Initialize settings for new files
+      setFileSettings(prev => [
+        ...prev,
+        ...validSizeFiles.map(() => ({ ...defaultSettings }))
+      ]);
+
+      setFilesAdded(true);
     }
   };
+
   // Handle file selection from Button input
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     setTimeout(() => {
       if (e.target.files && e.target.files.length > 0) {
-        const selectedFiles = Array.from(e.target.files);
-        
-        // Check if adding the files would exceed the maximum count
-        if (files.length + selectedFiles.length > MAX_FILES_COUNT) {
-          addNotification(`You can only add up to ${MAX_FILES_COUNT} files at a time. You already have ${files.length} files.`);
-          return;
-        }
-        
-        // Filter out non-image files
-        const imageFiles = selectedFiles.filter(isImageFile);
-        
-        // Filter out files exceeding size limit
-        const validSizeFiles = imageFiles.filter(isFileSizeValid);
-        
-        // Notify about rejected files
-        const rejectedForType = selectedFiles.length - imageFiles.length;
-        const rejectedForSize = imageFiles.length - validSizeFiles.length;
-        
-        // Notify about rejected files
-        if (rejectedForType > 0) {
-          addNotification(`${rejectedForType} file(s) cannot be added because they are not images.`, 'warning');
-        }
-        if (rejectedForSize > 0) {
-          addNotification(`${rejectedForSize} file(s) cannot be added because they exceed the ${MAX_FILE_SIZE_MB}MB size limit.`, 'warning');
-        }
-
-        if (validSizeFiles.length > 0) {
-          const newFiles = [...files, ...validSizeFiles];
-          setFiles(newFiles);
-          setSelectedFormats(prev => [
-            ...prev,
-            ...validSizeFiles.map(file => getAvailableFormats(file)[0])
-          ]);
-
-          // Initialize settings for new files
-          setFileSettings(prev => [
-            ...prev,
-            ...validSizeFiles.map(() => ({ ...defaultSettings }))
-          ]);
-
-          setFilesAdded(true);
-        }
+        validateAndAddFiles(e.target.files);
       }
     }, 0);
   };
@@ -421,23 +349,42 @@ const ImageConverterPage = () => {
   // All image files have settings
   const hasSettings = () => true;
 
+  const onDrop = (acceptedFiles: File[]) => {
+    if (acceptedFiles && acceptedFiles.length > 0) {
+      validateAndAddFiles(acceptedFiles);
+    }
+  };
+
+  const {
+    getRootProps,
+    getInputProps,
+    isDragActive
+  } = useDropzone({
+    onDrop,
+    accept: { 'image/*': [] },
+    noClick: true, // We'll use our own button for file dialog
+    multiple: true,
+    maxSize: MAX_FILE_SIZE_BYTES
+  });
+
   return (
     <div className={styles.container}>
       <h1 className={styles.pageTitle}>Image Converter</h1>
 
       <section
-        className={`${styles.uploadSection} ${filesAdded ? styles.solid : styles.dashed} ${isDragging ? styles.dragging : ''} ${showSettings ? styles.blurredContent : ''}`}
-        onDragEnter={handleDragEnter}
-        onDragOver={handleDragOver}
-        onDragLeave={handleDragLeave}
-        onDrop={handleDrop}
+        {...getRootProps({
+          className:
+            `${styles.uploadSection} ${filesAdded ? styles.solid : styles.dashed} ${isDragActive ? styles.dragging : ''} ${showSettings ? styles.blurredContent : ''}`
+        })}
       >
-        {isDragging && (
+        {isDragActive && (
           <div className={styles.dropOverlay}>
             <p>Drop Files Here</p>
           </div>
         )}
 
+        {/* Use dropzone's getInputProps for drag-and-drop, keep hidden input for manual click */}
+        <input {...getInputProps()} style={{ display: 'none' }} />
         <input
           type="file"
           ref={fileInputRef}
@@ -457,7 +404,7 @@ const ImageConverterPage = () => {
             onFormatChange={handleFormatChange}
             onOpenSettings={handleOpenSettings}
             onDeleteFile={handleDeleteFile}
-            onDropdownToggle={(idx: number) => setShowDropdown(showDropdown === idx ? null : idx)}
+            onDropdownToggle={(idx: number) => { setShowDropdown(showDropdown === idx ? null : idx); }}
             isConverting={isConverting}
             conversionStatus={conversionStatus}
             conversionProgress={conversionProgress}
@@ -475,7 +422,7 @@ const ImageConverterPage = () => {
           />
         ) : (
           <FileUploader
-            isDragging={isDragging}
+            isDragging={isDragActive}
             filesExist={filesAdded}
             fileInputRef={fileInputRef}
             maxFileSize={MAX_FILE_SIZE_MB}
