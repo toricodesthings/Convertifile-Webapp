@@ -87,7 +87,7 @@ export function pollTaskStatus({
       clearInterval(Number(statusCheckInterval));
       if (!statusData.meta?.message) updateStatus('Completed!');
       if (!statusData.meta?.progress) updateProgress(100);
-      const fileName = (statusData.filename ?? statusData.original_name) || `${file.name.split('.')[0]}.${format}`;
+      const fileName = (statusData.filename ?? statusData.original_name) ?? `${file.name.split('.')[0]}.${format}`;
       const fileId = statusData.file_id ?? (taskId ? taskId : '');
       const fileUrl = `http://localhost:8000/convertifileapp/result/${fileId}`;
       setResult(fileUrl, fileName);
@@ -182,8 +182,8 @@ export function pollTaskStatus({
       } catch (error) {
         console.error('Error checking conversion status:', error);
         if (retryCount > 5) {
-          clearInterval(Number(statusCheckInterval));
-          statusCheckInterval = setInterval(checkStatus, pollInterval * 2);
+          if (statusCheckInterval) clearInterval(Number(statusCheckInterval));
+          statusCheckInterval = setInterval(() => { void checkStatus(); }, pollInterval * 2);
         }
       }
     };

@@ -181,9 +181,8 @@ const MediaConverterPage = () => {
     }
   }, [showDropdown]);
 
-  // Remove manual drag handlers and replace with dropzone
   const onDrop = (acceptedFiles: File[]) => {
-    if (acceptedFiles && acceptedFiles.length > 0) {
+    if (acceptedFiles.length > 0) {
       validateAndAddFiles(acceptedFiles);
     }
   };
