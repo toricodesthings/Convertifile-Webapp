@@ -205,10 +205,6 @@ const MediaConverterPage = () => {
     e.stopPropagation();
   };
 
-  // Check whether file is an image and get its extension
-  const getFileExtension = (filename: string): string => {
-    return filename.split('.').pop()?.toLowerCase() || '';
-  };
   const getAvailableFormats = (file: File): string[] => {
     const mediaType = getMediaType(file);
     if (mediaType === 'video') {
