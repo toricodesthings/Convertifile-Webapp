@@ -14,15 +14,15 @@ import NotificationContainer, { Notification } from '../../components/FileManage
 /**
  * Image Rules
  */
-const AVAILABLE_FORMATS = [['jpg', 'png', 'webp', 'gif', 'bmp', 'tiff', 'ico', 'heic', 'avif', 'pdf', 'pbm', 'ppm', 'tga', 'sgi']];
+const AVAILABLE_FORMATS = [['jpg', 'png', 'webp', 'bmp', 'tiff', 'ico', 'heic', 'avif', 'pdf', 'pbm', 'ppm', 'tga', 'sgi']];
 const MAX_FILE_SIZE_MB = [200];
 const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB[0] * 1024 * 1024; // Convert MB to bytes
 const MAX_FILES_COUNT = 10;
 
 const defaultSettings: FileSettings = {
   removeMetadata: false,
-  compression: false,
-  quality: 92,
+  compression: true, // Default to true for formats that support compression
+  quality: 90,      // Changed from 92 to 90 as requested
   formatSpecific: {
     jpg: { optimize: true },
     webp: { optimize: true },
@@ -30,6 +30,7 @@ const defaultSettings: FileSettings = {
     tga: { compression: true },
     png: { optimize: true },
     avif: { speed: 6 },
+    pdf: { page_size: 'A4' },
   }
 };
 /**
@@ -234,14 +235,19 @@ const ImageConverterPage = () => {
     setSelectedFormats(updatedFormats);
     setShowDropdown(null);
 
-    // Set root compression to true if jpg or webp is selected
-    if (format === 'jpg' || format === 'webp' || format === 'avif' || format === 'heic') {
-      setFileSettings(prev => {
-        const updated = [...prev];
-        updated[index] = { ...updated[index], compression: true };
-        return updated;
-      });
-    }
+    // Update compression setting based on format
+    setFileSettings(prev => {
+      const updated = [...prev];
+      const supportedCompressionFormats = ['jpg', 'webp', 'png', 'avif', 'tiff', 'heif', 'heic'];
+      
+      // Set compression based on format support
+      const formatSupportsCompression = supportedCompressionFormats.includes(format.toLowerCase());
+      updated[index] = { 
+        ...updated[index], 
+        compression: formatSupportsCompression
+      };
+      return updated;
+    });
   };
 
   // Handle deleting a specific file

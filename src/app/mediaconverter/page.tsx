@@ -24,36 +24,36 @@ const MAX_FILE_SIZE_MB = [1024, 512]; // 1GB for video, 512MB for audio
 const MAX_FILE_SIZE_BYTES = [MAX_FILE_SIZE_MB[0] * 1024 * 1024, MAX_FILE_SIZE_MB[1] * 1024 * 1024]; // Convert MB to bytes
 const MAX_FILES_COUNT = 5;
 
-  // Default settings for audio and video
-  const audioDefaultSettings: AudioFileSettings = {
-    removeMetadata: false,
-    channels: 2,
-    sampleRate: 44100,
-    codec: 'libmp3lame',
-    formatSpecific: {
-      mp3: { bitrate: '192k', compressionLevel: 6 },
-      ogg: { bitrate: '192k', compressionLevel: 10 },
-      opus: { bitrate: '192k', compressionLevel: 10 },
-      aac: { bitrate: '192k' },
-      m4a: { bitrate: '192k' },
-      flac: { compressionLevel: 5 },
-      wma: { bitrate: '192k' },
-      amr: { bitrate: '192k' },
-      ac3: { bitrate: '192k' },
-    }
+// Default settings for audio and video
+const audioDefaultSettings: AudioFileSettings = {
+  removeMetadata: false,
+  channels: 2,
+  sampleRate: 44100,
+  codec: 'libmp3lame',
+  formatSpecific: {
+    mp3: { bitrate: '192k', compressionLevel: 6 },
+    ogg: { bitrate: '192k', compressionLevel: 10 },
+    opus: { bitrate: '192k', compressionLevel: 10 },
+    aac: { bitrate: '192k' },
+    m4a: { bitrate: '192k' },
+    flac: { compressionLevel: 5 },
+    wma: { bitrate: '192k' },
+    amr: { bitrate: '192k' },
+    ac3: { bitrate: '192k' },
   }
+}
 
 const videoDefaultSettings: VideoFileSettings = {
   removeMetadata: false,
   codec: 'libx264',
   fps: null,
   formatSpecific: {
-    mp4: { profile: 'main', level: '4.0', crf: 23, speed: 'medium', bitrate: '8000' },
-    webm: { speed: 'good', bitrate: '6000' },
-    mkv: { profile: 'main', level: '4.0', crf: 23, speed: 'medium', bitrate: '8000' },
-    mov: { profile: 'main', level: '4.0', crf: 23, speed: 'medium', bitrate: '8000' },
-    ts: { profile: 'main', level: '4.0', crf: 23, speed: 'medium', bitrate: '8000' },
-    mts: { profile: 'main', level: '4.0', crf: 23, speed: 'medium', bitrate: '8000' },
+    mp4: { profile: 'main', level: 4.0, crf: 23, speed: 'medium', bitrate: 8 },
+    webm: { speed: 'good', bitrate: 6 },
+    mkv: { profile: 'main', level: 4.0, crf: 23, speed: 'medium', bitrate: 8 },
+    mov: { profile: 'main', level: 4.0, crf: 23, speed: 'medium', bitrate: 8 },
+    ts: { profile: 'main', level: 4.0, crf: 23, speed: 'medium', bitrate: 8 },
+    mts: { profile: 'main', level: 4.0, crf: 23, speed: 'medium', bitrate: 8 },
   }
 }
 

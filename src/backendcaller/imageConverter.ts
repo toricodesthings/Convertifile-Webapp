@@ -55,11 +55,15 @@ export async function convertFile(
       case 'avif':
         formData.append('avif_speed', settings.formatSpecific.avif.speed.toString());
         break;
+      case 'pdf':
+        formData.append('page_size', settings.formatSpecific.pdf.page_size);
+        break;
       default:
         formData.append('optimize', 'false');
         formData.append('bmp_compression', 'true');
         formData.append('tga_compression', 'true');
         formData.append('avif_speed', '6');
+        formData.append('page_size', 'A4');
         break;
     }
 

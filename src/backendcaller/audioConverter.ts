@@ -25,32 +25,23 @@ export async function audioConvertFile(
     const formData = new FormData();
     formData.append('file', file);
     formData.append('convert_to', format);
-    formData.append('remove_metadata', settings.removeMetadata.toString());
-    if (settings.channels !== undefined) {
-      formData.append('channels', settings.channels.toString());
-    }
-    if (settings.sampleRate !== undefined && settings.sampleRate !== null) {
-      formData.append('sample_rate', settings.sampleRate.toString());
-    }
-  
+    formData.append('audio_remove_metadata', settings.removeMetadata.toString());
+    formData.append('audio_codec', settings.codec);
+    formData.append('audio_channels', settings.channels.toString());
+    formData.append('audio_sample_rate', settings.sampleRate.toString());
+    
     // Format-specific parameters
     const fmt = format.toLowerCase();
     const fmtSettings = settings.formatSpecific[fmt as keyof typeof settings.formatSpecific];
-  
+    
     if (fmtSettings) {
       if ('bitrate' in fmtSettings && fmtSettings.bitrate) {
-        formData.append('bitrate', fmtSettings.bitrate);
+        formData.append('audio_bitrate', fmtSettings.bitrate);
       }
       if ('compressionLevel' in fmtSettings && fmtSettings.compressionLevel != null) {
-        formData.append('compression_level', fmtSettings.compressionLevel.toString());
+        formData.append('audio_compression_level', fmtSettings.compressionLevel.toString());
       }
-      if ('lossless' in fmtSettings && fmtSettings.lossless !== undefined) {
-        formData.append('lossless', fmtSettings.lossless ? 'true' : 'false');
-      }
-      if ('sampleRate' in fmtSettings && fmtSettings.sampleRate !== undefined && fmtSettings.sampleRate !== null) {
-        formData.append('sample_rate', fmtSettings.sampleRate.toString());
-  
-      }
+      // ...other settings...
     }
 
     setConversionStatus(prev => {

@@ -74,6 +74,22 @@ const SUPPORTED_CODECS: Record<string, string[]> = {
 };
 const CODECS_WITH_COMPRESSION_LEVEL = ['flac', 'libmp3lame', 'libopus'];
 const SAMPLE_RATES = [8000, 16000, 22050, 32000, 44100, 48000, 96000];
+const BITRATE_MIN = 64;
+const BITRATE_MAX = 320;
+const BITRATE_STEP = 8;
+type AudioFormat = 'mp3' | 'ogg' | 'opus' | 'aac' | 'm4a' | 'flac' | 'wma' | 'amr' | 'ac3';
+
+// Helper types to narrow down format properties
+type FormatWithBitrate = Extract<AudioFormat, 'mp3' | 'ogg' | 'opus' | 'aac' | 'm4a' | 'wma' | 'amr' | 'ac3'>;
+type FormatWithCompression = Extract<AudioFormat, 'mp3' | 'ogg' | 'opus' | 'flac'>;
+// Type guard functions
+const hasBitrate = (format: AudioFormat): format is FormatWithBitrate => {
+  return ['mp3', 'ogg', 'opus', 'aac', 'm4a', 'wma', 'amr', 'ac3'].includes(format);
+};
+
+const hasCompression = (format: AudioFormat): format is FormatWithCompression => {
+  return ['mp3', 'ogg', 'opus', 'flac'].includes(format);
+};
 
 const SettingsModal: React.FC<SettingsModalProps> = ({
   isVisible,
@@ -127,10 +143,64 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
     return `${(size / (1024 * 1024 * 1024)).toFixed(2)} GB`;
   };
 
-  // --- Bitrate slider range (typical audio bitrates) ---
-  const BITRATE_MIN = 64;
-  const BITRATE_MAX = 320;
-  const BITRATE_STEP = 8;
+  // Helper to render bitrate slider for supported formats 
+  const renderBitrateSlider = (format: AudioFormat) => {
+    if (!hasBitrate(format)) return null;
+
+    const fs = settings.formatSpecific[format] || {};
+    
+    return (
+      <SettingsSlider
+        label="Bitrate:"
+        min={BITRATE_MIN}
+        max={BITRATE_MAX}
+        step={BITRATE_STEP}
+        value={fs.bitrate ? parseInt(fs.bitrate) : 192}
+        onChange={val =>
+          onSettingsChange({
+            ...settings,
+            formatSpecific: {
+              ...settings.formatSpecific,
+              [format]: {
+                ...fs,
+                bitrate: `${val}k`
+              }
+            }
+          })
+        }
+        valueDisplay={fs.bitrate ?? "192k"}
+      />
+    );
+  };
+
+  const renderCompressionLevelSlider = (format: AudioFormat, min: number = 0, max: number = 10) => {
+    if (!hasCompression(format)) return null;
+
+    const fs = settings.formatSpecific[format] || {};
+    const defaultLevel = format === 'flac' ? 5 : format === 'mp3' ? 6 : 10;
+    
+    return (
+      <SettingsSlider
+        label="Compression Level:"
+        min={min}
+        max={max}
+        value={fs.compressionLevel ?? defaultLevel}
+        onChange={val =>
+          onSettingsChange({
+            ...settings,
+            formatSpecific: {
+              ...settings.formatSpecific,
+              [format]: {
+                ...fs,
+                compressionLevel: val
+              }
+            }
+          })
+        }
+        valueDisplay={fs.compressionLevel ?? defaultLevel}
+      />
+    );
+  };
 
   // --- Custom Dropdown for Sample Rate using DropDown ---
   const renderSampleRateDropdown = () => (
@@ -238,218 +308,38 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
       </DropDown>
     );
   };
+  
 
   const renderFormatSpecificSettings = () => {
-    const format = selectedFormat.toLowerCase();
-    switch (format) {
-      case 'mp3': {
-        const fs = settings.formatSpecific.mp3 || {};
-        return (
-          <div className={styles.formatSpecificSettings}>
-            <h4>Mp3 Specific Settings</h4>
-            <SettingsSlider
-              label="Bitrate:"
-              min={BITRATE_MIN}
-              max={BITRATE_MAX}
-              step={BITRATE_STEP}
-              value={fs.bitrate ? parseInt(fs.bitrate) : 192}
-              onChange={val =>
-                onSettingsChange({
-                  ...settings,
-                  formatSpecific: {
-                    ...settings.formatSpecific,
-                    mp3: {
-                      ...fs,
-                      bitrate: `${val}k`
-                    }
-                  }
-                })
-              }
-              valueDisplay={fs.bitrate}
-            />
-            {settings.codec && CODECS_WITH_COMPRESSION_LEVEL.includes(settings.codec) && (
-              <SettingsSlider
-                label="Compression Level:"
-                min={0}
-                max={9}
-                value={fs.compressionLevel}
-                onChange={val =>
-                  onSettingsChange({
-                    ...settings,
-                    formatSpecific: {
-                      ...settings.formatSpecific,
-                      mp3: {
-                        ...fs,
-                        compressionLevel: val
-                      }
-                    }
-                  })
-                }
-                valueDisplay={fs.compressionLevel}
-              />
-            )}
-          </div>
-        );
-      }
-      case 'ogg': {
-        const fs = settings.formatSpecific.ogg || {};
-        return (
-          <div className={styles.formatSpecificSettings}>
-            <h4>Ogg Specific Settings</h4>
-            <SettingsSlider
-              label="Bitrate:"
-              min={BITRATE_MIN}
-              max={BITRATE_MAX}
-              step={BITRATE_STEP}
-              value={fs.bitrate ? parseInt(fs.bitrate) : 192}
-              onChange={val =>
-                onSettingsChange({
-                  ...settings,
-                  formatSpecific: {
-                    ...settings.formatSpecific,
-                    ogg: {
-                      ...fs,
-                      bitrate: `${val}k`
-                    }
-                  }
-                })
-              }
-              valueDisplay={fs.bitrate ?? "192k"}
-            />
-            {settings.codec && CODECS_WITH_COMPRESSION_LEVEL.includes(settings.codec) && (
-              <SettingsSlider
-                label="Compression Level:"
-                min={0}
-                max={10}
-                value={fs.compressionLevel ?? 10}
-                onChange={val =>
-                  onSettingsChange({
-                    ...settings,
-                    formatSpecific: {
-                      ...settings.formatSpecific,
-                      ogg: {
-                        ...fs,
-                        compressionLevel: val
-                      }
-                    }
-                  })
-                }
-                valueDisplay={fs.compressionLevel}
-              />
-            )}
-          </div>
-        );
-      }
-      case 'opus': {
-        const fs = settings.formatSpecific.opus || {};
-        return (
-          <div className={styles.formatSpecificSettings}>
-            <h4>Opus Specific Settings</h4>
-            <SettingsSlider
-              label="Bitrate:"
-              min={BITRATE_MIN}
-              max={BITRATE_MAX}
-              step={BITRATE_STEP}
-              value={fs.bitrate ? parseInt(fs.bitrate) : 192}
-              onChange={val =>
-                onSettingsChange({
-                  ...settings,
-                  formatSpecific: {
-                    ...settings.formatSpecific,
-                    opus: {
-                      ...fs,
-                      bitrate: `${val}k`
-                    }
-                  }
-                })
-              }
-              valueDisplay={fs.bitrate ?? "192k"}
-            />
-            {settings.codec && CODECS_WITH_COMPRESSION_LEVEL.includes(settings.codec) && (
-              <SettingsSlider
-                label="Compression Level:"
-                min={0}
-                max={10}
-                value={fs.compressionLevel ?? 10}
-                onChange={val =>
-                  onSettingsChange({
-                    ...settings,
-                    formatSpecific: {
-                      ...settings.formatSpecific,
-                      opus: {
-                        ...fs,
-                        compressionLevel: val
-                      }
-                    }
-                  })
-                }
-                valueDisplay={fs.compressionLevel ?? 10}
-              />
-            )}
-          </div>
-        );
-      }
-      case 'aac':
-      case 'm4a': {
-        const fs = format === 'aac' ? settings.formatSpecific.aac || {} : settings.formatSpecific.m4a || {};
-        return (
-          <div className={styles.formatSpecificSettings}>
-            <h4>AAC-M4A Specific Settings</h4>
-            <SettingsSlider
-              label="Bitrate:"
-              min={BITRATE_MIN}
-              max={BITRATE_MAX}
-              step={BITRATE_STEP}
-              value={fs.bitrate ? parseInt(fs.bitrate) : 192}
-              onChange={val =>
-                onSettingsChange({
-                  ...settings,
-                  formatSpecific: {
-                    ...settings.formatSpecific,
-                    [format]: {
-                      ...fs,
-                      bitrate: `${val}k`
-                    }
-                  }
-                })
-              }
-              valueDisplay={fs.bitrate ?? "192k"}
-            />
-          </div>
-        );
-      }
-      case 'flac': {
-        const fs = settings.formatSpecific.flac || {};
-        return (
-          <div className={styles.formatSpecificSettings}>
-            {settings.codec && CODECS_WITH_COMPRESSION_LEVEL.includes(settings.codec) && (
-              <SettingsSlider
-                label="Compression Level:"
-                min={0}
-                max={12}
-                value={fs.compressionLevel ?? 5}
-                onChange={val =>
-                  onSettingsChange({
-                    ...settings,
-                    formatSpecific: {
-                      ...settings.formatSpecific,
-                      flac: {
-                        ...fs,
-                        compressionLevel: val
-                      }
-                    }
-                  })
-                }
-                valueDisplay={fs.compressionLevel ?? 5}
-              />
-            )}
-          </div>
-        );
-      }
-      default:
-        return null;
+    // Convert to AudioFormat type
+    const format = selectedFormat.toLowerCase() as AudioFormat;
+    
+    // Check if this is a valid audio format
+    if (!['mp3', 'ogg', 'opus', 'aac', 'm4a', 'flac', 'wma', 'amr', 'ac3'].includes(format)) {
+      return null;
     }
+    
+    return (
+      <div className={styles.formatSpecificSettings}>
+        {/* Only show title for non-FLAC formats */}
+        {format !== 'flac' && <h4>{format.toUpperCase()} Specific Settings</h4>}
+        
+        {/* Conditionally render bitrate slider only for formats that support it */}
+        {hasBitrate(format) && renderBitrateSlider(format)}
+        
+        {/* Conditionally render compression slider only for formats that support it */}
+        {hasCompression(format) && 
+         settings.codec && 
+         CODECS_WITH_COMPRESSION_LEVEL.includes(settings.codec) &&
+         renderCompressionLevelSlider(
+           format,
+           format === 'mp3' ? 0 : 0,
+           format === 'flac' ? 12 : format === 'mp3' ? 9 : 10
+         )}
+      </div>
+    );
   };
+
   return (
     <div className={styles.settingsOverlay}>
       <div className={styles.settingsContainer}>

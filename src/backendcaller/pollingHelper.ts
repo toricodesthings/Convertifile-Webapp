@@ -33,8 +33,8 @@ export function pollTaskStatus({
   setConversionStatus,
   setConversionResults,
   setConversionProgress,
-  maxRetries = 20,
-  pollInterval = 500,
+  maxRetries = 60,
+  pollInterval = 1000,
 }: PollingOptions): Promise<boolean> {
   let statusCheckInterval: NodeJS.Timeout | null = null;
   let retryCount = 0;
@@ -147,14 +147,13 @@ export function pollTaskStatus({
         }
 
         const statusData: TaskStatus = await statusResponse.json();
-        console.log(`Status data for ${file.name}:`, statusData);
 
-        if (retryCount > 6 && !statusData.status && statusData.status !== 'completed') {
+        if (retryCount > 5 && !statusData.status && statusData.status !== 'completed') {
           if (await checkFileExists()) return;
         }
 
         const statusValue = (statusData.status ?? statusData.state) ?? '';
-        const status = typeof statusValue === 'string' ? statusValue.toLowerCase() : '';
+        const status = statusValue.toLowerCase();
 
         if (statusData.meta) {
           if (statusData.meta.message) updateStatus(statusData.meta.message);

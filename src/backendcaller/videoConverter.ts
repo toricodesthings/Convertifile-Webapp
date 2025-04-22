@@ -25,12 +25,12 @@ export async function videoConvertFile(
   const formData = new FormData();
   formData.append('file', file);
   formData.append('convert_to', format);
-  formData.append('remove_metadata', settings.removeMetadata.toString());
+  formData.append('video_remove_metadata', settings.removeMetadata.toString());
   if (settings.codec) {
-    formData.append('codec', settings.codec);
+    formData.append('video_codec', settings.codec);
   }
   if (settings.fps !== undefined && settings.fps !== null) {
-    formData.append('fps', settings.fps.toString());
+    formData.append('video_fps', settings.fps.toString());
   }
 
   // Format-specific parameters
@@ -39,19 +39,21 @@ export async function videoConvertFile(
 
   if (fmtSettings) {
     if ('profile' in fmtSettings && fmtSettings.profile) {
-      formData.append('profile', fmtSettings.profile);
+      formData.append('video_profile', fmtSettings.profile);
     }
     if ('level' in fmtSettings && fmtSettings.level) {
-      formData.append('level', fmtSettings.level);
+      formData.append('video_level', fmtSettings.level.toString());
     }
     if ('crf' in fmtSettings && fmtSettings.crf !== undefined && fmtSettings.crf !== null) {
-      formData.append('crf', fmtSettings.crf.toString());
+      formData.append('video_crf', fmtSettings.crf.toString());
     }
     if ('speed' in fmtSettings && fmtSettings.speed) {
-      formData.append('speed', fmtSettings.speed);
+      formData.append('video_speed', fmtSettings.speed);
     }
     if ('bitrate' in fmtSettings && fmtSettings.bitrate) {
-      formData.append('bitrate', fmtSettings.bitrate);
+      // Convert numeric bitrate (in kbps) to format like "2M", "3M", etc.
+      const bitrateInMbps = fmtSettings.bitrate + 'M';
+      formData.append('video_bitrate', bitrateInMbps);
     }
   }
 

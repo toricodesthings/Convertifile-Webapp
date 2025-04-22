@@ -14,42 +14,42 @@ export interface FileSettings {
   formatSpecific: {
     mp4: {
       profile: string;
-      level: string;
+      level: number;
       crf: number;
       speed: string;
-      bitrate: string;
+      bitrate: number;
     };
     webm: {
       speed: string;
-      bitrate: string;
+      bitrate: number;
     };
     mkv: {
       profile: string;
-      level: string;
+      level: number;
       crf: number;
       speed: string;
-      bitrate: string;
+      bitrate: number;
     };
     mov: {
       profile: string;
-      level: string;
+      level: number;
       crf: number;
       speed: string;
-      bitrate: string;
+      bitrate: number;
     };
     ts: {
       profile: string;
-      level: string;
+      level: number;
       crf: number;
       speed: string;
-      bitrate: string;
+      bitrate: number;
     };
     mts: {
       profile: string;
-      level: string;
+      level: number;
       crf: number;
       speed: string;
-      bitrate: string;
+      bitrate: number;
     };
   };
 }
@@ -64,10 +64,23 @@ interface SettingsModalProps {
   onApply: () => void;
 }
 
+interface GenericDropdownProps {
+  label: string;
+  options: Array<{
+    value: string | number | null;
+    label: string;
+  }>;
+  value: string | number | null;
+  open: boolean;
+  setOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  dropdownRef: React.RefObject<HTMLDivElement | null>;
+  onChange: (value: string | number | null) => void;
+}
+
 // --- Helper data ---
 const SUPPORTED_CODECS: Record<string, string[]> = {
   mp4: ['libx264', 'libx265', 'libaom-av1'],
-  webm: ['libvpx'],
+  webm: ['libvpx', 'libvpx-vp9'],
   mkv: ['libx264', 'libx265', 'libaom-av1'],
   mov: ['libx264', 'libx265'],
   avi: ['mpeg4'],
@@ -80,9 +93,9 @@ const PROFILES: Record<string, string[]> = {
   libx264: ['baseline', 'main', 'high'],
   libx265: ['main'],
 };
-const LEVELS: Record<string, string[]> = {
-  libx264: ['3.0', '3.1', '4.0', '4.1', '4.2', '5.0', '5.1', '5.2', '6.0'],
-  libx265: ['3.0', '4.0', '4.1', '5.0', '5.1', '5.2', '6.0'],
+const LEVELS: Record<string, number[]> = {
+  libx264: [3.0, 3.1, 4.0, 4.1, 4.2, 5.0, 5.1, 5.2, 6.0],
+  libx265: [3.0, 4.0, 4.1, 5.0, 5.1, 5.2, 6.0],
 };
 const SPEED_PRESETS: Record<string, string[]> = {
   libx264: ['ultrafast', 'superfast', 'veryfast', 'faster', 'fast', 'medium', 'slow', 'slower', 'veryslow'],
@@ -96,11 +109,83 @@ const CRF_RANGES: Record<string, { min: number; max: number; default: number }> 
   'libaom-av1': { min: 0, max: 63, default: 32 },
 };
 
-const BITRATE_MIN = 1000;
-const BITRATE_MAX = 40000;
-const BITRATE_STEP = 100;
+const CODEC_DEFAULTS = {
+  'libx264': {
+    profiles: PROFILES['libx264'] || ['main'],
+    levels: LEVELS['libx264'] || ['4.0'],
+    speeds: SPEED_PRESETS['libx264'] || ['medium'],
+    crfRange: CRF_RANGES['libx264'] || { min: 0, max: 51, default: 23 }
+  },
+  'libx265': {
+    profiles: PROFILES['libx265'] || ['main'],
+    levels: LEVELS['libx265'] || ['4.0'],
+    speeds: SPEED_PRESETS['libx265'] || ['medium'],
+    crfRange: CRF_RANGES['libx265'] || { min: 0, max: 51, default: 28 }
+  },
+  'libaom-av1': {
+    profiles: [],
+    levels: [],
+    speeds: SPEED_PRESETS['libaom-av1'] || ['good'],
+    crfRange: CRF_RANGES['libaom-av1'] || { min: 0, max: 63, default: 32 }
+  },
+  'libvpx': {
+    profiles: [],
+    levels: [],
+    speeds: SPEED_PRESETS['libvpx'] || ['good'],
+    crfRange: { min: 4, max: 63, default: 10 }
+  },
+  'wmv2': {
+    profiles: [],
+    levels: [],
+    speeds: [],
+    crfRange: { min: 0, max: 31, default: 23 }
+  },
+  'mpeg4': {
+    profiles: [],
+    levels: [],
+    speeds: [],
+    crfRange: { min: 1, max: 31, default: 23 }
+  },
+  'flv': {
+    profiles: [],
+    levels: [],
+    speeds: [],
+    crfRange: { min: 1, max: 31, default: 23 }
+  }
+};
+
+// Updated bitrate range to 1-20 (representing Mbps directly)
+const BITRATE_MIN = 1;
+const BITRATE_MAX = 20;
+const BITRATE_STEP = 1;
 
 const FPS_OPTIONS = [null, 24, 25, 30, 48, 50, 60];
+
+type VideoFormat = 'mp4' | 'webm' | 'mkv' | 'mov' | 'ts' | 'mts';
+
+// Add default bitrate to ensure we always have a value
+type FormatSettings = {
+  profile?: string;
+  level?: number;
+  crf?: number;
+  speed?: string;
+  bitrate: number;
+};
+
+interface CrfRange {
+  min: number;
+  max: number;
+  default: number;
+}
+
+// Type guard functions
+const hasProfile = (format: VideoFormat): boolean => {
+  return ['mp4', 'mkv', 'mov', 'ts', 'mts'].includes(format);
+};
+
+const hasCrf = (format: VideoFormat): boolean => {
+  return ['mp4', 'mkv', 'mov', 'ts', 'mts'].includes(format);
+};
 
 const SettingsModal: React.FC<SettingsModalProps> = ({
   isVisible,
@@ -117,26 +202,30 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
   const [levelOpen, setLevelOpen] = React.useState(false);
   const [speedOpen, setSpeedOpen] = React.useState(false);
   const [fpsOpen, setFpsOpen] = React.useState(false);
-  const codecDropdownRef = React.useRef<HTMLDivElement>(null);
-  const profileDropdownRef = React.useRef<HTMLDivElement>(null);
-  const levelDropdownRef = React.useRef<HTMLDivElement>(null);
-  const speedDropdownRef = React.useRef<HTMLDivElement>(null);
-  const fpsDropdownRef = React.useRef<HTMLDivElement>(null);
+  const dropdownRefs = {
+    codec: React.useRef<HTMLDivElement>(null),
+    profile: React.useRef<HTMLDivElement>(null),
+    level: React.useRef<HTMLDivElement>(null),
+    speed: React.useRef<HTMLDivElement>(null),
+    fps: React.useRef<HTMLDivElement>(null)
+  };
 
-  // Effects
   useEffect(() => {
     function handleClick(e: MouseEvent) {
-      if (codecDropdownRef.current && !codecDropdownRef.current.contains(e.target as Node)) setCodecOpen(false);
-      if (profileDropdownRef.current && !profileDropdownRef.current.contains(e.target as Node)) setProfileOpen(false);
-      if (levelDropdownRef.current && !levelDropdownRef.current.contains(e.target as Node)) setLevelOpen(false);
-      if (speedDropdownRef.current && !speedDropdownRef.current.contains(e.target as Node)) setSpeedOpen(false);
-      if (fpsDropdownRef.current && !fpsDropdownRef.current.contains(e.target as Node)) setFpsOpen(false);
+      const target = e.target as Node;
+      
+      if (dropdownRefs.codec.current && !dropdownRefs.codec.current.contains(target)) setCodecOpen(false);
+      if (dropdownRefs.profile.current && !dropdownRefs.profile.current.contains(target)) setProfileOpen(false);
+      if (dropdownRefs.level.current && !dropdownRefs.level.current.contains(target)) setLevelOpen(false);
+      if (dropdownRefs.speed.current && !dropdownRefs.speed.current.contains(target)) setSpeedOpen(false);
+      if (dropdownRefs.fps.current && !dropdownRefs.fps.current.contains(target)) setFpsOpen(false);
     }
+    
     if (codecOpen || profileOpen || levelOpen || speedOpen || fpsOpen) {
       document.addEventListener('mousedown', handleClick);
     }
     return () => { document.removeEventListener('mousedown', handleClick); };
-  }, [codecOpen, profileOpen, levelOpen, speedOpen, fpsOpen]);
+  }, [codecOpen, profileOpen, levelOpen, speedOpen, fpsOpen, dropdownRefs.codec, dropdownRefs.profile, dropdownRefs.level, dropdownRefs.speed, dropdownRefs.fps]);
 
   // Ensure default codec is set when switching formats (like AudioSettingsModal)
   useEffect(() => {
@@ -155,7 +244,6 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
   const profiles = PROFILES[codec] || [];
   const levels = LEVELS[codec] || [];
   const speedPresets = SPEED_PRESETS[codec] || [];
-  const crfRange = CRF_RANGES[codec] || { min: 0, max: 51, default: 23 };
 
   const formatFileSize = (size?: number): string => {
     if (!size) return '';
@@ -165,26 +253,78 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
     return `${(size / (1024 * 1024 * 1024)).toFixed(2)} GB`;
   };
 
-  // --- Custom Dropdowns using DropDown ---
-  const renderCodecDropdown = () => (
+  // Modified renderBitrateSlider function to handle 0 values explicitly
+  const renderBitrateSlider = (format: VideoFormat, fs: FormatSettings) => {
+    // Ensure we have a valid bitrate, with stronger fallback logic
+    const currentBitrate = fs.bitrate ? fs.bitrate : 8
+    
+    return (
+      <SettingsSlider
+        label="Bitrate:"
+        min={BITRATE_MIN}
+        max={BITRATE_MAX}
+        step={BITRATE_STEP}
+        value={currentBitrate}
+        onChange={val =>
+          onSettingsChange({
+            ...settings,
+            formatSpecific: {
+              ...settings.formatSpecific,
+              [format]: { ...fs, bitrate: val }
+            }
+          })
+        }
+        valueDisplay={`${currentBitrate}M`}
+      />
+    );
+  };
+
+  const renderCrfSlider = (format: VideoFormat, fs: FormatSettings, crfRange: CrfRange) => (
+    <SettingsSlider
+      label="CRF (Quality):"
+      min={crfRange.min}
+      max={crfRange.max}
+      value={'crf' in fs && fs.crf !== undefined ? fs.crf : crfRange.default}
+      onChange={val =>
+        onSettingsChange({
+          ...settings,
+          formatSpecific: {
+            ...settings.formatSpecific,
+            [format]: { ...fs, crf: val }
+          }
+        })
+      }
+      valueDisplay={'crf' in fs ? fs.crf : crfRange.default}
+    />
+  );
+
+  const renderGenericDropdown = ({
+    label,
+    options,
+    value,
+    open,
+    setOpen,
+    dropdownRef,
+    onChange
+  }: GenericDropdownProps) => (
     <DropDown
-      label="Codec:"
-      open={codecOpen}
-      setOpen={setCodecOpen}
-      dropdownRef={codecDropdownRef as React.RefObject<HTMLDivElement>}
+      label={label}
+      open={open}
+      setOpen={setOpen}
+      dropdownRef={dropdownRef as React.RefObject<HTMLDivElement>}
       containerClassName={dropdownStyles.dropdownContainer}
       labelClassName={dropdownStyles.dropdownLabel}
-      dropdownClassName={dropdownStyles.customDropdown + (codecOpen ? ' ' + dropdownStyles.open : '')}
+      dropdownClassName={dropdownStyles.customDropdown + (open ? ' ' + dropdownStyles.open : '')}
       menuClassName={dropdownStyles.customDropdownMenu}
       trigger={
         <button
           type="button"
           className={dropdownStyles.customDropdownTrigger}
-          onClick={() => setCodecOpen(o => !o)}
-          aria-expanded={codecOpen}
+          onClick={() => setOpen(o => !o)}
+          aria-expanded={open}
         >
-          {codec}
-          <span className={dropdownStyles.customDropdownArrow + (codecOpen ? ' ' + dropdownStyles.open : '')}>
+          {value}
+          <span className={dropdownStyles.customDropdownArrow + (open ? ' ' + dropdownStyles.open : '')}>
             <svg viewBox="0 0 20 20" fill="none">
               <path d="M6 8l4 4 4-4" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
@@ -192,196 +332,139 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
         </button>
       }
     >
-      {codecs.map(c => (
+      {options.map(option => (
         <button
           type="button"
-          key={c}
-          className={`${dropdownStyles.customDropdownOption}${codec === c ? ' ' + dropdownStyles.selected : ''}`}
-          tabIndex={codecOpen ? 0 : -1}
+          key={option.value}
+          className={`${dropdownStyles.customDropdownOption}${option.value === value ? ' ' + dropdownStyles.selected : ''}`}
+          tabIndex={open ? 0 : -1}
           onClick={() => {
-            onSettingsChange({ ...settings, codec: c });
-            setCodecOpen(false);
+            onChange(option.value);
+            setOpen(false);
           }}
         >
-          {c}
+          {option.label}
         </button>
       ))}
     </DropDown>
   );
 
-  // --- Profile dropdown for codecs with profiles ---
+  const renderFPSDropdown = () => {
+    const fpsOptions = FPS_OPTIONS.map(fps => ({
+      value: fps,
+      label: fps === null ? 'Auto' : `${fps} fps`
+    }));
+    
+    return renderGenericDropdown({
+      label: "Frame Rate:",
+      options: fpsOptions,
+      value: settings.fps === null ? 'Auto' : `${settings.fps} fps`,
+      open: fpsOpen,
+      setOpen: setFpsOpen,
+      dropdownRef: dropdownRefs.fps,
+      onChange: (value) => {
+        // Fix type conversion
+        const newValue = value === null ? null : 
+                        typeof value === 'number' ? value : 
+                        parseInt(String(value)) || null;
+        onSettingsChange({ ...settings, fps: newValue });
+      }
+    });
+  };
+
+  const renderCodecDropdown = () => {
+    const codecOptions = codecs.map(c => ({
+      value: c,
+      label: c
+    }));
+    
+    return renderGenericDropdown({
+      label: "Codec:",
+      options: codecOptions,
+      value: settings.codec || codecs[0],
+      open: codecOpen, 
+      setOpen: setCodecOpen,
+      dropdownRef: dropdownRefs.codec,
+      onChange: (value) => {
+        // Ensure codec is always a string
+        const newCodec = value !== null ? String(value) : codecs[0] || '';
+        onSettingsChange({ ...settings, codec: newCodec });
+      }
+    });
+  };
+  
   const renderProfileDropdown = () => {
     if (!profiles.length) return null;
+    
     const fs = settings.formatSpecific[format as keyof typeof settings.formatSpecific];
-    return (
-      <DropDown
-        label="Profile:"
-        open={profileOpen}
-        setOpen={setProfileOpen}
-        dropdownRef={profileDropdownRef as React.RefObject<HTMLDivElement>}
-        containerClassName={dropdownStyles.dropdownContainer}
-        labelClassName={dropdownStyles.dropdownLabel}
-        dropdownClassName={dropdownStyles.customDropdown + (profileOpen ? ' ' + dropdownStyles.open : '')}
-        menuClassName={dropdownStyles.customDropdownMenu}
-        trigger={
-          <button
-            type="button"
-            className={dropdownStyles.customDropdownTrigger}
-            onClick={() => setProfileOpen(o => !o)}
-            aria-expanded={profileOpen}
-          >
-            {'profile' in fs ? fs.profile : profiles[0]}
-            <span className={dropdownStyles.customDropdownArrow + (profileOpen ? ' ' + dropdownStyles.open : '')}>
-              <svg viewBox="0 0 20 20" fill="none">
-                <path d="M6 8l4 4 4-4" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-            </span>
-          </button>
-        }
-      >
-        {profiles.map(p => (
-          <button
-            type="button"
-            key={p}
-            className={`${dropdownStyles.customDropdownOption}${'profile' in fs && fs.profile === p ? ' ' + dropdownStyles.selected : ''}`}
-            tabIndex={profileOpen ? 0 : -1}
-            onClick={() => {
-              onSettingsChange({
-                ...settings,
-                formatSpecific: {
-                  ...settings.formatSpecific,
-                  [format as keyof typeof settings.formatSpecific]: { ...fs, profile: p }
-                }
-              });
-              setProfileOpen(false);
-            }}
-          >
-            {p}
-          </button>
-        ))}
-      </DropDown>
-    );
+    const profileOptions = profiles.map(p => ({
+      value: p,
+      label: p.charAt(0).toUpperCase() + p.slice(1)
+    }));
+    
+    return renderGenericDropdown({
+      label: "Profile:",
+      options: profileOptions,
+      value: fs && 'profile' in fs ? fs.profile : profiles[0],
+      open: profileOpen,
+      setOpen: setProfileOpen,
+      dropdownRef: dropdownRefs.profile,
+      onChange: (value) => {
+        onSettingsChange({
+          ...settings,
+          formatSpecific: {
+            ...settings.formatSpecific,
+            [format as keyof typeof settings.formatSpecific]: { 
+              ...fs, 
+              profile: value 
+            }
+          }
+        });
+      }
+    });
   };
-
+  
   const renderSpeedDropdown = () => {
     if (!speedPresets.length) return null;
+    
     const fs = settings.formatSpecific[format as keyof typeof settings.formatSpecific];
-    return (
-      <DropDown
-        label="Speed Preset:"
-        open={speedOpen}
-        setOpen={setSpeedOpen}
-        dropdownRef={speedDropdownRef as React.RefObject<HTMLDivElement>}
-        containerClassName={dropdownStyles.dropdownContainer}
-        labelClassName={dropdownStyles.dropdownLabel}
-        dropdownClassName={dropdownStyles.customDropdown + (speedOpen ? ' ' + dropdownStyles.open : '')}
-        menuClassName={dropdownStyles.customDropdownMenu}
-        trigger={
-          <button
-            type="button"
-            className={dropdownStyles.customDropdownTrigger}
-            onClick={() => setSpeedOpen(o => !o)}
-            aria-expanded={speedOpen}
-          >
-            {fs.speed || speedPresets[0]}
-            <span className={dropdownStyles.customDropdownArrow + (speedOpen ? ' ' + dropdownStyles.open : '')}>
-              <svg viewBox="0 0 20 20" fill="none">
-                <path d="M6 8l4 4 4-4" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-            </span>
-          </button>
-        }
-      >
-        {speedPresets.map(preset => (
-          <button
-            type="button"
-            key={preset}
-            className={`${dropdownStyles.customDropdownOption}${fs.speed === preset ? ' ' + dropdownStyles.selected : ''}`}
-            tabIndex={speedOpen ? 0 : -1}
-            onClick={() => {
-              onSettingsChange({
-                ...settings,
-                formatSpecific: {
-                  ...settings.formatSpecific,
-                  [format as keyof typeof settings.formatSpecific]: { ...fs, speed: preset }
-                }
-              });
-              setSpeedOpen(false);
-            }}
-          >
-            {preset}
-          </button>
-        ))}
-      </DropDown>
-    );
-  };
-
-  const renderFPSDropdown = () => (
-    <DropDown
-      label="FPS:"
-      open={fpsOpen}
-      setOpen={setFpsOpen}
-      dropdownRef={fpsDropdownRef as React.RefObject<HTMLDivElement>}
-      containerClassName={dropdownStyles.dropdownContainer}
-      labelClassName={dropdownStyles.dropdownLabel}
-      dropdownClassName={dropdownStyles.customDropdown + (fpsOpen ? ' ' + dropdownStyles.open : '')}
-      menuClassName={dropdownStyles.customDropdownMenu}
-      trigger={
-        <button
-          type="button"
-          className={dropdownStyles.customDropdownTrigger}
-          onClick={() => setFpsOpen(o => !o)}
-          aria-expanded={fpsOpen}
-        >
-          {settings.fps === null || settings.fps === undefined ? 'Auto' : `${settings.fps} fps`}
-          <span className={dropdownStyles.customDropdownArrow + (fpsOpen ? ' ' + dropdownStyles.open : '')}>
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-              <path d="M6 8l4 4 4-4" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-          </span>
-        </button>
+    const speedOptions = speedPresets.map(s => ({
+      value: s,
+      label: s.charAt(0).toUpperCase() + s.slice(1)
+    }));
+    
+    return renderGenericDropdown({
+      label: "Speed:",
+      options: speedOptions,
+      value: fs && 'speed' in fs ? fs.speed : speedPresets[0],
+      open: speedOpen,
+      setOpen: setSpeedOpen,
+      dropdownRef: dropdownRefs.speed,
+      onChange: (value) => {
+        onSettingsChange({
+          ...settings,
+          formatSpecific: {
+            ...settings.formatSpecific,
+            [format as keyof typeof settings.formatSpecific]: { 
+              ...fs, 
+              speed: value 
+            }
+          }
+        });
       }
-    >
-      <button
-        type="button"
-        className={`${dropdownStyles.customDropdownOption}${settings.fps === null || settings.fps === undefined ? ' ' + dropdownStyles.selected : ''}`}
-        tabIndex={fpsOpen ? 0 : -1}
-        onClick={() => {
-          onSettingsChange({ ...settings, fps: null });
-          setFpsOpen(false);
-        }}
-      >
-        Auto
-      </button>
-      {FPS_OPTIONS.filter(fps => fps !== null).map(fps => (
-        <button
-          type="button"
-          key={fps}
-          className={`${dropdownStyles.customDropdownOption}${settings.fps === fps ? ' ' + dropdownStyles.selected : ''}`}
-          tabIndex={fpsOpen ? 0 : -1}
-          onClick={() => {
-            onSettingsChange({ ...settings, fps: fps });
-            setFpsOpen(false);
-          }}
-        >
-          {fps} fps
-        </button>
-      ))}
-    </DropDown>
-  );
+    });
+  };
 
   // --- Level slider for codecs with levels ---
   const renderLevelSlider = () => {
     if (!levels.length) return null;
     const fs = settings.formatSpecific[format as keyof typeof settings.formatSpecific];
-    // Convert levels to numbers for slider, but keep string for display
-    const levelValues = levels.map(lvl => parseFloat(lvl));
-    const min = Math.min(...levelValues);
-    const max = Math.max(...levelValues);
+    const min = Math.min(...levels);
+    const max = Math.max(...levels);
     // Find the closest level to the current value
-    const currentLevel = (fs && 'level' in fs && typeof fs.level === 'string')
-      ? parseFloat(fs.level)
-      : levelValues[0];
+    const currentLevel = (fs && 'level' in fs && typeof fs.level === 'number')
+      ? fs.level
+      : levels[0] || 4.0; // Add fallback value
     return (
       <SettingsSlider
         label="Level:"
@@ -390,9 +473,9 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
         step={0.1}
         value={currentLevel}
         onChange={val => {
-          // Find the closest string level
+          // Find the closest number level
           const closest = levels.reduce((prev, curr) =>
-            Math.abs(parseFloat(curr) - val) < Math.abs(parseFloat(prev) - val) ? curr : prev
+            Math.abs(curr - val) < Math.abs(prev - val) ? curr : prev
           );
           onSettingsChange({
             ...settings,
@@ -409,85 +492,38 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
 
   // --- Format-specific settings ---
   const renderFormatSpecificSettings = () => {
-    const fs = settings.formatSpecific[format as keyof typeof settings.formatSpecific] || {};
-    switch (format) {
-      case 'mp4':
-      case 'mkv':
-      case 'mov':
-      case 'ts':
-      case 'mts': {
-        if (!fs) return null;
-        return (
-          <div className={styles.formatSpecificSettings}>
-            <h4>{format.toUpperCase()} Specific Settings</h4>
-            {renderProfileDropdown()}
-            {renderLevelSlider()}
-            {renderSpeedDropdown()}
-            <SettingsSlider
-              label="CRF (Quality):"
-              min={crfRange.min}
-              max={crfRange.max}
-              value={'crf' in fs ? fs.crf : crfRange.default}
-              onChange={val =>
-                onSettingsChange({
-                  ...settings,
-                  formatSpecific: {
-                    ...settings.formatSpecific,
-                    [format as keyof typeof settings.formatSpecific]: { ...fs, crf: val }
-                  }
-                })
-              }
-              valueDisplay={'crf' in fs ? fs.crf : crfRange.default}
-            />
-            <SettingsSlider
-              label="Bitrate:"
-              min={BITRATE_MIN}
-              max={BITRATE_MAX}
-              step={BITRATE_STEP}
-              value={parseInt(fs.bitrate)}
-              onChange={val =>
-                onSettingsChange({
-                  ...settings,
-                  formatSpecific: {
-                    ...settings.formatSpecific,
-                    [format as keyof typeof settings.formatSpecific]: { ...fs, bitrate: val.toString() }
-                  }
-                })
-              }
-              valueDisplay={`${(parseInt(fs.bitrate) / 1000).toFixed(1)}M`}
-            />
-          </div>
-        );
-      }
-      case 'webm': {
-        if (!fs) return null;
-        return (
-          <div className={styles.formatSpecificSettings}>
-            <h4>WEBM Specific Settings</h4>
-            {renderSpeedDropdown()}
-            <SettingsSlider
-              label="Bitrate (Mbps):"
-              min={BITRATE_MIN}
-              max={BITRATE_MAX}
-              step={BITRATE_STEP}
-              value={parseInt(fs.bitrate)}
-              onChange={val =>
-                onSettingsChange({
-                  ...settings,
-                  formatSpecific: {
-                    ...settings.formatSpecific,
-                    webm: { ...fs, bitrate: val.toString() }
-                  }
-                })
-              }
-              valueDisplay={`${(parseInt(fs.bitrate) / 1000).toFixed(1)}M`}
-            />
-          </div>
-        );
-      }
-      default:
-        return null;
+    const format = selectedFormat.toLowerCase() as VideoFormat;
+    
+    // Early return if not a supported format
+    if (!['mp4', 'webm', 'mkv', 'mov', 'ts', 'mts'].includes(format)) {
+      return null;
     }
+    
+    const fs = settings.formatSpecific[format as keyof typeof settings.formatSpecific];
+    const codec = settings.codec;
+    const codecDefaults = codec ? CODEC_DEFAULTS[codec as keyof typeof CODEC_DEFAULTS] : null;
+    
+    return (
+      <div className={styles.formatSpecificSettings}>
+        <h4>{format.toUpperCase()} Specific Settings</h4>
+        
+        {/* Profile dropdown - only for formats that support profiles */}
+        {hasProfile(format) && codecDefaults?.profiles && renderProfileDropdown()}
+        
+        {/* Level slider - only for formats that support levels */}
+        {hasProfile(format) && LEVELS[codec] && renderLevelSlider()}
+        
+        {/* Speed dropdown - all formats have this */}
+        {renderSpeedDropdown()}
+        
+        {/* CRF slider - only for formats that support CRF */}
+        {hasCrf(format) && codecDefaults?.crfRange && 
+          renderCrfSlider(format, fs, codecDefaults.crfRange)}
+        
+        {/* Bitrate slider - all formats have this */}
+        {renderBitrateSlider(format, fs)}
+      </div>
+    );
   };
 
   return (
