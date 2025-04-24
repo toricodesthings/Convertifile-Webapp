@@ -75,7 +75,7 @@ body.navbar-mobile-active .app-content {
   --mediapage-bg: url('/mediapage/bgdark.webp');
   --docpage-bg: url('/docpage/bgdark.webp');
 
-  --bg: url('/bgdark.webp');
+  --bg: url('/bgdark.png');
 
   --bg-color: rgb(0, 0, 0);
   --bg-color-rgb: 0, 0, 0;
