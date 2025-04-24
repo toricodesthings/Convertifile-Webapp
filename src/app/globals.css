@@ -20,12 +20,11 @@ section::before {
   background-attachment: fixed;
 }
 
-/* App container layout - fix flex layout */
 .app-container {
   background-color: rgba(var(--bg-color-rgb),0.5);
   display: flex;
   flex-direction: column;
-  height: 100%;/* Use min-height instead of height */
+  height: 100%;
   width: 100%;
 }
 
@@ -40,30 +39,21 @@ section::before {
   z-index: -1;
   background-position: 50% 50%;
   background-size: 127.5% 100%;
-  /* Add animation for reveal */
   animation: bgRevealDown 1s cubic-bezier(0.3, 0, 0.2, 1) forwards;
-  /* Start with hidden clip-path */
   clip-path: inset(0 0 100% 0);
 }
 
 /* Content area with proper spacing - remove unwanted margin */
 .app-content {
   flex: 1;
+  margin-top: -1.5vh;
   width: 100%;
   transition: padding-top 0.3s ease;
-  margin-top: 0;
 }
 
 /* Only add padding when navbar is active in mobile view */
 body.navbar-mobile-active .app-content {
   padding-top: clamp(86px, 15vh, 140px);
-}
-
-/* Media query for mobile adjustments */
-@media (max-width: 768px), (orientation: portrait) {
-  .app-container {
-    position: relative;
-  }
 }
 
 /*Ooo Colors*/
@@ -82,7 +72,7 @@ body.navbar-mobile-active .app-content {
 
   --text-color: white;
   --note-color: rgb(196, 196, 196);
-  --text-color-rgb: 255, 255, 255 !important;
+  --text-color-rgb: 255, 255, 255;
   --invert-text-color: rgb(0, 0, 0);
   --invert-color-reverse: 1;
   --base-gradient: linear-gradient(
@@ -196,7 +186,7 @@ body.navbar-mobile-active .app-content {
 @keyframes popIn {
   0% {
     opacity: 0;
-    transform: scale(0.97) translateY(-10px);
+    transform: scale(0.98) translateY(20px);
   }
   100% {
     opacity: 1;
@@ -213,5 +203,24 @@ body.navbar-mobile-active .app-content {
   100% {
     opacity: 0.3;
     clip-path: inset(0 0 0 0);
+  }
+}
+
+@media (max-width: 768px), (orientation: portrait) {
+  .app-container {
+    position: relative;
+  }
+  
+  html.dark, html.dark body {
+    --bg: url('/bgmobiledark.png') !important;
+  }
+  
+  html.light, html.light body {
+    --bg: url('/bgmobile.png') !important;
+  }
+  
+  .app-container::before {
+    background-image: var(--bg) !important;
+    background-size: cover !important;
   }
 }

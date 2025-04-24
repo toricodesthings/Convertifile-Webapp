@@ -111,7 +111,7 @@ const Navbar = () => {
           </div>
           <div className="pop-up">
             <li className={isActive('/vidgiftool') ? 'onpage' : ''}>
-              <Link href="/vidgiftool" onClick={isMobile ? toggleNav : undefined}>Gif Tool</Link>
+              <Link href="/giftool" onClick={isMobile ? toggleNav : undefined}>Gif Tool</Link>
             </li>
           </div>
         </ul>

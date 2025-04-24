@@ -4,7 +4,7 @@
     display: flex;
     justify-content: space-between;
     background: transparent;
-    margin-bottom: 2vh;
+    margin-bottom: 1.5vh;
 }
 
 /* Loading indicator styles */
@@ -74,7 +74,8 @@
     width: 70vw;
     height: auto;
     z-index: 1;
-    opacity: 0.2;
+    opacity: 0.15;
+    filter: invert(var(--invert-color));
 }
 
 .cloud-left {
@@ -89,12 +90,12 @@
 
 /* Apply cloud animations only after background is loaded */
 .animate-cloud.cloud-left {
-    animation: cloudLeftMove 2s cubic-bezier(0.2, 0, 0.2, 1) forwards;
+    animation: cloudLeftMove 2s cubic-bezier(0.2, 0, 0.3, 1) forwards;
     animation-delay: 0.2s;
 }
 
 .animate-cloud.cloud-right {
-    animation: cloudRightMove 2s cubic-bezier(0.2, 0, 0.2, 1) forwards;
+    animation: cloudRightMove 2s cubic-bezier(0.2, 0, 0.3, 1) forwards;
     animation-delay: 0.2s;
 }
 
