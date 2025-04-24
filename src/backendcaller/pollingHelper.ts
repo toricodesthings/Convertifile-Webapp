@@ -39,6 +39,10 @@ export function pollTaskStatus({
   let statusCheckInterval: NodeJS.Timeout | null = null;
   let retryCount = 0;
 
+  const BASE_URL = 'https://utility.toridoesthings.xyz/convertifile';
+  const STATUS_URL = `${BASE_URL}/status/${taskId}`;
+  const RESULT_URL = `${BASE_URL}/result/${taskId}`;
+
   return new Promise((resolve, reject) => {
     const updateStatus = (msg: string) => {
       setConversionStatus(prev => {
@@ -47,6 +51,7 @@ export function pollTaskStatus({
         return updated;
       });
     };
+
     const updateProgress = (progress: number) => {
       setConversionProgress(prev => {
         const updated = [...prev];
@@ -54,6 +59,7 @@ export function pollTaskStatus({
         return updated;
       });
     };
+
     const setResult = (fileUrl: string, fileName: string) => {
       setConversionResults(prev => {
         const updated = [...prev];
@@ -64,16 +70,16 @@ export function pollTaskStatus({
 
     const checkFileExists = async () => {
       try {
-        const fileCheckResponse = await fetch(
-          `http://localhost:8000/convertifileapp/result/${taskId}`,
-          { method: 'HEAD', mode: 'cors', credentials: 'include' }
-        );
+        const fileCheckResponse = await fetch(RESULT_URL, {
+          method: 'HEAD',
+          mode: 'cors',
+          credentials: 'include'
+        });
         if (fileCheckResponse.ok) {
           clearInterval(Number(statusCheckInterval));
           updateStatus('Conversion completed!');
           const fileName = `${file.name.split('.')[0]}.${format}`;
-          const fileUrl = `http://localhost:8000/convertifileapp/result/${taskId}`;
-          setResult(fileUrl, fileName);
+          setResult(RESULT_URL, fileName);
           resolve(true);
           return true;
         }
@@ -88,16 +94,16 @@ export function pollTaskStatus({
       if (!statusData.meta?.message) updateStatus('Completed!');
       if (!statusData.meta?.progress) updateProgress(100);
       const fileName = (statusData.filename ?? statusData.original_name) ?? `${file.name.split('.')[0]}.${format}`;
-      const fileId = statusData.file_id ?? (taskId ? taskId : '');
-      const fileUrl = `http://localhost:8000/convertifileapp/result/${fileId}`;
+      const fileId = statusData.file_id ?? taskId;
+      const fileUrl = `${BASE_URL}/result/${fileId}/`;
       setResult(fileUrl, fileName);
       resolve(true);
     };
 
     const handleFailed = (statusData: TaskStatus) => {
       clearInterval(Number(statusCheckInterval));
-      const errorMsg = (statusData.meta?.message ?? (statusData.error) ?? statusData.traceback) || 'Unknown error';
-      if (!statusData.meta?.message) updateStatus(`Failed: ${errorMsg}`);
+      const errorMsg = statusData.meta?.message ?? statusData.error ?? statusData.traceback ?? 'Unknown error';
+      updateStatus(`Failed: ${errorMsg}`);
       resolve(false);
     };
 
@@ -133,13 +139,14 @@ export function pollTaskStatus({
       }
 
       try {
-        const statusResponse = await fetch(`http://localhost:8000/convertifileapp/status/${taskId}`, {
+        const statusResponse = await fetch(STATUS_URL, {
           method: 'GET',
           mode: 'cors',
           credentials: 'include',
           headers: {
             'Accept': 'application/json'
-          }
+          },
+          redirect: 'follow'  // Explicitly follow redirects
         });
 
         if (!statusResponse.ok) {

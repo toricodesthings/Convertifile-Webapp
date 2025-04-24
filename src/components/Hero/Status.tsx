@@ -7,7 +7,6 @@ export interface ServerStatusType {
   isOnline: boolean;
 }
 
-// Accept styles as a prop to use the same styling from the Hero component
 const ServerStatus = ({ styles }: { styles: Record<string, string> }) => {
   const [status, setStatus] = useState<ServerStatusType>({
     status: 'Connecting...',
@@ -17,11 +16,13 @@ const ServerStatus = ({ styles }: { styles: Record<string, string> }) => {
   useEffect(() => {
     const checkServerStatus = async () => {
       try {
-        const response = await fetch('http://localhost:8000/convertifileapp/health', {
+        const response = await fetch('https://utility.toridoesthings.xyz/convertifile/health', {
           method: 'GET',
           headers: {
             'Accept': 'application/json',
           },
+          mode: 'cors',
+          credentials: 'include',
         });
         
         if (response.ok) {
@@ -31,7 +32,7 @@ const ServerStatus = ({ styles }: { styles: Record<string, string> }) => {
           });
         } else {
           setStatus({
-            status: 'Error',
+            status: 'Server Error',
             isOnline: false
           });
         }
@@ -44,7 +45,6 @@ const ServerStatus = ({ styles }: { styles: Record<string, string> }) => {
       }
     };
 
-    // Check immediately when component mounts
     void checkServerStatus();
     
     // Set up interval to check periodically (every 30 seconds)
@@ -52,7 +52,6 @@ const ServerStatus = ({ styles }: { styles: Record<string, string> }) => {
       void checkServerStatus();
     }, 30000);
     
-    // Clean up interval on component unmount
     return () => { clearInterval(intervalId); };
   }, []);
 
