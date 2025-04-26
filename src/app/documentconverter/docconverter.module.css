@@ -6,6 +6,7 @@
   height: 100%;
   justify-content: flex-start;
   gap: 5vh;
+  padding-top: 1.5vh;
   margin: 0 auto;
 }
 
@@ -18,7 +19,6 @@
   0 0 1px rgba(var(--subtle-glow-rgb-2), 0.5);
   overflow: hidden;
   white-space: nowrap;
-  margin: 0 auto;
   animation: typing 1.2s steps(40, end);
   border-right: 3px solid transparent;
 }

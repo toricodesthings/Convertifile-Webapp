@@ -22,7 +22,7 @@ type FileSettings = AudioFileSettings | VideoFileSettings;
 const AVAILABLE_FORMATS = [["mp4", "webm", "mkv", "mov", "avi", "wmv", "flv", "ts", "mts"], ["mp3", "ogg", "opus", "aac", "m4a", "flac", "alac", "wav", "aiff", "wma", "amr", "ac3"]];
 const MAX_FILE_SIZE_MB = [1024, 512]; // 1GB for video, 512MB for audio
 const MAX_FILE_SIZE_BYTES = [MAX_FILE_SIZE_MB[0] * 1024 * 1024, MAX_FILE_SIZE_MB[1] * 1024 * 1024]; // Convert MB to bytes
-const MAX_FILES_COUNT = 5;
+const MAX_FILES_COUNT = 3;
 
 // Default settings for audio and video
 const audioDefaultSettings: AudioFileSettings = {

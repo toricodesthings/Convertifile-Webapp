@@ -145,7 +145,7 @@ const FileUploader: React.FC<FileUploaderProps> = ({
                 {availableFormats[1].join(", ").toUpperCase()}
               </span>
             </span>
-            {" "}| Max: {counts} files | {formatSize(sizes[0])}/{formatSize(sizes[1])} per Video/Audio | Deletes after 15 Minutes
+            {" "}| Max: {counts} files | {formatSize(sizes[0])}/{formatSize(sizes[1])} per Video/Audio | Files are deleted after 15 Minutes
           </>
         ) : uploaderType === 'document' && noteLabels[0] === 'Documents' ? (
           <>
@@ -198,7 +198,7 @@ const FileUploader: React.FC<FileUploaderProps> = ({
           }
         `}</style>
             </span>
-            {" "}| Max: {counts} files | {formatSize(sizes[0])} per Document | Deletes after 15 Minutes
+            {" "}| Max: {counts} files | {formatSize(sizes[0])} per Document | Files are deleted after 15 Minutes
           </>
         ) : (
           <>
@@ -251,7 +251,7 @@ const FileUploader: React.FC<FileUploaderProps> = ({
           }
         `}</style>
             </span>
-            {" "}| Max: {counts} files | {formatSize(sizes[0])} per Image | Deletes after 15 Minutes
+            {" "}| Max: {counts} files | {formatSize(sizes[0])} per Image | Files are deleted after 15 Minutes
           </>
         )}
       </p>
