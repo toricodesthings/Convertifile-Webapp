@@ -37,8 +37,8 @@ export default function HomeClient() {
     let darkLoaded = false;
     let lightLoaded = false;
 
-    darkBackground.src = '/mainpage/backgrounddark.png';
-    lightBackground.src = '/mainpage/backgroundlight.png';
+    darkBackground.src = '/mainpage/backgrounddark.webp';
+    lightBackground.src = '/mainpage/backgroundlight.webp';
 
     const checkAllLoaded = () => {
       if (darkLoaded && lightLoaded) {

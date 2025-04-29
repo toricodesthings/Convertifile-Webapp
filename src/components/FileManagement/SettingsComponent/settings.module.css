@@ -40,7 +40,6 @@
 
 .settingsTitle .gearIcon {
   max-height: 2rem;
-  stroke: var(--text-color);
 }
 
 .settingsfileName {

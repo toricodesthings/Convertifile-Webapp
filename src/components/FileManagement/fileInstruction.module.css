@@ -4,21 +4,47 @@
   justify-content: space-between;
   gap: 5vh;
   display: flex;
+  align-items: center;
   flex-direction: column;
 }
 
 .fileList {
   padding: 0 2px;
-  align-self: center;
   width: 50vw;
   overflow-x: hidden;
   overflow-y: auto;
-  border-radius: 8px;
+  min-height: auto;
+  max-height: 100%; 
+  flex: 0 1 auto;
+  border-radius: 12px;
+
+  scrollbar-width: thin; 
+  scrollbar-color: rgba(var(--highlight-rgb), 0.8) rgba(var(--bg-color-rgb),0.1);
+}
+
+.fileList::-webkit-scrollbar {
+  width: 10px;
+  background: transparent;
+}
+
+.fileList::-webkit-scrollbar-track {
+  background: rgba(var(--bg-color-rgb),0.1);
+  border-radius: 12px;
+}
+
+.fileList::-webkit-scrollbar-thumb {
+  background: rgba(var(--highlight-rgb), 0.5);
+  border-radius: 12px;
+  transition: all 0.3s ease;
+}
+
+.fileList::-webkit-scrollbar-thumb:hover {
+  background: rgba(var(--hover-state-rgb), 0.7);
 }
 
 .fileTitle {
   width: 100%;
-  font-size: clamp(1.5rem, 2vw, 3rem);
+  font-size: clamp(2rem, 2vw, 3rem);
   text-align: center;
   color: rgba(var(--highlight-rgb), 1);
   position: relative;

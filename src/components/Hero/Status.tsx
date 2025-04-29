@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from 'react';
 
+const HEALTH_CHECK_URL = 'https://utility.toridoesthings.xyz/convertifile/health';
+
 export interface ServerStatusType {
   status: string;
   isOnline: boolean;
@@ -16,7 +18,7 @@ const ServerStatus = ({ styles }: { styles: Record<string, string> }) => {
   useEffect(() => {
     const checkServerStatus = async () => {
       try {
-        const response = await fetch('https://utility.toridoesthings.xyz/convertifile/health', {
+        const response = await fetch(HEALTH_CHECK_URL, {
           method: 'GET',
           headers: {
             'Accept': 'application/json',
@@ -44,14 +46,14 @@ const ServerStatus = ({ styles }: { styles: Record<string, string> }) => {
         });
       }
     };
-
-    void checkServerStatus();
     
     // Set up interval to check periodically (every 30 seconds)
     const intervalId = setInterval(() => {
-      void checkServerStatus();
+      checkServerStatus().catch(console.error);
     }, 30000);
-    
+
+    void checkServerStatus();
+
     return () => { clearInterval(intervalId); };
   }, []);
 
