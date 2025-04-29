@@ -12,7 +12,7 @@ import videoIcon from '@/assets/main/video.svg';
 import imgIcon from '@/assets/main/image.svg';
 import docIcon from '@/assets/main/document.svg';
 
-const cloudImage = "/mainpage/transparentclouds.png"
+const cloudImage = "/mainpage/transparentclouds.webp"
 
 export default function HomeClient() {
   const [showAnimations, setShowAnimations] = useState(false);
