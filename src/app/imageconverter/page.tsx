@@ -400,7 +400,7 @@ const ImageConverterPage = () => {
   } = useDropzone({
     onDrop,
     accept: { 'image/*': [] },
-    noClick: true, // We'll use our own button for file dialog
+    noClick: true,
     multiple: true,
     maxSize: MAX_FILE_SIZE_BYTES
   });
