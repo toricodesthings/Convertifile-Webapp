@@ -62,6 +62,7 @@ interface SettingsModalProps {
   selectedFormat: string;
   onSettingsChange: (settings: FileSettings) => void;
   onApply: () => void;
+  onApplyAll: () => void;
 }
 
 interface GenericDropdownProps {
@@ -194,7 +195,8 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
   settings,
   selectedFormat,
   onSettingsChange,
-  onApply
+  onApply,
+  onApplyAll
 }) => {
   // Move state declarations before the conditional return
   const [codecOpen, setCodecOpen] = React.useState(false);
@@ -578,6 +580,13 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
         {/* Format-specific settings */}
         {renderFormatSpecificSettings()}
         <div className={styles.settingsButtons}>
+          <button
+            className={`${styles.applyButton} ${styles.applyAllButton}`}
+            onClick={onApplyAll}
+          >
+            <span>Apply to All {selectedFormat.toUpperCase()}</span>
+          </button>
+
           <button
             className={styles.applyButton}
             onClick={onApply}

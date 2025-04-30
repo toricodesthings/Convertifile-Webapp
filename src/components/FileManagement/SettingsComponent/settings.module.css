@@ -40,6 +40,7 @@
 
 .settingsTitle .gearIcon {
   max-height: 2rem;
+
 }
 
 .settingsfileName {
@@ -76,6 +77,7 @@
   transition: all 0.3s ease;
 }
 
+
 .applyButton span {
   transition: all 0.3s ease;
   font-size: 1rem;
@@ -106,8 +108,18 @@
   fill: rgba(var(--secondary-color-rgb), 1)
 }
 
+.applyAllButton {
+  background-color: rgba(var(--border-color-rgb), 0.3);
+  border: 2px solid rgba(var(--border-color-rgb), 0.6);
+}
+
+.applyAllButton:hover {
+  background-color: rgba(var(--border-color-rgb), 1);
+}
+
 .settingsButtons {
   display: flex;
+  gap: 0.5rem;
   justify-content: flex-end;
   margin-top: 20px;
 }

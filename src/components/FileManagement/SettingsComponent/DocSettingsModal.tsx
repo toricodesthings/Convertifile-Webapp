@@ -30,6 +30,7 @@ interface SettingsModalProps {
   selectedFormat: string;
   onSettingsChange: (settings: FileSettings) => void;
   onApply: () => void;
+  onApplyAll: () => void;
 }
 
 /**
@@ -45,7 +46,8 @@ const DocSettingsModal: React.FC<SettingsModalProps> = ({
   settings,
   selectedFormat,
   onSettingsChange,
-  onApply
+  onApply,
+  onApplyAll
 }) => {
   if (!isVisible) return null;
 
@@ -181,6 +183,13 @@ const DocSettingsModal: React.FC<SettingsModalProps> = ({
         </h3>
         {renderFormatSpecificSettings()}
         <div className={styles.settingsButtons}>
+          <button
+            className={`${styles.applyButton} ${styles.applyAllButton}`}
+            onClick={onApplyAll}
+          >
+            <span>Apply to All {selectedFormat.toUpperCase()}</span>
+          </button>
+
           <button
             className={styles.applyButton}
             onClick={onApply}

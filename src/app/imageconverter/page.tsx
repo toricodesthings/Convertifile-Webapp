@@ -135,6 +135,22 @@ const ImageConverterPage = () => {
       };
     }
   }, [showDropdown]);
+  
+  useEffect(() => {
+    if (showSettings) {
+      const handleEscapeKey = (event: KeyboardEvent) => {
+        if (event.key === 'Escape') {
+          // Close the modal without applying settings
+          setShowSettings(false);
+        }
+      };
+
+      document.addEventListener('keydown', handleEscapeKey);
+      return () => {
+        document.removeEventListener('keydown', handleEscapeKey);
+      };
+    }
+  }, [showSettings]);
 
   // Check whether file is an image and get its extension
   const getFileExtension = (filename: string): string => {
@@ -286,6 +302,22 @@ const ImageConverterPage = () => {
       updated[currentFileIndex] = { ...tempSettings };
       return updated;
     });
+    setShowSettings(false);
+  };
+
+  const handleApplyAll = () => {
+    const currentFormat = selectedFormats[currentFileIndex]; // Changed from editingFileIndex
+    const currentSettings = tempSettings; // Use tempSettings directly instead of fileSettings[editingFileIndex]
+    
+    // Apply these settings to all files with matching format
+    const updatedSettings = [...fileSettings];
+    selectedFormats.forEach((format, index) => {
+      if (format === currentFormat) {
+        updatedSettings[index] = {...currentSettings};
+      }
+    });
+    
+    setFileSettings(updatedSettings);
     setShowSettings(false);
   };
 
@@ -450,6 +482,7 @@ const ImageConverterPage = () => {
         selectedFormat={selectedFormats[currentFileIndex] || ''}
         onSettingsChange={setTempSettings}
         onApply={handleApplySettings}
+        onApplyAll={handleApplyAll}
       />
       
       {/* Render notifications */}

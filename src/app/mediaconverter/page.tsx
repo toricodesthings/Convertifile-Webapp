@@ -366,6 +366,23 @@ const MediaConverterPage = () => {
     setShowSettings(false);
   };
 
+
+  const handleApplyAll = () => {
+    const currentFormat = selectedFormats[currentFileIndex]; // Changed from editingFileIndex
+    const currentSettings = tempSettings; // Use tempSettings directly instead of fileSettings[editingFileIndex]
+    
+    // Apply these settings to all files with matching format
+    const updatedSettings = [...fileSettings];
+    selectedFormats.forEach((format, index) => {
+      if (format === currentFormat) {
+        updatedSettings[index] = {...currentSettings};
+      }
+    });
+    
+    setFileSettings(updatedSettings);
+    setShowSettings(false);
+  };
+
   const handleConvert = async () => {
     if (allConversionsComplete) {
       // Reset everything
@@ -522,6 +539,7 @@ const MediaConverterPage = () => {
           selectedFormat={selectedFormats[currentFileIndex] || ''}
           onSettingsChange={s => { setTempSettings(s as AudioFileSettings); }}
           onApply={handleApplySettings}
+          onApplyAll={handleApplyAll}
         />
       ) : mediaType === 'video' ? (
         <VideoSettingsModal
@@ -532,6 +550,7 @@ const MediaConverterPage = () => {
           selectedFormat={selectedFormats[currentFileIndex] || ''}
           onSettingsChange={s => { setTempSettings(s as VideoFileSettings); }}
           onApply={handleApplySettings}
+          onApplyAll={handleApplyAll}
         />
       ) : null}
 

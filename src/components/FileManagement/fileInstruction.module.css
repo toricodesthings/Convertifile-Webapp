@@ -10,14 +10,12 @@
 
 .fileList {
   padding: 0 2px;
+  margin: 0;
   width: 50vw;
   overflow-x: hidden;
   overflow-y: auto;
   min-height: auto;
-  max-height: 100%; 
-  flex: 0 1 auto;
   border-radius: 12px;
-
   scrollbar-width: thin; 
   scrollbar-color: rgba(var(--highlight-rgb), 0.8) rgba(var(--bg-color-rgb),0.1);
 }
@@ -51,6 +49,7 @@
   overflow: hidden;
   transition: all 0.3s ease;
   animation: titleFadeIn 0.3s cubic-bezier(0.23, 1, 0.320, 1) forwards;
+  flex-shrink: 0;
 }
 
 .fileTitle:hover {
