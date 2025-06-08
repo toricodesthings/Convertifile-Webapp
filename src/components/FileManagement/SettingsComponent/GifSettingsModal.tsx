@@ -25,7 +25,6 @@ interface SettingsModalProps {
   settings: FileSettings;
   onSettingsChange: (settings: FileSettings) => void;
   onApply: () => void;
-  onApplyAll: () => void;
 }
 
 /**
@@ -40,8 +39,7 @@ const GifSettingsModal: React.FC<SettingsModalProps> = ({
   fileSize,
   settings,
   onSettingsChange,
-  onApply,
-  onApplyAll
+  onApply
 }) => {
   const modalRef = useRef<HTMLDivElement>(null);
   const [tabIndex, setTabIndex] = useState(0);

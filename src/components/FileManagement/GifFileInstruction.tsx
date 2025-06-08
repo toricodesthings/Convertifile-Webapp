@@ -150,8 +150,6 @@ const GifFileInstruction: React.FC<GifFileInstructionProps> = ({
     const handleConvertClick = () => {
         onConvert(startTime, endTime);
     };
-
-    const safeFilename = file?.name || 'video.mp4';
     const trimmedDuration = endTime - startTime;
 
     return (

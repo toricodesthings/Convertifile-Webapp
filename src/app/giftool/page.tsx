@@ -2,7 +2,6 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { useDropzone } from 'react-dropzone';
-import Image from 'next/image';
 import styles from "./giftool.module.css";
 import { gifConvertFile } from '../../backendcaller/gifConverter';
 import GifSettingsModal, { FileSettings } from '../../components/FileManagement/SettingsComponent/GifSettingsModal';
@@ -37,17 +36,14 @@ const defaultSettings: FileSettings = {
  * 
  * @returns React component
  */
-const GifToolPage = () => {
-  // File management state
+const GifToolPage = () => {  // File management state
   const [file, setFile] = useState<File | null>(null);
   const [filesAdded, setFilesAdded] = useState(false);
-  const [selectedFormat, setSelectedFormat] = useState<string>('gif');
   const [fileSettings, setFileSettings] = useState<FileSettings>(defaultSettings);
   const [tempSettings, setTempSettings] = useState<FileSettings>({ ...defaultSettings });
   
   // UI references and drag-drop state
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [buttonsVisible, setButtonsVisible] = useState(true);
   
   // Conversion state
   const [isConverting, setIsConverting] = useState(false);
@@ -57,12 +53,10 @@ const GifToolPage = () => {
   const [allConversionsComplete, setAllConversionsComplete] = useState(false);
 
   // Settings state
-  const [showSettings, setShowSettings] = useState(false);
-    // Notification state
+  const [showSettings, setShowSettings] = useState(false);  // Notification state
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const notificationTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   // Video duration check state
-  const [isVideoDurationChecking, setIsVideoDurationChecking] = useState(false);
   const [videoDuration, setVideoDuration] = useState<number>(0);
 
   // Video trimming state
@@ -97,60 +91,46 @@ const GifToolPage = () => {
 
 const checkVideoDuration = (videoFile: File): Promise<number> => {
     return new Promise((resolve, reject) => {
-        setIsVideoDurationChecking(true);
-
         const videoElement = document.createElement('video');
         const videoURL = URL.createObjectURL(videoFile);
 
         videoElement.onloadedmetadata = () => {
             const duration = videoElement.duration;
             URL.revokeObjectURL(videoURL);
-            setIsVideoDurationChecking(false);
             setVideoDuration(duration);
             resolve(duration);
         };
 
         videoElement.onerror = () => {
             URL.revokeObjectURL(videoURL);
-            setIsVideoDurationChecking(false);
             reject(new Error('Unable to load video metadata'));
         };
 
         videoElement.src = videoURL;
     });
 };
-
   // Validate file and add to state
   const validateAndAddFile = async (videoFile: File) => {
-    let rejectedReason = '';
-
     // Check if the file is a video
     if (!videoFile.type.startsWith('video/')) {
-      rejectedReason = 'Not a video file';
       addNotification('Selected file is not a video. Please upload a video file.', 'error');
       return;
     }
 
     // Check file size
     if (videoFile.size > MAX_FILE_SIZE_BYTES) {
-      rejectedReason = `Exceeds ${MAX_FILE_SIZE_MB[0]}MB size limit`;
       addNotification(`The file is too large. Maximum allowed file size is ${MAX_FILE_SIZE_MB[0]}MB.`, 'error');
       return;
-    }
-
-    try {
+    }    try {
       // Check video duration
       const duration = await checkVideoDuration(videoFile);
       
       if (duration > MAX_VIDEO_DURATION) {
-        rejectedReason = `Video duration (${Math.ceil(duration)}s) exceeds ${MAX_VIDEO_DURATION}s limit`;
         addNotification(`Video is too long. Maximum duration allowed is ${MAX_VIDEO_DURATION} seconds.`, 'error');
         return;
       }
-      
-      // All checks passed, add the file
+        // All checks passed, add the file
       setFile(videoFile);
-      setSelectedFormat('gif'); // Always converting to GIF
       setFileSettings({ ...defaultSettings });
       setFilesAdded(true);
       
@@ -175,12 +155,10 @@ const checkVideoDuration = (videoFile: File): Promise<number> => {
   const handleButtonClick = () => {
     fileInputRef.current?.click();
   };
-
   // Handle clearing file
   const handleClearFile = () => {
     setFile(null);
     setFilesAdded(false);
-    setSelectedFormat('gif');
     setConversionStatus('');
     setConversionProgress(0);
     setConversionResult(null);
@@ -207,16 +185,10 @@ const checkVideoDuration = (videoFile: File): Promise<number> => {
     setFileSettings({ ...tempSettings });
     setShowSettings(false);
   };
-
   // Handle trim time changes
   const handleTrimChange = (startTime: number, endTime: number) => {
     setTrimStartTime(startTime);
     setTrimEndTime(endTime);
-  };
-
-  // Handle button click for conversion
-  const handleConvertClick = () => {
-    handleConvert();
   };
 
   // Handle conversion process
@@ -395,7 +367,6 @@ const checkVideoDuration = (videoFile: File): Promise<number> => {
         settings={tempSettings}
         onSettingsChange={setTempSettings}
         onApply={handleApplySettings}
-        onApplyAll={handleApplySettings}
       />
       
       {/* Render notifications */}
