@@ -11,7 +11,7 @@
   }
   
   .pageTitle {
-    font-size: clamp(2rem, 4vw, 3rem);
+    font-size: clamp(2rem, 2.5vw, 3rem);
     position: relative;
     text-align: center;
     color: var(--title-text-color);
@@ -27,63 +27,235 @@
     to { width: 100% }
   }
 
-  .spinner {
-    margin-top: 10vh;
-    width: 15vw;
-    height: 15vw;
-    --clr: rgb(237, 179, 230);
-    --clr-alpha: rgba(253, 222, 255, 0.1);
-    animation: spinner 1.6s infinite ease;
-    transform-style: preserve-3d;
+  .uploadSection {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  min-height: 65vh;
+  max-height: 70vh;
+  padding: max(2vh, 1vw);
+  border-radius: 24px;
+  position: relative;
+  box-shadow: 0 0px 4px rgba(var(--border-color-rgb, 0.1)), 
+              0 0px 6px rgba(var(--subtle-glow-rgb, 0.1)),
+              inset 0 0 4px 2px rgba(var(--subtle-glow-rgb-2), 0.1);
 
+  transition: all 0.3s ease;
+  opacity: 0;
+  transform: translateY(20px);
+  animation: var(--page-anim);
+}
+
+.dashed {
+  border: 1px dashed rgba(var(--contentborder-color-rgb), 0.5);
+}
+
+.solid {
+  border: 1px solid rgba(var(--contentborder-color-rgb), 0.5);
+}
+
+.uploadSection:hover {
+  box-shadow: 0 0px 2px rgba(var(--border-color-rgb, 0.1)), 
+              0 0px 4px rgba(var(--subtle-glow-rgb, 0.1)),
+              inset 0 0 10px 2px rgba(var(--subtle-glow-rgb-2), 0.3);
+}
+
+.uploadSection::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: var(--imagepage-bg);
+  background-size: cover;
+  background-position: center;
+  border-radius: 24px;
+  opacity: 0.4;
+  z-index: -1;
+}
+
+.uploadSection.dragging {
+  border-color: #5649c0;
+  background-color: rgba(108, 92, 231, 0.1);
+}
+
+.dropOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(var(--highlight-rgb), 0.6);
+  backdrop-filter: blur(4px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 8px;
+  z-index: 10;
+}
+
+.dropOverlay p {
+  color: white;
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.blurredContent {
+  filter: blur(4px);
+  pointer-events: none;
+}
+
+/* Video Placeholder Component */
+.videoPlaceholder {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: 1rem;
+  gap: 1.5rem;
+}
+
+.videoDetails {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.fileName {
+  font-size: 1rem;
+  color: var(--text-color);
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: center;
+}
+
+.videoDuration {
+  font-size: 0.9rem;
+  color: var(--text-pale);
+}
+
+.actionButtons {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.settingsButton, .deleteButton, .convertButton, .downloadButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.25rem;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+}
+
+.settingsButton {
+  background-color: rgba(var(--subtle-glow-rgb), 0.2);
+  color: var(--text-color);
+}
+
+.deleteButton {
+  background-color: rgba(255, 107, 107, 0.2);
+  color: rgb(255, 107, 107);
+}
+
+.convertButton {
+  background-color: rgba(var(--accent-rgb), 0.9);
+  color: white;
+}
+
+.downloadButton {
+  background-color: rgba(var(--accent-rgb), 0.9);
+  color: white;
+}
+
+.settingsButton:hover, .deleteButton:hover, .convertButton:hover, .downloadButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.settingsButton:disabled, .deleteButton:disabled, .convertButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.settingsButton svg, .deleteButton svg, .convertButton svg, .downloadButton svg {
+  width: 18px;
+  height: 18px;
+}
+
+.conversionStatus {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1rem;
+  background-color: rgba(var(--subtle-glow-rgb), 0.1);
+  border-radius: 8px;
+}
+
+.progressBarContainer {
+  width: 100%;
+  height: 8px;
+  background-color: rgba(var(--subtle-glow-rgb), 0.2);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progressBar {
+  height: 100%;
+  background-color: rgba(var(--accent-rgb), 0.9);
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+.conversionResult {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  width: 100%;
+}
+
+.gifPreview {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.gifPreview img {
+  max-width: 100%;
+  max-height: 30vh;
+  object-fit: contain;
+}
+
+@media (max-width: 768px) and (orientation: portrait) {
+  .container {
+    width: 90%;
   }
 
-  .spinner > div {
-    background-color: var(--clr-alpha);
-    height: 100%;
-    position: absolute;
+  .uploadSection {
+    min-height: 65vh;
+    max-height: 75vh;
+  }
+  
+  .actionButtons {
+    flex-direction: column;
     width: 100%;
-    border: 3.5px solid var(--clr);
   }
-
-  .spinner div:nth-of-type(1) {
-    transform: translateZ(-7.5vw) rotateY(180deg);
+  
+  .settingsButton, .deleteButton, .convertButton, .downloadButton {
+    width: 100%;
   }
-
-  .spinner div:nth-of-type(2) {
-    transform: rotateY(-270deg) translateX(50%);
-    transform-origin: top right;
-  }
-
-  .spinner div:nth-of-type(3) {
-    transform: rotateY(270deg) translateX(-50%);
-    transform-origin: center left;
-  }
-
-  .spinner div:nth-of-type(4) {
-    transform: rotateX(90deg) translateY(-50%);
-    transform-origin: top center;
-  }
-
-  .spinner div:nth-of-type(5) {
-    transform: rotateX(-90deg) translateY(50%);
-    transform-origin: bottom center;
-  }
-
-  .spinner div:nth-of-type(6) {
-    transform: translateZ(7.5vw);
-  }
-
-  @keyframes spinner {
-    0% {
-      transform: rotate(45deg) rotateX(-25deg) rotateY(25deg);
-    }
-
-    50% {
-      transform: rotate(45deg) rotateX(-385deg) rotateY(25deg);
-    }
-
-    100% {
-      transform: rotate(45deg) rotateX(-385deg) rotateY(385deg);
-    }
-  }
+}

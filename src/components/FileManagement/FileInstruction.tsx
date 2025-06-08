@@ -86,7 +86,6 @@ const FileInstruction: React.FC<FileInstructionProps> = ({
           {buttonsVisible && (
             <div className={isConverting ? styles.hiddenButton : ''}>
               <button className={styles.binButton} onClick={handleClearFiles} disabled={isConverting}>
-                {/* ...existing SVGs for bin... */}
                 <svg
                   className={styles.binTop}
                   viewBox="0 0 39 7"
