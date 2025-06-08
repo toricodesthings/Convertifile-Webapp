@@ -2,9 +2,8 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { useDropzone } from 'react-dropzone';
+import Image from 'next/image';
 import styles from "./giftool.module.css";
-import fileItemStyles from "../../components/FileManagement/fileItem.module.css";
-import uploadButtonStyles from "../../components/FileManagement/uploadButton.module.css";
 import { gifConvertFile } from '../../backendcaller/gifConverter';
 import GifSettingsModal, { FileSettings } from '../../components/FileManagement/SettingsComponent/GifSettingsModal';
 import FileUploader from '../../components/FileManagement/FileUploader';
@@ -388,9 +387,7 @@ const checkVideoDuration = (videoFile: File): Promise<number> => {
             noteLabels={['Video']}
           />
         )}
-      </section>
-
-      {/* Settings Modal Component */}
+      </section>      {/* Settings Modal Component */}
       <GifSettingsModal
         isVisible={showSettings}
         fileName={file?.name || ''}
@@ -398,9 +395,7 @@ const checkVideoDuration = (videoFile: File): Promise<number> => {
         settings={tempSettings}
         onSettingsChange={setTempSettings}
         onApply={handleApplySettings}
-        onApplyAll={() => {
-          handleApplySettings();
-        }}
+        onApplyAll={handleApplySettings}
       />
       
       {/* Render notifications */}
